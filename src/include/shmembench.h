@@ -5,9 +5,7 @@
 #ifndef SHMEMBENCH_H
 #define SHMEMBENCH_H
 
-
 #include <shmem.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -22,7 +20,7 @@
 
 #define HLINE "--------------------------------------------"
 
-#ifdef _cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -31,15 +29,26 @@ extern "C" {
   @brief Struct to hold runtime options
  */
 typedef struct {
-  bool cxx;             /**< Flag to enable C/C++ version of the tests */
-  bool c11;             /**< Flag to enable C11 version of the tests */
-  
-  bool shmem_put;       /**< Flag to enable shmem_put test */
-  bool shmem_p;         /**< Flag to enable shmem_p test */
-  
-  // TODO: add options of the rest of the tests and benchmark parameters
+  /* RMA options */
+  bool shmem_put; bool shmem_p; bool shmem_iput;
+  bool shmem_get; bool shmem_g; bool shmem_iget;
+  bool shmem_put_nbi; bool shmem_get_nbi;
+  /* Collective options */
+  bool shmem_alltoall; bool shmem_alltoalls;
+  bool shmem_broadcast;
+  bool shmem_collect; bool shmem_fcollect;
+  bool shmem_min_reduce; bool shmem_max_reduce;
 
-  bool help;            /**< Flag to display help message */
+  /* Option for which test to run */
+  char *benchtype;
+  
+  /* Benchmark parameter options */
+  int min_msg_size; /**< Minimum message size for benchmarks */
+  int max_msg_size; /**< Maximum message size for benchmarks */
+  int stride;
+
+  /* Option to print help */
+  bool help;
 } options;
 
 /**
@@ -77,8 +86,7 @@ void display_logo(void);
  */
 void display_header(char *shmem_name, char* shmem_version, int npes, char* benchmark);
 
-
-#ifdef _cplusplus
+#ifdef __cplusplus
 }
 #endif
 

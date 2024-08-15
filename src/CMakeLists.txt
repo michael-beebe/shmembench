@@ -18,8 +18,8 @@ link_directories(${CMAKE_LIBRARY_PATH})
 
 # ---- Collect source files
 set(SOURCES
-  main.cpp
-  shmembench.cpp
+  main.c
+  shmembench.c
 )
 
 # ---- Add the main executable
@@ -30,6 +30,7 @@ target_link_libraries(
   shmembench ${CMAKE_C_LINKER_FLAGS}
 
   # ============== Performance ==============
+  # TODO: include performance libraries here
 
 )
 

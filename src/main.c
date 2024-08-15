@@ -1,5 +1,5 @@
 /**
-  @file main.cpp
+  @file main.c
   @brief main driver file
  */
 
@@ -30,7 +30,8 @@ int main(int argc, char *argv[]) {
     if ( !(strstr(version, "1.5") != NULL) ) {
       if (mype == 0) {
         fprintf(stderr,
-          RED_COLOR "ERROR: OpenSHMEM v1.5 is required!" RESET_COLOR "\n"
+          RED_COLOR "ERROR: OpenSHMEM v1.5 is required!"
+          RESET_COLOR "\n"
         );
       }
       free(version);
@@ -45,7 +46,25 @@ int main(int argc, char *argv[]) {
     shmem_info_get_name(name);
   }
 
-  /* TODO: parse options */
+  /* Parse options */
+  options opts;
+  if (!parse_opts(argc, argv, &opts)) {
+    if (mype == 0) {
+      display_help();
+    }
+    shmem_finalize();
+    return EXIT_FAILURE;
+  }
+
+  /* Display help if requested */
+  shmem_barrier_all();
+  if (opts.help) {
+    if (mype == 0) {
+      display_help();
+    }
+    shmem_finalize();
+    return EXIT_SUCCESS;
+  }
 
   /* TODO: Display header */
 
