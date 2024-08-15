@@ -58,7 +58,8 @@ typedef struct {
   @param opts Reference to the test options structure.
   @return True if parsing is successful, false otherwise.
  */
-bool parse_opts(int argc, char *argv[], options *opts);
+bool parse_opts(int argc, char *argv[], options *opts,
+                char **benchmark, char **benchtype);
 
 /**
   @brief Displays usage information.
@@ -84,7 +85,8 @@ void display_logo(void);
  * @param npes Number of PEs (Processing Elements).
  * @param benchmark Selected benchmark
  */
-void display_header(char *shmem_name, char* shmem_version, int npes, char* benchmark);
+void display_header(char *shmem_name, char* shmem_version, int npes,
+                    char *benchmark, char *benchtype);
 
 #ifdef __cplusplus
 }

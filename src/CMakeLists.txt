@@ -40,7 +40,7 @@ set_target_properties(shmembench PROPERTIES
 )
 
 # ---- Add the performance directory
-add_subdirectory(performance)
+add_subdirectory(benchmarks)
 
 # ---- Install the main executable
 install(TARGETS shmembench

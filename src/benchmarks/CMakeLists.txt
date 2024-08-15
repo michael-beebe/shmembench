@@ -1,5 +1,5 @@
 #####################################
-# src/performance/CMakeLists.txt
+# src/benchmarks/CMakeLists.txt
 #####################################
 add_subdirectory(atomics)
 add_subdirectory(collectives)

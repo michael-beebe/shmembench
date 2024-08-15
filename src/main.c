@@ -13,15 +13,21 @@
   @return EXIT_SUCCESS on success, EXIT_FAILURE on failure.
 */
 int main(int argc, char *argv[]) {
+  /**********************************************/
   /* Start the OpenSHMEM instance */
+  /**********************************************/
   shmem_init();
   int mype = shmem_my_pe();
   int npes = shmem_n_pes();
   
+  /**********************************************/
   /* Display logo */
+  /**********************************************/
   if (mype == 0) { display_logo(); }
 
+  /**********************************************/
   /* Get the OpenSHMEM impl version */
+  /**********************************************/
   int major, minor;
   shmem_info_get_version(&major, &minor);
   char *version = (char *)malloc(16 * sizeof(char));
@@ -30,8 +36,8 @@ int main(int argc, char *argv[]) {
     if ( !(strstr(version, "1.5") != NULL) ) {
       if (mype == 0) {
         fprintf(stderr,
-          RED_COLOR "ERROR: OpenSHMEM v1.5 is required!"
-          RESET_COLOR "\n"
+          RED_COLOR "\nERROR: " RESET_COLOR
+          "OpenSHMEM v1.5 is required!\n\n"
         );
       }
       free(version);
@@ -40,15 +46,22 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  /**********************************************/
   /* Get the OpenSHMEM impl name */
+  /**********************************************/
   char *name = (char *)malloc(SHMEM_MAX_NAME_LEN * sizeof(char));
   if (name != NULL) {
     shmem_info_get_name(name);
   }
 
+  /**********************************************/
   /* Parse options */
+  /**********************************************/
   options opts;
-  if (!parse_opts(argc, argv, &opts)) {
+  char *benchmark = (char *)malloc(100 * sizeof(char));
+  char *benchtype = (char *)malloc(100 * sizeof(char));
+  int min, max; // TODO: add these to parse_opts() and display_header()
+  if (!parse_opts(argc, argv, &opts, &benchmark, &benchtype)) {
     if (mype == 0) {
       display_help();
     }
@@ -56,7 +69,9 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
+  /**********************************************/
   /* Display help if requested */
+  /**********************************************/
   shmem_barrier_all();
   if (opts.help) {
     if (mype == 0) {
@@ -66,14 +81,28 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
   }
 
-  /* TODO: Display header */
+  /**********************************************/
+  /* Display header */
+  /**********************************************/
+  shmem_barrier_all();
+  if (mype == 0) {
+    display_header(name, version, npes, benchmark, benchtype);
+  }
 
+  /**********************************************/
   /* TODO: Run benchmarks */
+  /**********************************************/
   
+
+
+  /**********************************************/
   /* Finalize the program */
+  /**********************************************/
   free(version);
   free(name);
+  free(benchmark);
+  free(benchtype);
   shmem_finalize();  
   return EXIT_SUCCESS;
-
 }
+

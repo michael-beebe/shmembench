@@ -1,5 +1,5 @@
 #####################################
-# src/performance/rma/CMakeLists.txt
+# src/benchmarks/rma/CMakeLists.txt
 #####################################
 # --- Set C standard
 set(CMAKE_C_STANDARD 11)
