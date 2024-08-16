@@ -7,8 +7,8 @@
 # set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # --- Specify C standard
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED True)
+# set(CMAKE_C_STANDARD 11)
+# set(CMAKE_C_STANDARD_REQUIRED True)
 
 # ---- Add include directories
 include_directories(${CMAKE_SOURCE_DIR}/src/include)
@@ -20,6 +20,7 @@ link_directories(${CMAKE_LIBRARY_PATH})
 set(SOURCES
   main.c
   shmembench.c
+  parse_opts.c
 )
 
 # ---- Add the main executable

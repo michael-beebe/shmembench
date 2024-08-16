@@ -4,7 +4,7 @@
  */
 
 #include "shmembench.h"
-#include "benchmarks.h"
+#include "parse_opts.h"
 
 /**
   @brief Main function for running the test suite.
@@ -60,8 +60,10 @@ int main(int argc, char *argv[]) {
   options opts;
   char *benchmark = (char *)malloc(100 * sizeof(char));
   char *benchtype = (char *)malloc(100 * sizeof(char));
-  int min, max; // TODO: add these to parse_opts() and display_header()
-  if (!parse_opts(argc, argv, &opts, &benchmark, &benchtype)) {
+  int min_msg_size, max_msg_size;
+  if (!parse_opts(argc, argv, &opts, &benchmark,
+                  &benchtype, &min_msg_size, &max_msg_size))
+  {
     if (mype == 0) {
       display_help();
     }
@@ -86,14 +88,18 @@ int main(int argc, char *argv[]) {
   /**********************************************/
   shmem_barrier_all();
   if (mype == 0) {
-    display_header(name, version, npes, benchmark, benchtype);
+    display_header(
+      name, version, npes,
+      benchmark, benchtype,
+      min_msg_size, max_msg_size
+    );
   }
 
   /**********************************************/
-  /* TODO: Run benchmarks */
+  /* Run benchmarks */
   /**********************************************/
-  
-
+  run_benchmark(benchmark, benchtype,
+                min_msg_size, max_msg_size);
 
   /**********************************************/
   /* Finalize the program */

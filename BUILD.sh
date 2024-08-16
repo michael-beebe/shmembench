@@ -33,4 +33,6 @@ if [ "$(which oshcc)" == "$HOME/sw/el9-x86_64/ompi/bin/oshcc" ]; then
   flags+=" --mca btl ^openib"
 fi
 flags="--bind-to core --map-by core"
-oshrun $flags -np 6 $exe --benchtype bw --shmem_put
+
+oshrun $flags -np 6 $exe --shmem_put --benchtype bw #--min 128 --max 1024
+
