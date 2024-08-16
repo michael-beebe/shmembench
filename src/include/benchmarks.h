@@ -1,5 +1,5 @@
 /**
-  @file benchmarks
+  @file benchmarks.h
   @brief 
 */
 

@@ -11,6 +11,7 @@
 #include <getopt.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include "benchmarks.h"
 
@@ -22,6 +23,8 @@
 
 #define HLINE "--------------------------------------------"
 
+#define NTIMES 100 // TODO: take this in at runtime instead
+
 /**
   @brief Run the selected benchmark
   @param benchtype Either bw, bibw, or latency
@@ -32,11 +35,43 @@ void run_benchmark(char *benchmark, char *benchtype,
                    int min_msg_size, int max_msg_size);
 
 /**
+  @brief Calculate bandwidth based on message size and time
+  @param size Message size for the test in bytes
+  @param time Time taken for the operation in microseconds
+  @return The calculated bandwidth in MB/s
+ */
+double calculate_bw(int size, double time);
+
+/**
+  @brief Calculate bidirectional bandwidth based on message size and time
+  @param size Message size for the test in bytes
+  @param time Time taken for the operation in microseconds
+  @return The calculated bidirectional bandwidth in MB/s
+  FIXME: this doesn't seem right
+ */
+double calculate_bibw(int size, double time);
+
+/**
+  @brief Calculate latency based on time
+  @param time Time taken for the operation in microseconds
+  @return The calculated latency in microseconds
+  */
+double calculate_latency(double time);
+
+/**
   @param times Time array for benchmark timings
   @param msg_size Message size array
   @param result BW/Latency array
+  @param benchtype bw, bibw, or latency
+  @param num_sizes Number of rows in the table
+  */
+void display_results(double *times, int *msg_size, double *results,
+                     const char *benchtype, int num_sizes);
+
+/**
+  @return Current time
  */
-void display_results(double *times, int *msg_size, double *result);
+double mysecond();
 
 /**
  @brief Displays the ASCII art logo.
