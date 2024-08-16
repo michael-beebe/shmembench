@@ -1,0 +1,227 @@
+/**
+  @file shmem_iget.c
+*/
+
+#include "shmem_iget.h"
+
+/*************************************************************
+  @brief Run the bandwidth benchmark for shmem_iget
+  @param min_msg_size Minimum message size for test in bytes
+  @param max_msg_size Maximum message size for test in bytes
+ *************************************************************/
+void bench_shmem_iget_bw(int min_msg_size, int max_msg_size) {
+  /* Check the number of PEs before doing anything */
+  if (!check_if_exactly_2_pes()) {
+    return;
+  }
+  
+  int *msg_sizes;
+  double *times, *bandwidths;
+  int num_sizes = 0;
+
+  /* Setup the benchmark */
+  setup_bench(min_msg_size, max_msg_size, &num_sizes,
+              &msg_sizes, &times, &bandwidths);
+
+  /* Run the benchmark */
+  for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
+    msg_sizes[i] = size;
+    
+    /* Source and destination arrays for the shmem_iget */
+    long *source = (long *)shmem_malloc(size * STRIDE * sizeof(long));
+    long *dest = (long *)shmem_malloc(size * STRIDE * sizeof(long));
+
+    /* Initialize source buffer */
+    for (int j = 0; j < size * STRIDE; j++) {
+      source[j] = j;
+    }
+
+    /* Initialize start and end time */
+    double start_time, end_time;
+
+    /* Sync PEs */
+    shmem_barrier_all();
+
+    /* Start timer */
+    start_time = mysecond();
+
+    /* Perform NTIMES shmem_igets */
+    for (int j = 0; j < NTIMES; j++) {
+      shmem_iget(dest, source, 1, STRIDE, size, 1);
+      shmem_quiet();
+    }
+
+    /* Stop timer */
+    end_time = mysecond();
+
+    /* Calculate average time per operation in useconds */
+    times[i] = (end_time - start_time) * 1e6 / NTIMES;
+
+    /* Calculate bandwidth */
+    bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
+
+    /* Free the buffers */
+    shmem_free(source);
+    shmem_free(dest);
+  }
+
+  /* Display results */
+  shmem_barrier_all();
+  if (shmem_my_pe() == 0) {
+    display_results(times, msg_sizes, bandwidths, "bw", num_sizes);
+  }
+  shmem_barrier_all();
+
+  /* Free memory */
+  free(msg_sizes);
+  free(times);
+  free(bandwidths);
+}
+
+/*************************************************************
+  @brief Run the bidirectional bandwidth benchmark for shmem_iget
+  @param min_msg_size Minimum message size for test in bytes
+  @param max_msg_size Maximum message size for test in bytes
+ *************************************************************/
+void bench_shmem_iget_bibw(int min_msg_size, int max_msg_size) {
+  /* Check the number of PEs before doing anything */
+  if (!check_if_exactly_2_pes()) {
+    return;
+  }
+
+  int *msg_sizes;
+  double *times, *bandwidths;
+  int num_sizes = 0;
+
+  /* Setup the benchmark */
+  setup_bench(min_msg_size, max_msg_size, &num_sizes,
+              &msg_sizes, &times, &bandwidths);
+
+  /* Run the benchmark */
+  for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
+    msg_sizes[i] = size;
+
+    /* Source and destination arrays for the shmem_iget */
+    long *source = (long *)shmem_malloc(size * STRIDE * sizeof(long));
+    long *dest = (long *)shmem_malloc(size * STRIDE * sizeof(long));
+
+    /* Initialize source buffer */
+    for (int j = 0; j < size * STRIDE; j++) {
+      source[j] = j;
+    }
+
+    /* Initialize start and end time */
+    double start_time, end_time;
+
+    /* Sync PEs */
+    shmem_barrier_all();
+
+    /* Start timer */
+    start_time = mysecond();
+
+    /* Perform NTIMES bidirectional shmem_igets */
+    for (int j = 0; j < NTIMES; j++) {
+      shmem_iget(dest, source, 1, STRIDE, size, 1); /* PE 0 sends to PE 1 */
+      shmem_iget(source, dest, 1, STRIDE, size, 0); /* PE 1 sends to PE 0 */
+      shmem_quiet();
+    }
+
+    /* Stop timer */
+    end_time = mysecond();
+
+    /* Calculate average time per operation in useconds */
+    times[i] = (end_time - start_time) * 1e6 / (2 * NTIMES);
+
+    /* Calculate bidirectional bandwidth */
+    bandwidths[i] = calculate_bibw(size * sizeof(long), times[i]);
+
+    /* Free the buffers */
+    shmem_free(source);
+    shmem_free(dest);
+  }
+
+  /* Display results */
+  shmem_barrier_all();
+  if (shmem_my_pe() == 0) {
+    display_results(times, msg_sizes, bandwidths, "bibw", num_sizes);
+  }
+  shmem_barrier_all();
+
+  /* Free memory */
+  free(msg_sizes);
+  free(times);
+  free(bandwidths);
+}
+
+/*************************************************************
+  @brief Run the latency benchmark for shmem_iget
+  @param min_msg_size Minimum message size for test in bytes
+  @param max_msg_size Maximum message size for test in bytes
+ *************************************************************/
+void bench_shmem_iget_latency(int min_msg_size, int max_msg_size) {
+  /* Check the number of PEs before doing anything */
+  if (!check_if_exactly_2_pes()) {
+    return;
+  }
+  
+  int *msg_sizes;
+  double *times, *latencies;
+  int num_sizes = 0;
+
+  /* Setup the benchmark */
+  setup_bench(min_msg_size, max_msg_size, &num_sizes,
+              &msg_sizes, &times, &latencies);
+
+  /* Run the benchmark */
+  for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
+    msg_sizes[i] = size;
+    
+    /* Source and destination arrays for the shmem_iget */
+    long *source = (long *)shmem_malloc(size * STRIDE * sizeof(long));
+    long *dest = (long *)shmem_malloc(size * STRIDE * sizeof(long));
+
+    /* Initialize source buffer */
+    for (int j = 0; j < size * STRIDE; j++) {
+      source[j] = j;
+    }
+
+    /* Initialize start and end time */
+    double start_time, end_time;
+
+    /* Sync PEs */
+    shmem_barrier_all();
+
+    /* Start timer */
+    start_time = mysecond();
+
+    /* Perform a single shmem_iget */
+    shmem_iget(dest, source, 1, STRIDE, size, 1);
+    shmem_quiet();
+
+    /* Stop timer */
+    end_time = mysecond();
+
+    /* Calculate latency for the single operation in microseconds */
+    times[i] = (end_time - start_time) * 1e6;
+
+    /* Record latency */
+    latencies[i] = times[i];
+
+    /* Free the buffers */
+    shmem_free(source);
+    shmem_free(dest);
+  }
+
+  /* Display results */
+  shmem_barrier_all();
+  if (shmem_my_pe() == 0) {
+    display_results(times, msg_sizes, latencies, "latency", num_sizes);
+  }
+  shmem_barrier_all();
+
+  /* Free memory */
+  free(msg_sizes);
+  free(times);
+  free(latencies);
+}
+

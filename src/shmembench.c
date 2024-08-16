@@ -19,7 +19,32 @@ benchmark_entry_t benchmark_table[] = {
   {"shmem_put", "bw", bench_shmem_put_bw},
   {"shmem_put", "bibw", bench_shmem_put_bibw},
   {"shmem_put", "latency", bench_shmem_put_latency},
-  // TODO: Add other benchmark  mappings here
+
+  {"shmem_get", "bw", bench_shmem_get_bw},
+  {"shmem_get", "bibw", bench_shmem_get_bibw},
+  {"shmem_get", "latency", bench_shmem_get_latency},
+
+  {"shmem_iput", "bw", bench_shmem_iput_bw},
+  {"shmem_iput", "bibw", bench_shmem_iput_bibw},
+  {"shmem_iput", "latency", bench_shmem_iput_latency},
+
+  {"shmem_iget", "bw", bench_shmem_iget_bw},
+  {"shmem_iget", "bibw", bench_shmem_iget_bibw},
+  {"shmem_iget", "latency", bench_shmem_iget_latency},
+
+  {"shmem_put_nbi", "bw", bench_shmem_put_nbi_bw},
+  {"shmem_put_nbi", "bibw", bench_shmem_put_nbi_bibw},
+  {"shmem_put_nbi", "latency", bench_shmem_put_nbi_latency},
+
+  {"shmem_get_nbi", "bw", bench_shmem_get_nbi_bw},
+  {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw},
+  {"shmem_get_nbi", "latency", bench_shmem_get_nbi_latency},
+
+  // {"shmem_alltoall", "bw", bench_shmem_alltoall_bw},
+  // {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw},
+  // {"shmem_broadcast", "bw", bench_shmem_broadcast_bw},
+  // {"shmem_collect", "bw", bench_shmem_collect_bw},
+  // {"shmem_fcollect", "bw", bench_shmem_fcollect_bw},
 };
 
 /*******************************************************************
@@ -60,7 +85,7 @@ double calculate_bw(int size, double time) {
   @return The calculated bidirectional bandwidth in MB/s
  *************************************************************/
 double calculate_bibw(int size, double time) {
-  return 2 * (size / (1024.0 * 1024.0)) / (time / 1e6);
+  return (2 * size / (1024.0 * 1024.0)) / (time / 1e6);
 }
 
 /*************************************************************

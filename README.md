@@ -24,6 +24,7 @@ Options:
   --shmem_iget            Enable shmem_iget benchmark
   --shmem_put_nbi         Enable shmem_put_nbi benchmark
   --shmem_get_nbi         Enable shmem_get_nbi benchmark
+  
   --shmem_alltoall        Enable shmem_alltoall benchmark
   --shmem_alltoalls       Enable shmem_alltoalls benchmark
   --shmem_broadcast       Enable shmem_broadcast benchmark
@@ -31,9 +32,6 @@ Options:
   --shmem_fcollect        Enable shmem_fcollect benchmark
 
   --benchtype <type>      Set the benchmark type (bw, bibw, latency)
-
-  --min <size>            Set the minimum message size in bytes (default: 1)
-  --max <size>            Set the maximum message size in bytes (default: 1024)
 
   --help                  Display this help message
 

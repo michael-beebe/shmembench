@@ -23,7 +23,9 @@
 
 #define HLINE "--------------------------------------------"
 
-#define NTIMES 100 // TODO: take this in at runtime instead
+#define NTIMES 1  // TODO: take this in at runtime instead
+#define STRIDE 10   // TODO: take this in at run time, find a good way to print it
+                    //       in the iput and iget tests
 
 /**
   @brief Run the selected benchmark

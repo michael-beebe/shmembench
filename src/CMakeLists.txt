@@ -32,6 +32,11 @@ target_link_libraries(
 
   # ============== Benchmarks libs ==============
   shmem_put
+  shmem_get
+  shmem_iput
+  shmem_iget
+  shmem_put_nbi
+  shmem_get_nbi
 
 )
 
