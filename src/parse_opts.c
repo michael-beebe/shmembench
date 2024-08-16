@@ -184,7 +184,7 @@ void display_help() {
   printf("\n\nThis program is a performance benchmark suite for "
           "OpenSHMEM Implementations\n");
 
-  printf("\nUsage:  shmembench [options]\n");
+  printf("\nUsage:  oshrun -np <num PEs> shmembench [options]\n");
 
   printf("\nOptions:\n");
   printf("  --shmem_put             Enable shmem_put benchmark\n");
@@ -211,5 +211,5 @@ void display_help() {
   printf("  --help                  Display this help message\n");
 
   printf("\nExample Usage:\n");
-  printf("   shmembench --shmem_put --benchtype bw --min 128 --max 1024\n\n");
+  printf("   oshrun -np 2 shmembench --shmem_put --benchtype bw --min 128 --max 1024\n\n");
 }

@@ -15,7 +15,7 @@ $ cmake \
 
 ## Running
 ```text
-Usage: shmembench [options]
+Usage:  oshrun -np <num PEs> shmembench [options]
 
 Options:
   --shmem_put             Enable shmem_put benchmark
@@ -42,6 +42,6 @@ Options:
   --help                  Display this help message
 
 Example Usage:
-  shmembench --shmem_put --benchtype bw --min 128 --max 1024
+   oshrun -np 2 shmembench --shmem_put --benchtype bw --min 128 --max 1024
 ```
 
