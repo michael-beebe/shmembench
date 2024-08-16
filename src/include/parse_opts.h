@@ -33,7 +33,6 @@ typedef struct {
   /* Benchmark parameter options */
   int min_msg_size;
   int max_msg_size;
-  int stride; // TODO: probably take this out
 
   /* Option to print help */
   bool help;

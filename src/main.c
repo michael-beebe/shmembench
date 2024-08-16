@@ -61,8 +61,10 @@ int main(int argc, char *argv[]) {
   char *benchmark = (char *)malloc(100 * sizeof(char));
   char *benchtype = (char *)malloc(100 * sizeof(char));
   int min_msg_size, max_msg_size;
-  if (!parse_opts(argc, argv, &opts, &benchmark,
-                  &benchtype, &min_msg_size, &max_msg_size))
+  shmem_barrier_all();
+  if (!parse_opts(
+          argc, argv, &opts, &benchmark,
+          &benchtype, &min_msg_size, &max_msg_size))
   {
     if (mype == 0) {
       display_help();
@@ -98,6 +100,7 @@ int main(int argc, char *argv[]) {
   /**********************************************/
   /* Run benchmarks */
   /**********************************************/
+  shmem_barrier_all();
   run_benchmark(benchmark, benchtype,
                 min_msg_size, max_msg_size);
 
@@ -108,7 +111,7 @@ int main(int argc, char *argv[]) {
   free(name);
   free(benchmark);
   free(benchtype);
+
   shmem_finalize();  
   return EXIT_SUCCESS;
 }
-

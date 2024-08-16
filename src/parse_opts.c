@@ -181,10 +181,35 @@ bool parse_opts(int argc, char *argv[], options *opts,
   Prints out the usage information and available options
  ******************************************************************/
 void display_help() {
-  printf("\nThis program is a performance benchmark suite for "
+  printf("\n\nThis program is a performance benchmark suite for "
           "OpenSHMEM Implementations\n");
 
   printf("\nUsage: shmemvv [options]\n");
+
   printf("\nOptions:\n");
-  // TODO: list the options
+  printf("  --shmem_put             Enable shmem_put benchmark\n");
+  printf("  --shmem_p               Enable shmem_p benchmark\n");
+  printf("  --shmem_iput            Enable shmem_iput benchmark\n");
+  printf("  --shmem_get             Enable shmem_get benchmark\n");
+  printf("  --shmem_g               Enable shmem_g benchmark\n");
+  printf("  --shmem_iget            Enable shmem_iget benchmark\n");
+  printf("  --shmem_put_nbi         Enable shmem_put_nbi benchmark\n");
+  printf("  --shmem_get_nbi         Enable shmem_get_nbi benchmark\n");
+  printf("  --shmem_alltoall        Enable shmem_alltoall benchmark\n");
+  printf("  --shmem_alltoalls       Enable shmem_alltoalls benchmark\n");
+  printf("  --shmem_broadcast       Enable shmem_broadcast benchmark\n");
+  printf("  --shmem_collect         Enable shmem_collect benchmark\n");
+  printf("  --shmem_fcollect        Enable shmem_fcollect benchmark\n");
+  printf("  --shmem_min_reduce      Enable shmem_min_reduce benchmark\n");
+  printf("  --shmem_max_reduce      Enable shmem_max_reduce benchmark\n");
+  printf("\n");
+  printf("  --benchtype <type>      Set the benchmark type (bw, bibw, latency)\n");
+  printf("\n");
+  printf("  --min <size>            Set the minimum message size in bytes (default: 1)\n");
+  printf("  --max <size>            Set the maximum message size in bytes (default: 1024)\n");
+  printf("\n");
+  printf("  --help                  Display this help message\n");
+
+  printf("\nExample Usage:\n");
+  printf("  shmemvv --shmem_put --benchtype bw --min 128 --max 1024\n\n");
 }
