@@ -1,8 +1,22 @@
-/**
-  @file shmembench.c
- */
-
 #include "shmembench.h"
+
+/* Function pointer type for benchmarks */
+typedef void (*benchmark_func_t)(int min_msg_size, int max_msg_size);
+
+/* Mapping of benchmarks and their types to functions */
+typedef struct {
+  const char *benchmark;
+  const char *benchtype;
+  benchmark_func_t func;
+} benchmark_entry_t;
+
+/* Dispatch table for benchmarks */
+benchmark_entry_t benchmark_table[] = {
+  {"shmem_put", "bw", bench_shmem_put_bw},
+  {"shmem_put", "bibw", bench_shmem_put_bibw},
+  {"shmem_put", "latency", bench_shmem_put_latency},
+  // TODO: Add other benchmark-function mappings here
+};
 
 /*******************************************************************
   @brief Run the selected benchmark
@@ -11,31 +25,36 @@
   @param max_msg_size Maximum message size for test in bytes
  *******************************************************************/
 void run_benchmark(char *benchmark, char *benchtype,
-                   int min_msg_size, int max_msg_size) {
-  /* shmem_put */
-  if (strcmp(benchmark, "shmem_put") == 0) {
-    if (strcmp(benchtype, "bw") == 0) {
-      // benchmark_shmem_put_bw(min_msg_size, max_msg_size);
-    } 
-    else if (strcmp(benchtype, "bibw") == 0) {
-      // benchmark_shmem_put_bibw(min_msg_size, max_msg_size);
-    }
-    else if (strcmp(benchtype, "latency") == 0) {
-      // benchmark_shmem_put_latency(min_msg_size, max_msg_size);
+                   int min_msg_size, int max_msg_size)
+{
+  for (int i = 0; i < sizeof(benchmark_table) / sizeof(benchmark_entry_t); i++) {
+    if (strcmp(benchmark, benchmark_table[i].benchmark) == 0 &&
+        strcmp(benchtype, benchmark_table[i].benchtype) == 0) {
+        benchmark_table[i].func(min_msg_size, max_msg_size);
+        return;
     }
   }
-  else if (strcmp(benchmark, "shmem_p") == 0) {
-    if (strcmp(benchtype, "bw") == 0) {
-      // benchmark_shmem_p_bw(min_msg_size, max_msg_size);
-    } 
-    else if (strcmp(benchtype, "bibw") == 0) {
-      // benchmark_shmem_p_bibw(min_msg_size, max_msg_size);
-    }
-    else if (strcmp(benchtype, "latency") == 0) {
-      // benchmark_shmem_p_latency(min_msg_size, max_msg_size);
-    }
+  if (shmem_my_pe() == 0) {
+    fprintf(stderr, "Error: Benchmark or benchtype not found.\n");
   }
 }
+
+/******************************************************************
+  @param times Time array for benchmark timings
+  @param msg_size Message size array
+  @param result BW/Latency array
+ ******************************************************************/
+void display_results(double *times, int *msg_size, double *result) {
+  // TODO: write print_results();
+}
+
+
+
+
+
+
+
+
 
 /*******************************************************************
  * @brief Displays the ASCII art logo.

@@ -32,6 +32,13 @@ void run_benchmark(char *benchmark, char *benchtype,
                    int min_msg_size, int max_msg_size);
 
 /**
+  @param times Time array for benchmark timings
+  @param msg_size Message size array
+  @param result BW/Latency array
+ */
+void display_results(double *times, int *msg_size, double *result);
+
+/**
  @brief Displays the ASCII art logo.
  This function prints out the ASCII art logo for the test suite.
  */
@@ -48,10 +55,10 @@ void display_logo(void);
   @param benchmark Selected benchmark
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
- TODO: probably add min and max message sizes to this
  */
 void display_header(char *shmem_name, char* shmem_version, int npes,
                     char *benchmark, char *benchtype,
                     int min_msg_size, int max_msg_size);
+
 
 #endif /* SHMEMBENCH_H */

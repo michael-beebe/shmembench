@@ -30,8 +30,8 @@ add_executable(shmembench ${SOURCES})
 target_link_libraries(
   shmembench ${CMAKE_C_LINKER_FLAGS}
 
-  # ============== Performance ==============
-  # TODO: include performance libraries here
+  # ============== Benchmarks libs ==============
+  shmem_put
 
 )
 
