@@ -59,6 +59,7 @@ double calculate_bibw(int size, double time);
 double calculate_latency(double time);
 
 /**
+  @brief Display benchmark results
   @param times Time array for benchmark timings
   @param msg_size Message size array
   @param result BW/Latency array
@@ -69,9 +70,34 @@ void display_results(double *times, int *msg_size, double *results,
                      const char *benchtype, int num_sizes);
 
 /**
+  @brief Get current time
   @return Current time
  */
-double mysecond();
+double mysecond(void);
+
+/**
+  @brief Check if there are exactly 2 PEs
+  @return True or false
+ */
+bool check_if_exactly_2_pes(void);
+
+/**
+  @brief Check if there are at least 2 PEs
+  @return True or false
+ */
+bool check_if_atleast_2_pes(void);
+
+/**
+  @brief Setup the benchmark by calculating the number of message sizes and allocating arrays
+  @param min_msg_size Minimum message size for the benchmark in bytes
+  @param max_msg_size Maximum message size for the benchmark in bytes
+  @param num_sizes Pointer to store the number of message sizes
+  @param msg_sizes Pointer to an array to store the message sizes
+  @param times Pointer to an array to store the timing results
+  @param results Pointer to an array to store the results (e.g., bandwidth or latency)
+*/
+bool setup_bench(int min_msg_size, int max_msg_size, int *num_sizes,
+                 int **msg_sizes, double **times, double **results);
 
 /**
  @brief Displays the ASCII art logo.

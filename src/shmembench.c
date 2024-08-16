@@ -19,7 +19,7 @@ benchmark_entry_t benchmark_table[] = {
   {"shmem_put", "bw", bench_shmem_put_bw},
   {"shmem_put", "bibw", bench_shmem_put_bibw},
   {"shmem_put", "latency", bench_shmem_put_latency},
-  // TODO: Add other benchmark-function mappings here
+  // TODO: Add other benchmark  mappings here
 };
 
 /*******************************************************************
@@ -90,26 +90,90 @@ void display_results(double *times, int *msg_size, double *results,
     printf("%-16s %-16s %-14s\n", "Message Size", "Avg Time (us)", "Avg MB/s");
   }
   else if (strcmp(benchtype, "latency") == 0) {
-    printf("%-16s %-16s %-14s\n", "Message Size", "Avg Time (us)", "Latency (us)");
+    printf("%-16s %-16s\n", "Message Size", "Latency (us)");
   }
 
   /* Print each row of the table */
   for (int i = 0; i < num_sizes; i++) {
-    printf("%-16d %-16.2f %-14.2f\n", msg_size[i], times[i], results[i]);
+    if (strcmp(benchtype, "latency") == 0) {
+      printf("%-16d %-16.2f\n", msg_size[i], results[i]);
+    } else {
+      printf("%-16d %-16.2f %-14.2f\n", msg_size[i], times[i], results[i]);
+    }
   }
-
-  // printf("==============================================\n");
+  
   printf("\n");
 }
 
 /******************************************************************
   @return Current time
  ******************************************************************/
-double mysecond() {
+double mysecond(void) {
   struct timeval tp;
   struct timezone tzp;
   int i = gettimeofday(&tp, &tzp);
   return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
+}
+
+/******************************************************************
+  @brief Check if there are exactly 2 PEs
+  @return True or false
+ ******************************************************************/
+bool check_if_exactly_2_pes(void) {
+  if (shmem_n_pes() != 2) {
+    if (shmem_my_pe() == 0) {
+      printf(RED_COLOR "\nERROR: " RESET_COLOR "This test requires"
+             " exactly 2 PEs!\n\n");
+    }
+    return false;
+  }
+  return true;
+}
+
+/******************************************************************
+  @brief Check if there are at least 2 PEs
+  @return True or false
+ ******************************************************************/
+bool check_if_atleast_2_pes(void) {
+  if (!(shmem_n_pes() >= 2)) {
+    if (shmem_my_pe() == 0) {
+      printf(RED_COLOR "\nERROR: " RESET_COLOR "This test requires"
+             " at least 2 PEs!\n\n");
+    }
+    return false;
+  }
+  return true;
+}
+
+/******************************************************************
+  @brief Setup the benchmark by calculating the number of message sizes and allocating arrays
+  @param min_msg_size Minimum message size for the benchmark in bytes
+  @param max_msg_size Maximum message size for the benchmark in bytes
+  @param num_sizes Pointer to store the number of message sizes
+  @param msg_sizes Pointer to an array to store the message sizes
+  @param times Pointer to an array to store the timing results
+  @param results Pointer to an array to store the results (e.g., bandwidth or latency)
+ ******************************************************************/
+bool setup_bench(int min_msg_size, int max_msg_size, int *num_sizes,
+                 int **msg_sizes, double **times, double **results) {
+  /* Determine the number of message sizes */
+  *num_sizes = 0;
+  for (int size = min_msg_size; size <= max_msg_size; size *= 2) {
+    (*num_sizes)++;
+  }
+
+  /* Allocate memory for arrays */
+  *msg_sizes = (int *)malloc(*num_sizes * sizeof(int));
+  *times = (double *)malloc(*num_sizes * sizeof(double));
+  *results = (double *)malloc(*num_sizes * sizeof(double));
+
+  if (msg_sizes == NULL || times == NULL || results == NULL ||
+      !(num_sizes > 0)) {
+    printf(RED_COLOR "\nERROR: " RESET_COLOR "Unable to set up test!\n\n");
+    return false;
+  }
+
+  return true;
 }
 
 /*******************************************************************
@@ -147,10 +211,12 @@ void display_header(char *shmem_name, char* shmem_version, int npes,
   printf("==============================================\n");
   printf("  OpenSHMEM Name:         %s\n", shmem_name);
   printf("  OpenSHMEM Version:      %s\n", shmem_version);
+  printf("\n");
   printf("  Number of PEs:          %d\n", npes);
   printf("  Benchmark:              %s\n", benchmark);
   printf("  Benchmark Type:         %s\n", benchtype);
   printf("  Min Msg Size (bytes):   %d\n", min_msg_size);
   printf("  Max Msg Size (bytes):   %d\n", max_msg_size);
   printf("  NTIMES:                 %d\n", NTIMES);
+  printf("\n");
 }
