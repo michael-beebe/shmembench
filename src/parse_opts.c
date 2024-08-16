@@ -184,7 +184,7 @@ void display_help() {
   printf("\n\nThis program is a performance benchmark suite for "
           "OpenSHMEM Implementations\n");
 
-  printf("\nUsage: shmemvv [options]\n");
+  printf("\nUsage:  shmembench [options]\n");
 
   printf("\nOptions:\n");
   printf("  --shmem_put             Enable shmem_put benchmark\n");
@@ -211,5 +211,5 @@ void display_help() {
   printf("  --help                  Display this help message\n");
 
   printf("\nExample Usage:\n");
-  printf("  shmemvv --shmem_put --benchtype bw --min 128 --max 1024\n\n");
+  printf("   shmembench --shmem_put --benchtype bw --min 128 --max 1024\n\n");
 }

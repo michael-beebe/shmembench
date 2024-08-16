@@ -34,5 +34,5 @@ if [ "$(which oshcc)" == "$HOME/sw/el9-x86_64/ompi/bin/oshcc" ]; then
 fi
 flags="--bind-to core --map-by core"
 
-oshrun $flags -np 6 $exe --shmem_put --benchtype bw --min 128 --max 1024
-# oshrun $flags -np 6 $exe --help
+# oshrun $flags -np 6 $exe --shmem_put --benchtype bw --min 128 --max 1024
+oshrun $flags -np 6 $exe --help
