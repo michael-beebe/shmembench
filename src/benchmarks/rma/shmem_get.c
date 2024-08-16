@@ -165,7 +165,7 @@ void bench_shmem_get_latency(int min_msg_size, int max_msg_size) {
   if (!check_if_exactly_2_pes()) {
     return;
   }
-  
+
   /* Stuff that will be used throughout the benchmark */
   int *msg_sizes;
   double *times, *latencies;
@@ -178,7 +178,7 @@ void bench_shmem_get_latency(int min_msg_size, int max_msg_size) {
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
     msg_sizes[i] = size;
-    
+
     /* Source and destination arrays for the shmem_get */
     long *source = (long *)shmem_malloc(size * sizeof(long));
     long *dest = (long *)shmem_malloc(size * sizeof(long));
@@ -188,24 +188,23 @@ void bench_shmem_get_latency(int min_msg_size, int max_msg_size) {
       source[j] = j;
     }
 
-    /* Initialize start and end time */
-    double start_time, end_time;
+    /* Initialize total time */
+    double total_time = 0.0;
 
     /* Sync PEs */
     shmem_barrier_all();
 
-    /* Start timer */
-    start_time = mysecond();
+    /* Perform NTIMES shmem_gets and accumulate total time */
+    for (int j = 0; j < NTIMES; j++) {
+      double start_time = mysecond();
+      shmem_get(dest, source, size, 1);
+      shmem_quiet();
+      double end_time = mysecond();
+      total_time += (end_time - start_time) * 1e6;
+    }
 
-    /* Perform a single shmem_get */
-    shmem_get(dest, source, size, 1);
-    shmem_quiet();
-
-    /* Stop timer */
-    end_time = mysecond();
-
-    /* Calculate latency for the single operation in microseconds */
-    times[i] = (end_time - start_time) * 1e6;
+    /* Calculate average latency per operation in microseconds */
+    times[i] = total_time / NTIMES;
 
     /* Record latency */
     latencies[i] = times[i];
@@ -227,3 +226,4 @@ void bench_shmem_get_latency(int min_msg_size, int max_msg_size) {
   free(times);
   free(latencies);
 }
+

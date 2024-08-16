@@ -1,0 +1,7 @@
+- Take in NTIMES and STRIDE at runtime
+  - Only print stride if the benchmark uses one
+
+- Change the benchmark functions for there's only
+  one benchark function for each routine and does
+  different things based on which benchtype was
+  selected

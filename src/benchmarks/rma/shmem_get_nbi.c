@@ -188,24 +188,23 @@ void bench_shmem_get_nbi_latency(int min_msg_size, int max_msg_size) {
       source[j] = j;
     }
 
-    /* Initialize start and end time */
-    double start_time, end_time;
+    /* Initialize total time */
+    double total_time = 0.0;
 
     /* Sync PEs */
     shmem_barrier_all();
 
-    /* Start timer */
-    start_time = mysecond();
+    /* Perform NTIMES shmem_get_nbi and accumulate total time */
+    for (int j = 0; j < NTIMES; j++) {
+      double start_time = mysecond();
+      shmem_get_nbi(dest, source, size, 1);
+      shmem_quiet();
+      double end_time = mysecond();
+      total_time += (end_time - start_time) * 1e6;
+    }
 
-    /* Perform a single shmem_get_nbi */
-    shmem_get_nbi(dest, source, size, 1);
-    shmem_quiet();
-
-    /* Stop timer */
-    end_time = mysecond();
-
-    /* Calculate latency for the single operation in microseconds */
-    times[i] = (end_time - start_time) * 1e6;
+    /* Calculate average latency per operation in microseconds */
+    times[i] = total_time / NTIMES;
 
     /* Record latency */
     latencies[i] = times[i];
@@ -227,3 +226,4 @@ void bench_shmem_get_nbi_latency(int min_msg_size, int max_msg_size) {
   free(times);
   free(latencies);
 }
+

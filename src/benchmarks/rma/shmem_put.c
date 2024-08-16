@@ -160,6 +160,11 @@ void bench_shmem_put_bibw(int min_msg_size, int max_msg_size) {
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
  *************************************************************/
+/*************************************************************
+  @brief Run the latency benchmark for shmem_put
+  @param min_msg_size Minimum message size for test in bytes
+  @param max_msg_size Maximum message size for test in bytes
+ *************************************************************/
 void bench_shmem_put_latency(int min_msg_size, int max_msg_size) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
@@ -188,24 +193,23 @@ void bench_shmem_put_latency(int min_msg_size, int max_msg_size) {
       source[j] = j;
     }
 
-    /* Initialize start and end time */
-    double start_time, end_time;
+    /* Initialize total time */
+    double total_time = 0.0;
 
     /* Sync PEs */
     shmem_barrier_all();
 
-    /* Start timer */
-    start_time = mysecond();
+    /* Perform NTIMES shmem_puts and accumulate total time */
+    for (int j = 0; j < NTIMES; j++) {
+      double start_time = mysecond();
+      shmem_put(dest, source, size, 1);
+      shmem_quiet();
+      double end_time = mysecond();
+      total_time += (end_time - start_time) * 1e6;
+    }
 
-    /* Perform a single shmem_put */
-    shmem_put(dest, source, size, 1);
-    shmem_quiet();
-
-    /* Stop timer */
-    end_time = mysecond();
-
-    /* Calculate latency for the single operation in microseconds */
-    times[i] = (end_time - start_time) * 1e6;
+    /* Calculate average latency per operation in microseconds */
+    times[i] = total_time / NTIMES;
 
     /* Record latency */
     latencies[i] = times[i];
@@ -227,4 +231,5 @@ void bench_shmem_put_latency(int min_msg_size, int max_msg_size) {
   free(times);
   free(latencies);
 }
+
 
