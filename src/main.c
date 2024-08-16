@@ -101,17 +101,6 @@ int main(int argc, char *argv[]) {
   /* Run benchmarks */
   /**********************************************/
   shmem_barrier_all();
-
-  /* 
-    TODO:
-    going to have to have some arrays for
-    storing metrics for different message sizes. 
-    i.e., time | message size | bandwidth/latency
-    ^ that's from the OSUmbs, maybe we do something
-    different
-  */
-    
-
   run_benchmark(
     benchmark, benchtype,
     min_msg_size, max_msg_size

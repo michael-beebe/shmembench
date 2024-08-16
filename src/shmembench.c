@@ -45,16 +45,8 @@ void run_benchmark(char *benchmark, char *benchtype,
   @param result BW/Latency array
  ******************************************************************/
 void display_results(double *times, int *msg_size, double *result) {
-  // TODO: write print_results();
+  // TODO: write display_results();
 }
-
-
-
-
-
-
-
-
 
 /*******************************************************************
  * @brief Displays the ASCII art logo.
