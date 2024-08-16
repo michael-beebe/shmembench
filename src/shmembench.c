@@ -101,7 +101,7 @@ void display_results(double *times, int *msg_size, double *results,
       printf("%-16d %-16.2f %-14.2f\n", msg_size[i], times[i], results[i]);
     }
   }
-  
+
   printf("\n");
 }
 
@@ -146,13 +146,15 @@ bool check_if_atleast_2_pes(void) {
 }
 
 /******************************************************************
-  @brief Setup the benchmark by calculating the number of message sizes and allocating arrays
+  @brief Setup the benchmark by calculating the number of message
+         sizes and allocating arrays
   @param min_msg_size Minimum message size for the benchmark in bytes
   @param max_msg_size Maximum message size for the benchmark in bytes
   @param num_sizes Pointer to store the number of message sizes
   @param msg_sizes Pointer to an array to store the message sizes
   @param times Pointer to an array to store the timing results
-  @param results Pointer to an array to store the results (e.g., bandwidth or latency)
+  @param results Pointer to an array to store the results
+                (e.g., bandwidth or latency)
  ******************************************************************/
 bool setup_bench(int min_msg_size, int max_msg_size, int *num_sizes,
                  int **msg_sizes, double **times, double **results) {

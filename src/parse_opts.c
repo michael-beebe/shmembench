@@ -33,10 +33,8 @@ bool parse_opts(int argc, char *argv[], options *opts,
   /* Define runtime options */
   static struct option long_options[] = {
     {"shmem_put", no_argument, 0, 0},
-    {"shmem_p", no_argument, 0, 0},
     {"shmem_iput", no_argument, 0, 0},
     {"shmem_get", no_argument, 0, 0},
-    {"shmem_g", no_argument, 0, 0},
     {"shmem_iget", no_argument, 0, 0},
     {"shmem_put_nbi", no_argument, 0, 0},
     {"shmem_get_nbi", no_argument, 0, 0},
@@ -45,8 +43,6 @@ bool parse_opts(int argc, char *argv[], options *opts,
     {"shmem_broadcast", no_argument, 0, 0},
     {"shmem_collect", no_argument, 0, 0},
     {"shmem_fcollect", no_argument, 0, 0},
-    {"shmem_min_reduce", no_argument, 0, 0},
-    {"shmem_max_reduce", no_argument, 0, 0},
     {"min", required_argument, 0, 0},
     {"max", required_argument, 0, 0},
     {"benchtype", required_argument, 0, 0},
@@ -68,10 +64,6 @@ bool parse_opts(int argc, char *argv[], options *opts,
         opts->shmem_put = true;
         *benchmark = strdup("shmem_put");
       }
-      else if (strcmp(option_name, "shmem_p") == 0) {
-        opts->shmem_p = true;
-        *benchmark = strdup("shmem_p");
-      }
       else if (strcmp(option_name, "shmem_iput") == 0) {
         opts->shmem_iput = true;
         *benchmark = strdup("shmem_iput");
@@ -79,10 +71,6 @@ bool parse_opts(int argc, char *argv[], options *opts,
       else if (strcmp(option_name, "shmem_get") == 0) {
         opts->shmem_get = true;
         *benchmark = strdup("shmem_get");
-      }
-      else if (strcmp(option_name, "shmem_g") == 0) {
-        opts->shmem_g = true;
-        *benchmark = strdup("shmem_g");
       }
       else if (strcmp(option_name, "shmem_iget") == 0) {
         opts->shmem_iget = true;
@@ -115,14 +103,6 @@ bool parse_opts(int argc, char *argv[], options *opts,
       else if (strcmp(option_name, "shmem_fcollect") == 0) {
         opts->shmem_fcollect = true;
         *benchmark = strdup("shmem_fcollect");
-      }
-      else if (strcmp(option_name, "shmem_min_reduce") == 0) {
-        opts->shmem_min_reduce = true;
-        *benchmark = strdup("shmem_min_reduce");
-      }
-      else if (strcmp(option_name, "shmem_max_reduce") == 0) {
-        opts->shmem_max_reduce = true;
-        *benchmark = strdup("shmem_max_reduce");
       }
       else if (strcmp(option_name, "min") == 0) {
         opts->min_msg_size = atoi(optarg);
@@ -174,7 +154,6 @@ bool parse_opts(int argc, char *argv[], options *opts,
   return true;
 }
 
-
 /******************************************************************
   @brief Displays usage information for the test suite.
 
@@ -188,10 +167,8 @@ void display_help() {
 
   printf("\nOptions:\n");
   printf("  --shmem_put             Enable shmem_put benchmark\n");
-  printf("  --shmem_p               Enable shmem_p benchmark\n");
   printf("  --shmem_iput            Enable shmem_iput benchmark\n");
   printf("  --shmem_get             Enable shmem_get benchmark\n");
-  printf("  --shmem_g               Enable shmem_g benchmark\n");
   printf("  --shmem_iget            Enable shmem_iget benchmark\n");
   printf("  --shmem_put_nbi         Enable shmem_put_nbi benchmark\n");
   printf("  --shmem_get_nbi         Enable shmem_get_nbi benchmark\n");
@@ -200,8 +177,6 @@ void display_help() {
   printf("  --shmem_broadcast       Enable shmem_broadcast benchmark\n");
   printf("  --shmem_collect         Enable shmem_collect benchmark\n");
   printf("  --shmem_fcollect        Enable shmem_fcollect benchmark\n");
-  printf("  --shmem_min_reduce      Enable shmem_min_reduce benchmark\n");
-  printf("  --shmem_max_reduce      Enable shmem_max_reduce benchmark\n");
   printf("\n");
   printf("  --benchtype <type>      Set the benchmark type (bw, bibw, latency)\n");
   printf("\n");

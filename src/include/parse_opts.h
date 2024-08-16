@@ -18,14 +18,13 @@
  */
 typedef struct {
   /* RMA options */
-  bool shmem_put; bool shmem_p; bool shmem_iput;
-  bool shmem_get; bool shmem_g; bool shmem_iget;
+  bool shmem_put; bool shmem_iput;
+  bool shmem_get; bool shmem_iget;
   bool shmem_put_nbi; bool shmem_get_nbi;
   /* Collective options */
   bool shmem_alltoall; bool shmem_alltoalls;
   bool shmem_broadcast;
   bool shmem_collect; bool shmem_fcollect;
-  bool shmem_min_reduce; bool shmem_max_reduce;
 
   /* Option for which test to run */
   char *benchtype;

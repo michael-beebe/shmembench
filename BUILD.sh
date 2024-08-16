@@ -34,6 +34,12 @@ if [ "$(which oshcc)" == "$HOME/sw/el9-x86_64/ompi/bin/oshcc" ]; then
 fi
 flags="--bind-to core --map-by core"
 
+min=1
+max=1024
+# max=1048576
+
 oshrun $flags -np 1 $exe --help
-oshrun $flags -np 2 $exe --shmem_put --benchtype bw --min 1 --max 1048576
-oshrun $flags -np 2 $exe --shmem_put --benchtype latency --min 1 --max 1048576
+
+# oshrun $flags -np 2 $exe --shmem_put --benchtype bw --min $min --max $max
+# oshrun $flags -np 2 $exe --shmem_put --benchtype bibw --min $min --max $max
+# oshrun $flags -np 2 $exe --shmem_put --benchtype latency --min $min --max $max

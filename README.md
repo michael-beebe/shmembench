@@ -19,10 +19,8 @@ Usage:  oshrun -np <num PEs> shmembench [options]
 
 Options:
   --shmem_put             Enable shmem_put benchmark
-  --shmem_p               Enable shmem_p benchmark
   --shmem_iput            Enable shmem_iput benchmark
   --shmem_get             Enable shmem_get benchmark
-  --shmem_g               Enable shmem_g benchmark
   --shmem_iget            Enable shmem_iget benchmark
   --shmem_put_nbi         Enable shmem_put_nbi benchmark
   --shmem_get_nbi         Enable shmem_get_nbi benchmark
@@ -31,8 +29,6 @@ Options:
   --shmem_broadcast       Enable shmem_broadcast benchmark
   --shmem_collect         Enable shmem_collect benchmark
   --shmem_fcollect        Enable shmem_fcollect benchmark
-  --shmem_min_reduce      Enable shmem_min_reduce benchmark
-  --shmem_max_reduce      Enable shmem_max_reduce benchmark
 
   --benchtype <type>      Set the benchmark type (bw, bibw, latency)
 
