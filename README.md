@@ -1,4 +1,3 @@
-# SHMEMBENCH
 ![Logo](extra/logo.png)
 
 Benchmarking suite for OpenSHMEM implementations adhering to the [v1.5 specification](http://www.openshmem.org/site/sites/default/site_files/OpenSHMEM-1.5.pdf)
