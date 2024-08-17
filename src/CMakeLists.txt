@@ -43,6 +43,7 @@ target_link_libraries(
   shmem_broadcast
   shmem_collect
   shmem_fcollect
+  shmem_barrier_all
 )
 
 # ---- Specify the output directory for the executable

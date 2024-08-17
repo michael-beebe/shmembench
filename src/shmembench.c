@@ -13,55 +13,61 @@ typedef void (*benchmark_func_t)(int min_msg_size, int max_msg_size,
 typedef void (*benchmark_func_with_stride_t)(int min_msg_size, int max_msg_size,
                                              int ntimes, int stride);
 
+/* Function pointer type for benchmarks without message size parameters (like barriers) */
+typedef void (*benchmark_func_no_size_t)(int ntimes);
+
 /* Mapping of benchmarks and their types to functions */
 typedef struct {
   const char *benchmark;
   const char *benchtype;
   benchmark_func_t func;
   benchmark_func_with_stride_t func_with_stride;
+  benchmark_func_no_size_t func_no_size;
   bool uses_stride;
 } benchmark_entry_t;
 
 /* Dispatch table for benchmarks */
 benchmark_entry_t benchmark_table[] = {
-    {"shmem_put", "bw", bench_shmem_put_bw, NULL, false},
-    {"shmem_put", "bibw", bench_shmem_put_bibw, NULL, false},
-    {"shmem_put", "latency", bench_shmem_put_latency, NULL, false},
+    {"shmem_put", "bw", bench_shmem_put_bw, NULL, NULL, false},
+    {"shmem_put", "bibw", bench_shmem_put_bibw, NULL, NULL, false},
+    {"shmem_put", "latency", bench_shmem_put_latency, NULL, NULL, false},
 
-    {"shmem_get", "bw", bench_shmem_get_bw, NULL, false},
-    {"shmem_get", "bibw", bench_shmem_get_bibw, NULL, false},
-    {"shmem_get", "latency", bench_shmem_get_latency, NULL, false},
+    {"shmem_get", "bw", bench_shmem_get_bw, NULL, NULL, false},
+    {"shmem_get", "bibw", bench_shmem_get_bibw, NULL, NULL, false},
+    {"shmem_get", "latency", bench_shmem_get_latency, NULL, NULL, false},
 
-    {"shmem_iput", "bw", NULL, bench_shmem_iput_bw, true},
-    {"shmem_iput", "bibw", NULL, bench_shmem_iput_bibw, true},
-    {"shmem_iput", "latency", NULL, bench_shmem_iput_latency, true},
+    {"shmem_iput", "bw", NULL, bench_shmem_iput_bw, NULL, true},
+    {"shmem_iput", "bibw", NULL, bench_shmem_iput_bibw, NULL, true},
+    {"shmem_iput", "latency", NULL, bench_shmem_iput_latency, NULL, true},
 
-    {"shmem_iget", "bw", NULL, bench_shmem_iget_bw, true},
-    {"shmem_iget", "bibw", NULL, bench_shmem_iget_bibw, true},
-    {"shmem_iget", "latency", NULL, bench_shmem_iget_latency, true},
+    {"shmem_iget", "bw", NULL, bench_shmem_iget_bw, NULL, true},
+    {"shmem_iget", "bibw", NULL, bench_shmem_iget_bibw, NULL, true},
+    {"shmem_iget", "latency", NULL, bench_shmem_iget_latency, NULL, true},
 
-    {"shmem_put_nbi", "bw", bench_shmem_put_nbi_bw, NULL, false},
-    {"shmem_put_nbi", "bibw", bench_shmem_put_nbi_bibw, NULL, false},
-    {"shmem_put_nbi", "latency", bench_shmem_put_nbi_latency, NULL, false},
+    {"shmem_put_nbi", "bw", bench_shmem_put_nbi_bw, NULL, NULL, false},
+    {"shmem_put_nbi", "bibw", bench_shmem_put_nbi_bibw, NULL, NULL, false},
+    {"shmem_put_nbi", "latency", bench_shmem_put_nbi_latency, NULL, NULL, false},
 
-    {"shmem_get_nbi", "bw", bench_shmem_get_nbi_bw, NULL, false},
-    {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw, NULL, false},
-    {"shmem_get_nbi", "latency", bench_shmem_get_nbi_latency, NULL, false},
+    {"shmem_get_nbi", "bw", bench_shmem_get_nbi_bw, NULL, NULL, false},
+    {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw, NULL, NULL, false},
+    {"shmem_get_nbi", "latency", bench_shmem_get_nbi_latency, NULL, NULL, false},
 
-    {"shmem_alltoall", "bw", bench_shmem_alltoall_bw, NULL, false},
-    {"shmem_alltoall", "latency", bench_shmem_alltoall_latency, NULL, false},
+    {"shmem_alltoall", "bw", bench_shmem_alltoall_bw, NULL, NULL, false},
+    {"shmem_alltoall", "latency", bench_shmem_alltoall_latency, NULL, NULL, false},
 
-    {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw, NULL, false},
-    {"shmem_alltoalls", "latency", bench_shmem_alltoalls_latency, NULL, false},
+    {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw, NULL, NULL, false},
+    {"shmem_alltoalls", "latency", bench_shmem_alltoalls_latency, NULL, NULL, false},
 
-    {"shmem_broadcast", "bw", bench_shmem_broadcast_bw, NULL, false},
-    {"shmem_broadcast", "latency", bench_shmem_broadcast_latency, NULL, false},
+    {"shmem_broadcast", "bw", bench_shmem_broadcast_bw, NULL, NULL, false},
+    {"shmem_broadcast", "latency", bench_shmem_broadcast_latency, NULL, NULL, false},
     
-    {"shmem_collect", "bw", bench_shmem_collect_bw, NULL, false},
-    {"shmem_collect", "latency", bench_shmem_collect_latency, NULL, false},
+    {"shmem_collect", "bw", bench_shmem_collect_bw, NULL, NULL, false},
+    {"shmem_collect", "latency", bench_shmem_collect_latency, NULL, NULL, false},
     
-    {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, false},
-    {"shmem_fcollect", "latency", bench_shmem_fcollect_latency, NULL, false},
+    {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, NULL, false},
+    {"shmem_fcollect", "latency", bench_shmem_fcollect_latency, NULL, NULL, false},
+
+    {"shmem_barrier_all", "latency", NULL, NULL, bench_shmem_barrier_all_latency, false},
 };
 
 /*******************************************************************
@@ -76,15 +82,15 @@ benchmark_entry_t benchmark_table[] = {
  *******************************************************************/
 void run_benchmark(char *benchmark, char *benchtype, int min_msg_size,
                    int max_msg_size, int ntimes, int stride) {
-  for (int i = 0; i < sizeof(benchmark_table) / sizeof(benchmark_entry_t);
-       i++) {
+  for (int i = 0; i < sizeof(benchmark_table) / sizeof(benchmark_entry_t); i++) {
     if (strcmp(benchmark, benchmark_table[i].benchmark) == 0 &&
         strcmp(benchtype, benchmark_table[i].benchtype) == 0) {
       if (benchmark_table[i].uses_stride) {
-        benchmark_table[i].func_with_stride(min_msg_size, max_msg_size, ntimes,
-                                            stride);
-      } else {
+        benchmark_table[i].func_with_stride(min_msg_size, max_msg_size, ntimes, stride);
+      } else if (benchmark_table[i].func != NULL) {
         benchmark_table[i].func(min_msg_size, max_msg_size, ntimes);
+      } else if (benchmark_table[i].func_no_size != NULL) {
+        benchmark_table[i].func_no_size(ntimes);
       }
       return;
     }

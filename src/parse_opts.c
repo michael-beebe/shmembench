@@ -78,20 +78,25 @@ bool parse_opts(int argc, char *argv[], options *opts,
         }
       }
       else if (strcmp(option_name, "min") == 0) {
-        opts->min_msg_size = atoi(optarg);
-        if (opts->min_msg_size <= 0) {
-          opts->min_msg_size = 1; /* Set a default if not provided */
+        if (*benchmark && 
+            (strcmp(*benchmark, "shmem_barrier_all") != 0)) {
+          opts->min_msg_size = atoi(optarg);
+          if (opts->min_msg_size <= 0) {
+            opts->min_msg_size = 1; /* Set a default if not provided */
+          }
+          *min_msg_size = opts->min_msg_size;
         }
-        *min_msg_size = opts->min_msg_size;
       }
       else if (strcmp(option_name, "max") == 0) {
-        opts->max_msg_size = atoi(optarg);
-        if (opts->max_msg_size <= 0 || 
-            opts->max_msg_size < opts->min_msg_size)
-        {
-          opts->max_msg_size = *min_msg_size * 128; /* Set a default max if invalid */
+        if (*benchmark && 
+            (strcmp(*benchmark, "shmem_barrier_all") != 0)) {
+          opts->max_msg_size = atoi(optarg);
+          if (opts->max_msg_size <= 0 || 
+              opts->max_msg_size < opts->min_msg_size) {
+            opts->max_msg_size = *min_msg_size * 128; /* Set a default max if invalid */
+          }
+          *max_msg_size = opts->max_msg_size;
         }
-        *max_msg_size = opts->max_msg_size;
       }
       else if (strcmp(option_name, "ntimes") == 0) {
         opts->ntimes = atoi(optarg);
@@ -101,11 +106,15 @@ bool parse_opts(int argc, char *argv[], options *opts,
         *ntimes = opts->ntimes;
       }
       else if (strcmp(option_name, "stride") == 0) {
-        opts->stride = atoi(optarg);
-        if (opts->stride <= 0) {
-          opts->stride = 10; /* Default to 10 if not provided */
+        if (*benchmark && 
+            (strcmp(*benchmark, "shmem_iput") == 0 || 
+             strcmp(*benchmark, "shmem_iget") == 0)) {
+          opts->stride = atoi(optarg);
+          if (opts->stride <= 0) {
+            opts->stride = 10; /* Default to 10 if not provided */
+          }
+          *stride = opts->stride;
         }
-        *stride = opts->stride;
       }
       else if (strcmp(option_name, "help") == 0) {
         opts->help = true;

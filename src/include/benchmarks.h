@@ -21,5 +21,6 @@
 #include "../benchmarks/collectives/shmem_broadcast.h"
 #include "../benchmarks/collectives/shmem_collect.h"
 #include "../benchmarks/collectives/shmem_fcollect.h"
+#include "../benchmarks/collectives/shmem_barrier_all.h"
 
 #endif /* BENCHMARK_H */
