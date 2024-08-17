@@ -9,7 +9,6 @@ $ cd build
 $ cmake \
     -DCMAKE_LIBRARY_PATH=</path/to/openshmem/lib/dir>      \
     -DCMAKE_C_LINKER_FLAGS="<linker flags, such as -lsma>" \
-    -DDEBUG=<OFF/ON>                                       \
     ../
 ```
 
@@ -53,3 +52,6 @@ For runs with a large number of PEs, you may need to increase the size of `SHMEM
 ```bash
 export SHMEM_SYMMETRIC_SIZE=1G
 ```
+
+## Contact
+Michael Beebe: michael.beebe@ttu.edu

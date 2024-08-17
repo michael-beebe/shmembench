@@ -1,2 +1,3 @@
 - Improve option handling/error handling
-
+- Add ability to add isntall prefix in cmake
+- Add support for v1.4
