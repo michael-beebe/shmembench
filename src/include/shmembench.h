@@ -45,6 +45,16 @@ void run_benchmark(char *benchmark, char *benchtype, int min_msg_size,
  */
 double calculate_bw(int size, double time);
 
+// /**
+//   @brief Calculate collective bandwidth based on message size,
+//   time, and number of PEs
+//   @param size Message size for the test in bytes
+//   @param time Time taken for the operation in microseconds
+//   @param npes Number of PEs involved in the collective operation
+//   @return The calculated collective bandwidth in MB/s
+//  */
+// double calculate_collective_bw(int size, double time, int npes);
+
 /**
   @brief Calculate bidirectional bandwidth based on message size and time
   @param size Message size for the test in bytes

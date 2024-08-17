@@ -15,5 +15,10 @@
 #include "../benchmarks/rma/shmem_put_nbi.h"
 
 /* Collective benchmarks */
+#include "../benchmarks/collectives/shmem_alltoall.h"
+#include "../benchmarks/collectives/shmem_alltoalls.h"
+#include "../benchmarks/collectives/shmem_broadcast.h"
+#include "../benchmarks/collectives/shmem_collect.h"
+#include "../benchmarks/collectives/shmem_fcollect.h"
 
 #endif /* BENCHMARK_H */

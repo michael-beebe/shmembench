@@ -38,6 +38,11 @@ target_link_libraries(
   shmem_put_nbi
   shmem_get_nbi
 
+  shmem_alltoall
+  shmem_alltoalls
+  shmem_broadcast
+  shmem_collect
+  shmem_fcollect
 )
 
 # ---- Specify the output directory for the executable

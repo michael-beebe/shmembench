@@ -47,11 +47,20 @@ benchmark_entry_t benchmark_table[] = {
     {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw, NULL, false},
     {"shmem_get_nbi", "latency", bench_shmem_get_nbi_latency, NULL, false},
 
-    // {"shmem_alltoall", "bw", bench_shmem_alltoall_bw, NULL, false},
-    // {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw, NULL, false},
-    // {"shmem_broadcast", "bw", bench_shmem_broadcast_bw, NULL, false},
-    // {"shmem_collect", "bw", bench_shmem_collect_bw, NULL, false},
-    // {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, false},
+    {"shmem_alltoall", "bw", bench_shmem_alltoall_bw, NULL, false},
+    {"shmem_alltoall", "latency", bench_shmem_alltoall_latency, NULL, false},
+
+    {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw, NULL, false},
+    {"shmem_alltoalls", "latency", bench_shmem_alltoalls_latency, NULL, false},
+
+    {"shmem_broadcast", "bw", bench_shmem_broadcast_bw, NULL, false},
+    {"shmem_broadcast", "latency", bench_shmem_broadcast_latency, NULL, false},
+    
+    {"shmem_collect", "bw", bench_shmem_collect_bw, NULL, false},
+    {"shmem_collect", "latency", bench_shmem_collect_latency, NULL, false},
+    
+    {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, false},
+    {"shmem_fcollect", "latency", bench_shmem_fcollect_latency, NULL, false},
 };
 
 /*******************************************************************
@@ -93,6 +102,18 @@ void run_benchmark(char *benchmark, char *benchtype, int min_msg_size,
 double calculate_bw(int size, double time) {
   return (size / (1024.0 * 1024.0)) / (time / 1e6);
 }
+
+// /*************************************************************
+//   @brief Calculate collective bandwidth based on message size,
+//     time, and number of PEs
+//   @param size Message size for the test in bytes
+//   @param time Time taken for the operation in microseconds
+//   @param npes Number of PEs involved in the collective operation
+//   @return The calculated collective bandwidth in MB/s
+//  *************************************************************/
+// double calculate_collective_bw(int size, double time, int npes) {
+//   return (size * npes / (1024.0 * 1024.0)) / (time / 1e6);
+// }
 
 /*************************************************************
   @brief Calculate bidirectional bandwidth based on message size and time

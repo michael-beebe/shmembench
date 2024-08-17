@@ -15,3 +15,5 @@ CMakeUserPresets.json
 # --- Other stuff
 build
 *.bk
+.vscode
+.DSStore

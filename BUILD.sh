@@ -28,7 +28,7 @@ if [ ! -f "$exe" ]; then
   exit 1
 fi
 
-# --- Run shmembench with CPU pinning
+# --- Set flags
 if [ "$(which oshcc)" == "$HOME/sw/el9-x86_64/ompi/bin/oshcc" ]; then
   flags+=" --mca btl ^openib"
 fi
@@ -38,6 +38,9 @@ flags="--bind-to core --map-by core"
 min=1
 # max=1024
 max=1048576
+
+# --- Set SHMEM_SYMMETRIC_SIZE
+export SHMEM_SYMMETRIC_SIZE=2G
 
 # --- Help message
 oshrun $flags -np 1 $exe --help
@@ -72,4 +75,22 @@ oshrun $flags -np 1 $exe --help
 # oshrun $flags -np 2 $exe --bench shmem_get_nbi --benchtype bibw --min $min --max $max
 # oshrun $flags -np 2 $exe --bench shmem_get_nbi --benchtype latency --min $min --max $max
 
+# # --- shmem_alltoall
+# oshrun $flags -np 6 $exe --bench shmem_alltoall --benchtype bw --min $min --max $max
+# oshrun $flags -np 6 $exe --bench shmem_alltoall --benchtype latency --min $min --max $max
 
+# # --- shmem_alltoalls
+# oshrun $flags -np 100 $exe --bench shmem_alltoalls --benchtype bw --min $min --max $max
+# oshrun $flags -np 100 $exe --bench shmem_alltoalls --benchtype latency --min $min --max $max
+
+# # --- shmem_broadcast
+# oshrun $flags -np 6 $exe --bench shmem_broadcast --benchtype bw --min $min --max $max
+# oshrun $flags -np 6 $exe --bench shmem_broadcast --benchtype latency --min $min --max $max
+
+# # --- shmem_collect
+# oshrun $flags -np 6 $exe --bench shmem_collect --benchtype bw --min $min --max $max
+# oshrun $flags -np 6 $exe --bench shmem_collect --benchtype latency --min $min --max $max
+
+# --- shmem_fcollect
+oshrun $flags -np 6 $exe --bench shmem_fcollect --benchtype bw --min $min --max $max
+oshrun $flags -np 6 $exe --bench shmem_fcollect --benchtype latency --min $min --max $max
