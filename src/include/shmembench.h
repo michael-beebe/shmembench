@@ -24,6 +24,9 @@
 
 #define HLINE "--------------------------------------------"
 
+#define USE_14 false
+#define USE_15 false
+
 /**
   @brief Run the selected benchmark
   @param benchmark The benchmark to be run (e.g., "shmem_put", "shmem_get")

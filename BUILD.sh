@@ -12,6 +12,7 @@ cmake \
   -DCMAKE_INSTALL_PREFIX=$SWHOME/shmemvv \
   -DDEBUG=OFF \
   -DVERBOSE=ON \
+  -DUSE_15=ON \
   ../
 
 # --- Compile

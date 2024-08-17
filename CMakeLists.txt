@@ -24,6 +24,13 @@ if (VERBOSE)
   add_definitions(-D_VERBOSE_)
 endif()
 
+# --- Add a options to use v1.4 of the spec
+if (USE_14)
+  add_definitions(-D_USE_14_)
+endif()
+
+# --- Add a options to use v1.5 of the spec
+
 # ---- Check for dlfcn.h
 # include(CheckIncludeFile)
 # check_include_file("dlfcn.h" HAVE_DLFCN_H)
