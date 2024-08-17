@@ -1,5 +1,6 @@
 /**
   @file shmem_put_nbi.c
+  @author Michael Beebe (Texas Tech University)
 */
 
 #include "shmem_put_nbi.h"

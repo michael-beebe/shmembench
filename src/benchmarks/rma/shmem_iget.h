@@ -1,5 +1,6 @@
 /**
   @file shmem_iget.h
+  @author Michael Beebe (Texas Tech University)
 */
 
 #ifndef SHMEM_IGET_H

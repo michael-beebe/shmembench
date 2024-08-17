@@ -1,6 +1,7 @@
 /**
   @file parse_opts.c
-  @details Parse the runtime options from the command line  
+  @details Parse the runtime options from the command line
+  @author Michael Beebe (Texas Tech University)
  */
 
 #include "parse_opts.h"
@@ -149,9 +150,10 @@ void display_help() {
   printf("  --benchtype <type>     Set the benchmark type (bw, bibw, latency)\n");
 
   printf("\nOptional Parameters:\n");
-  printf("  --min <size>           Set the minimum message size in bytes (default: 1)\n");
-  printf("  --max <size>           Set the maximum message size in bytes (default: 1024)\n");
-  printf("  --ntimes <count>       Number of iterations (default: 10)\n");
+  printf("  --min <size>           Minimum message size in bytes (default: 1)\n");
+  printf("  --max <size>           Met the maximum message size in bytes (default: 1048576)\n");
+  printf("  --ntimes <count>       Number of repetitions.\n");
+  printf("                         Average among then is reported (default: 10)\n");
   printf("  --stride <value>       Stride value for strided operations, only used by\n");
   printf("                         the shmem_iput and shmem_iget (default: 10)\n");
   printf("  --help                 Display this help message\n");

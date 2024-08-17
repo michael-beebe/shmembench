@@ -1,6 +1,7 @@
 /**
   @file shmem_broadcast.c
   @brief Implementation of the shmem_broadcast benchmarks.
+  @author Michael Beebe (Texas Tech University)
  */
 
 #include "shmem_broadcast.h"

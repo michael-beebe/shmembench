@@ -1,6 +1,7 @@
 /**
   @file shmem_alltoalls.c
   @brief Source file for shmem_alltoalls benchmarks
+  @author Michael Beebe (Texas Tech University)
 */
 
 #include "shmem_alltoalls.h"

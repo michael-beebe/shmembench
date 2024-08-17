@@ -1,5 +1,6 @@
 /**
   @file shmembench.h
+  @author Michael Beebe (Texas Tech University)
  */
 
 #ifndef SHMEMBENCH_H

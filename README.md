@@ -34,14 +34,19 @@ Required Options:
   --benchtype <type>     Set the benchmark type (bw, bibw, latency)
 
 Optional Parameters:
-  --min <size>           Set the minimum message size in bytes (default: 1)
-  --max <size>           Set the maximum message size in bytes (default: 1024)
-  --ntimes <count>       Number of iterations (default: 10)
+  --min <size>           Minimum message size in bytes (default: 1)
+  --max <size>           Maximum message size in bytes (default: 1048576)
+  --ntimes <count>       Number of repetitions.
+                         Average among them is reported (default: 10)
   --stride <value>       Stride value for strided operations, only used by
                          the shmem_iput and shmem_iget (default: 10)
   --help                 Display this help message
 
 Example Usage:
-   oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min 128 --max 1024 --ntimes 100
+   oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min 128 --max 1024 --ntimes 20
 ```
 
+For runs with a large number of PEs, you may need to increase the size of `SHMEM_SYMMETRIC_SIZE` before running like so:
+```bash
+export SHMEM_SYMMETRIC_SIZE=1G
+```

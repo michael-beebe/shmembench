@@ -1,5 +1,6 @@
 /**
   @file shmem_iput.h
+  @author Michael Beebe (Texas Tech University)
 */
 
 #ifndef SHMEM_IPUT_H

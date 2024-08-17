@@ -1,6 +1,7 @@
 /**
   @file shmem_collect.c
   @brief Implementation of the shmem_collect benchmarks.
+  @author Michael Beebe (Texas Tech University)
  */
 
 #include "shmem_collect.h"

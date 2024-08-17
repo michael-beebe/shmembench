@@ -1,6 +1,7 @@
 /**
   @file main.c
   @brief main driver file
+  @author Michael Beebe (Texas Tech University)
  */
 
 #include "parse_opts.h"

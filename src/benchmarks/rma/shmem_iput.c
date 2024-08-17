@@ -1,5 +1,6 @@
 /**
   @file shmem_iput.c
+  @author Michael Beebe (Texas Tech University)
 */
 
 #include "shmem_iput.h"

@@ -1,5 +1,6 @@
 /**
   @file parse_opts.h
+  @author Michael Beebe (Texas Tech University)
 */
 
 #ifndef PARSE_OPTS_H

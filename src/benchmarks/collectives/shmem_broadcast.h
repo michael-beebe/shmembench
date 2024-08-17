@@ -1,6 +1,7 @@
 /**
   @file shmem_broadcast.h
   @brief Header file for shmem_broadcast benchmarks.
+  @author Michael Beebe (Texas Tech University)
  */
 
 #ifndef SHMEM_BROADCAST_H

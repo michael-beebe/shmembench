@@ -1,5 +1,6 @@
 /**
   @file benchmarks.h
+  @author Michael Beebe (Texas Tech University)
   @brief
 */
 

@@ -1,5 +1,6 @@
 /**
   @file shmem_alltoall.c
+  @author Michael Beebe (Texas Tech University)
 */
 
 #include "shmem_alltoall.h"

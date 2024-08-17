@@ -1,6 +1,7 @@
 /**
   @file shmem_fcollect.h
   @brief Header file for shmem_fcollect benchmarks.
+  @author Michael Beebe (Texas Tech University)
  */
 
 #ifndef SHMEM_FCOLLECT_H
