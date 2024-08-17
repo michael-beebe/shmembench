@@ -8,8 +8,10 @@
   @brief Run the bandwidth benchmark for shmem_iget
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
+  @param ntimes Number of repetitions to get the avgs from
+  @param stride Stride for shmem_iget
  *************************************************************/
-void bench_shmem_iget_bw(int min_msg_size, int max_msg_size) {
+void bench_shmem_iget_bw(int min_msg_size, int max_msg_size, int ntimes, int stride) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
     return;
@@ -28,11 +30,11 @@ void bench_shmem_iget_bw(int min_msg_size, int max_msg_size) {
     msg_sizes[i] = size;
     
     /* Source and destination arrays for the shmem_iget */
-    long *source = (long *)shmem_malloc(size * STRIDE * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * STRIDE * sizeof(long));
+    long *source = (long *)shmem_malloc(size * stride * sizeof(long));
+    long *dest = (long *)shmem_malloc(size * stride * sizeof(long));
 
     /* Initialize source buffer */
-    for (int j = 0; j < size * STRIDE; j++) {
+    for (int j = 0; j < size * stride; j++) {
       source[j] = j;
     }
 
@@ -45,9 +47,9 @@ void bench_shmem_iget_bw(int min_msg_size, int max_msg_size) {
     /* Start timer */
     start_time = mysecond();
 
-    /* Perform NTIMES shmem_igets */
-    for (int j = 0; j < NTIMES; j++) {
-      shmem_iget(dest, source, 1, STRIDE, size, 1);
+    /* Perform ntimes shmem_igets */
+    for (int j = 0; j < ntimes; j++) {
+      shmem_iget(dest, source, 1, stride, size, 1);
       shmem_quiet();
     }
 
@@ -55,7 +57,7 @@ void bench_shmem_iget_bw(int min_msg_size, int max_msg_size) {
     end_time = mysecond();
 
     /* Calculate average time per operation in useconds */
-    times[i] = (end_time - start_time) * 1e6 / NTIMES;
+    times[i] = (end_time - start_time) * 1e6 / ntimes;
 
     /* Calculate bandwidth */
     bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
@@ -82,8 +84,10 @@ void bench_shmem_iget_bw(int min_msg_size, int max_msg_size) {
   @brief Run the bidirectional bandwidth benchmark for shmem_iget
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
+  @param ntimes Number of repetitions to get the avgs from
+  @param stride Stride for shmem_iget
  *************************************************************/
-void bench_shmem_iget_bibw(int min_msg_size, int max_msg_size) {
+void bench_shmem_iget_bibw(int min_msg_size, int max_msg_size, int ntimes, int stride) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
     return;
@@ -102,11 +106,11 @@ void bench_shmem_iget_bibw(int min_msg_size, int max_msg_size) {
     msg_sizes[i] = size;
 
     /* Source and destination arrays for the shmem_iget */
-    long *source = (long *)shmem_malloc(size * STRIDE * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * STRIDE * sizeof(long));
+    long *source = (long *)shmem_malloc(size * stride * sizeof(long));
+    long *dest = (long *)shmem_malloc(size * stride * sizeof(long));
 
     /* Initialize source buffer */
-    for (int j = 0; j < size * STRIDE; j++) {
+    for (int j = 0; j < size * stride; j++) {
       source[j] = j;
     }
 
@@ -119,10 +123,10 @@ void bench_shmem_iget_bibw(int min_msg_size, int max_msg_size) {
     /* Start timer */
     start_time = mysecond();
 
-    /* Perform NTIMES bidirectional shmem_igets */
-    for (int j = 0; j < NTIMES; j++) {
-      shmem_iget(dest, source, 1, STRIDE, size, 1); /* PE 0 sends to PE 1 */
-      shmem_iget(source, dest, 1, STRIDE, size, 0); /* PE 1 sends to PE 0 */
+    /* Perform ntimes bidirectional shmem_igets */
+    for (int j = 0; j < ntimes; j++) {
+      shmem_iget(dest, source, 1, stride, size, 1); /* PE 0 sends to PE 1 */
+      shmem_iget(source, dest, 1, stride, size, 0); /* PE 1 sends to PE 0 */
       shmem_quiet();
     }
 
@@ -130,7 +134,7 @@ void bench_shmem_iget_bibw(int min_msg_size, int max_msg_size) {
     end_time = mysecond();
 
     /* Calculate average time per operation in useconds */
-    times[i] = (end_time - start_time) * 1e6 / (2 * NTIMES);
+    times[i] = (end_time - start_time) * 1e6 / (2 * ntimes);
 
     /* Calculate bidirectional bandwidth */
     bandwidths[i] = calculate_bibw(size * sizeof(long), times[i]);
@@ -157,8 +161,10 @@ void bench_shmem_iget_bibw(int min_msg_size, int max_msg_size) {
   @brief Run the latency benchmark for shmem_iget
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
+  @param ntimes Number of repetitions to get the avgs from
+  @param stride Stride for shmem_iget
  *************************************************************/
-void bench_shmem_iget_latency(int min_msg_size, int max_msg_size) {
+void bench_shmem_iget_latency(int min_msg_size, int max_msg_size, int ntimes, int stride) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
     return;
@@ -192,8 +198,8 @@ void bench_shmem_iget_latency(int min_msg_size, int max_msg_size) {
     /* Sync PEs */
     shmem_barrier_all();
 
-    /* Perform NTIMES shmem_igets and accumulate total time */
-    for (int j = 0; j < NTIMES; j++) {
+    /* Perform ntimes shmem_igets and accumulate total time */
+    for (int j = 0; j < ntimes; j++) {
       double start_time = mysecond();
       shmem_iget(dest, source, 1, 1, size, 1);
       shmem_quiet();
@@ -202,7 +208,7 @@ void bench_shmem_iget_latency(int min_msg_size, int max_msg_size) {
     }
 
     /* Calculate average latency per operation in microseconds */
-    times[i] = total_time / NTIMES;
+    times[i] = total_time / ntimes;
 
     /* Record latency */
     latencies[i] = times[i];

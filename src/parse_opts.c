@@ -10,42 +10,36 @@
   @param argc Number of command-line arguments.
   @param argv Array of command-line argument strings.
   @param opts Reference to the test options structure.
-  @param benchmark** Routine to be tested
-  @param benchtype Either bw, bibw, or latency
+  @param benchmark Routine to be tested (e.g., shmem_put, shmem_get)
+  @param benchtype Type of benchmark to run (bw, bibw, or latency)
+  @param min_msg_size Minimum message size for test in bytes
+  @param max_msg_size Maximum message size for test in bytes
+  @param ntimes Number of times the benchmark should run
+  @param stride Stride value to use for the benchmark (only used if applicable)
   @return True if parsing is successful, false otherwise.
- 
- FIXME: getopt_long is printing certain errors messages npes
-          number of times. Not sure how to find a workaround
-          for this. We could suppress the erros but that seems
-          less than ideal
  ******************************************************************/
 bool parse_opts(int argc, char *argv[], options *opts,
                 char **benchmark, char **benchtype,
-                int *min_msg_size, int *max_msg_size) 
+                int *min_msg_size, int *max_msg_size,
+                int *ntimes, int *stride) 
 {
   /* Initialize all options to default values */
   memset(opts, 0, sizeof(*opts));
   
-  /* Set default values for min_msg_size and max_msg_size */
+  /* Set default values for min_msg_size, max_msg_size, ntimes, and stride */
   *min_msg_size = 1;
   *max_msg_size = 1024;
+  *ntimes = 10;
+  *stride = 10;
 
   /* Define runtime options */
   static struct option long_options[] = {
-    {"shmem_put", no_argument, 0, 0},
-    {"shmem_iput", no_argument, 0, 0},
-    {"shmem_get", no_argument, 0, 0},
-    {"shmem_iget", no_argument, 0, 0},
-    {"shmem_put_nbi", no_argument, 0, 0},
-    {"shmem_get_nbi", no_argument, 0, 0},
-    {"shmem_alltoall", no_argument, 0, 0},
-    {"shmem_alltoalls", no_argument, 0, 0},
-    {"shmem_broadcast", no_argument, 0, 0},
-    {"shmem_collect", no_argument, 0, 0},
-    {"shmem_fcollect", no_argument, 0, 0},
+    {"bench", required_argument, 0, 0},
+    {"benchtype", required_argument, 0, 0},
     {"min", required_argument, 0, 0},
     {"max", required_argument, 0, 0},
-    {"benchtype", required_argument, 0, 0},
+    {"ntimes", required_argument, 0, 0},
+    {"stride", required_argument, 0, 0},
     {"help", no_argument, 0, 0},
     {0, 0, 0, 0} /* Terminator */
   };
@@ -60,49 +54,27 @@ bool parse_opts(int argc, char *argv[], options *opts,
     if (c == 0) {
       const char* option_name = long_options[option_index].name;
 
-      if (strcmp(option_name, "shmem_put") == 0) {
-        opts->shmem_put = true;
-        *benchmark = strdup("shmem_put");
+      if (strcmp(option_name, "bench") == 0) {
+        opts->bench = strdup(optarg);
+        *benchmark = opts->bench;
       }
-      else if (strcmp(option_name, "shmem_iput") == 0) {
-        opts->shmem_iput = true;
-        *benchmark = strdup("shmem_iput");
-      }
-      else if (strcmp(option_name, "shmem_get") == 0) {
-        opts->shmem_get = true;
-        *benchmark = strdup("shmem_get");
-      }
-      else if (strcmp(option_name, "shmem_iget") == 0) {
-        opts->shmem_iget = true;
-        *benchmark = strdup("shmem_iget");
-      }
-      else if (strcmp(option_name, "shmem_put_nbi") == 0) {
-        opts->shmem_put_nbi = true;
-        *benchmark = strdup("shmem_put_nbi");
-      }
-      else if (strcmp(option_name, "shmem_get_nbi") == 0) {
-        opts->shmem_get_nbi = true;
-        *benchmark = strdup("shmem_get_nbi");
-      }
-      else if (strcmp(option_name, "shmem_alltoall") == 0) {
-        opts->shmem_alltoall = true;
-        *benchmark = strdup("shmem_alltoall");
-      }
-      else if (strcmp(option_name, "shmem_alltoalls") == 0) {
-        opts->shmem_alltoalls = true;
-        *benchmark = strdup("shmem_alltoalls");
-      }
-      else if (strcmp(option_name, "shmem_broadcast") == 0) {
-        opts->shmem_broadcast = true;
-        *benchmark = strdup("shmem_broadcast");
-      }
-      else if (strcmp(option_name, "shmem_collect") == 0) {
-        opts->shmem_collect = true;
-        *benchmark = strdup("shmem_collect");
-      }
-      else if (strcmp(option_name, "shmem_fcollect") == 0) {
-        opts->shmem_fcollect = true;
-        *benchmark = strdup("shmem_fcollect");
+      else if (strcmp(option_name, "benchtype") == 0) {
+        if (
+          strcmp(optarg, "bw") == 0 ||
+          strcmp(optarg, "bibw") == 0 ||
+          strcmp(optarg, "latency") == 0
+        ) {
+          opts->benchtype = strdup(optarg);
+          *benchtype = opts->benchtype;
+        } else {
+          if (shmem_my_pe() == 0) {
+            fprintf(stderr, 
+              "Invalid benchtype specified: %s. "
+              "Must be 'bw', 'bibw', or 'latency'.\n", optarg
+            );
+          }
+          return false;
+        }
       }
       else if (strcmp(option_name, "min") == 0) {
         opts->min_msg_size = atoi(optarg);
@@ -120,24 +92,19 @@ bool parse_opts(int argc, char *argv[], options *opts,
         }
         *max_msg_size = opts->max_msg_size;
       }
-      else if (strcmp(option_name, "benchtype") == 0) {
-        if (
-          strcmp(optarg, "bw") == 0 ||
-          strcmp(optarg, "bibw") == 0 ||
-          strcmp(optarg, "latency") == 0
-        ) {
-          opts->benchtype = optarg;
-          *benchtype = strdup(optarg);
+      else if (strcmp(option_name, "ntimes") == 0) {
+        opts->ntimes = atoi(optarg);
+        if (opts->ntimes <= 0) {
+          opts->ntimes = 10; /* Default to 10 if not provided */
         }
-        else {
-          if (shmem_my_pe() == 0) {
-            fprintf(stderr, 
-              "Invalid benchtype specified: %s. "
-              "Must be 'bw', 'bibw', or 'latency'.\n", optarg
-            );
-          }
-          return false;
+        *ntimes = opts->ntimes;
+      }
+      else if (strcmp(option_name, "stride") == 0) {
+        opts->stride = atoi(optarg);
+        if (opts->stride <= 0) {
+          opts->stride = 10; /* Default to 10 if not provided */
         }
+        *stride = opts->stride;
       }
       else if (strcmp(option_name, "help") == 0) {
         opts->help = true;
@@ -156,35 +123,39 @@ bool parse_opts(int argc, char *argv[], options *opts,
 
 /******************************************************************
   @brief Displays usage information for the test suite.
-
-  Prints out the usage information and available options
+  Prints out the usage information and available options.
  ******************************************************************/
 void display_help() {
   printf("\n\nThis program is a performance benchmark suite for "
           "OpenSHMEM Implementations\n");
 
-  printf("\nUsage:  oshrun -np <num PEs> shmembench [options]\n");
+  printf("\nUsage:  oshrun -np <num PEs> shmembench --bench <routine> --benchtype <type> [options]\n");
 
-  printf("\nOptions:\n");
-  printf("  --shmem_put             Enable shmem_put benchmark\n");
-  printf("  --shmem_iput            Enable shmem_iput benchmark\n");
-  printf("  --shmem_get             Enable shmem_get benchmark\n");
-  printf("  --shmem_iget            Enable shmem_iget benchmark\n");
-  printf("  --shmem_put_nbi         Enable shmem_put_nbi benchmark\n");
-  printf("  --shmem_get_nbi         Enable shmem_get_nbi benchmark\n");
-  printf("  --shmem_alltoall        Enable shmem_alltoall benchmark\n");
-  printf("  --shmem_alltoalls       Enable shmem_alltoalls benchmark\n");
-  printf("  --shmem_broadcast       Enable shmem_broadcast benchmark\n");
-  printf("  --shmem_collect         Enable shmem_collect benchmark\n");
-  printf("  --shmem_fcollect        Enable shmem_fcollect benchmark\n");
-  printf("\n");
-  printf("  --benchtype <type>      Set the benchmark type (bw, bibw, latency)\n");
-  printf("\n");
-  printf("  --min <size>            Set the minimum message size in bytes (default: 1)\n");
-  printf("  --max <size>            Set the maximum message size in bytes (default: 1024)\n");
-  printf("\n");
-  printf("  --help                  Display this help message\n");
+  printf("\nRequired Options:\n");
+  printf("  --bench <routine>      Specify the routine to benchmark\n");
+  printf("                          Available options:\n");
+  printf("                            shmem_put\n");
+  printf("                            shmem_iput\n");
+  printf("                            shmem_get\n");
+  printf("                            shmem_iget\n");
+  printf("                            shmem_put_nbi\n");
+  printf("                            shmem_get_nbi\n");
+  printf("                            shmem_alltoall\n");
+  printf("                            shmem_alltoalls\n");
+  printf("                            shmem_broadcast\n");
+  printf("                            shmem_collect\n");
+  printf("                            shmem_fcollect\n");
+
+  printf("  --benchtype <type>     Set the benchmark type (bw, bibw, latency)\n");
+
+  printf("\nOptional Parameters:\n");
+  printf("  --min <size>           Set the minimum message size in bytes (default: 1)\n");
+  printf("  --max <size>           Set the maximum message size in bytes (default: 1024)\n");
+  printf("  --ntimes <count>       Number of iterations (default: 10)\n");
+  printf("  --stride <value>       Stride value for strided operations, only used by\n");
+  printf("                         the shmem_iput and shmem_iget (default: 10)\n");
+  printf("  --help                 Display this help message\n");
 
   printf("\nExample Usage:\n");
-  printf("   oshrun -np 2 shmembench --shmem_put --benchtype bw --min 128 --max 1024\n\n");
+  printf("   oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min 128 --max 1024 --ntimes 100\n\n");
 }

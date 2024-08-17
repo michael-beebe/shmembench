@@ -8,8 +8,9 @@
   @brief Run the bandwidth benchmark for shmem_put_nbi
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
+  @param ntimes Number of repetitions to get the avgs from
  *************************************************************/
-void bench_shmem_put_nbi_bw(int min_msg_size, int max_msg_size) {
+void bench_shmem_put_nbi_bw(int min_msg_size, int max_msg_size, int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
     return;
@@ -46,8 +47,8 @@ void bench_shmem_put_nbi_bw(int min_msg_size, int max_msg_size) {
     /* Start timer */
     start_time = mysecond();
 
-    /* Perform NTIMES shmem_put_nbi operations */
-    for (int j = 0; j < NTIMES; j++) {
+    /* Perform ntimes shmem_put_nbi operations */
+    for (int j = 0; j < ntimes; j++) {
       shmem_put_nbi(dest, source, size, 1);
       shmem_quiet();
     }
@@ -56,7 +57,7 @@ void bench_shmem_put_nbi_bw(int min_msg_size, int max_msg_size) {
     end_time = mysecond();
 
     /* Calculate average time per operation in microseconds */
-    times[i] = (end_time - start_time) * 1e6 / NTIMES;
+    times[i] = (end_time - start_time) * 1e6 / ntimes;
 
     /* Calculate bandwidth */
     bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
@@ -83,8 +84,9 @@ void bench_shmem_put_nbi_bw(int min_msg_size, int max_msg_size) {
   @brief Run the bidirectional bandwidth benchmark for shmem_put_nbi
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
+  @param ntimes Number of repetitions to get the avgs from
  *************************************************************/
-void bench_shmem_put_nbi_bibw(int min_msg_size, int max_msg_size) {
+void bench_shmem_put_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
     return;
@@ -121,8 +123,8 @@ void bench_shmem_put_nbi_bibw(int min_msg_size, int max_msg_size) {
     /* Start timer */
     start_time = mysecond();
 
-    /* Perform NTIMES bidirectional shmem_put_nbi operations */
-    for (int j = 0; j < NTIMES; j++) {
+    /* Perform ntimes bidirectional shmem_put_nbi operations */
+    for (int j = 0; j < ntimes; j++) {
       shmem_put_nbi(dest, source, size, 1); /* PE 0 sends to PE 1 */
       shmem_put_nbi(source, dest, size, 0); /* PE 1 sends to PE 0 */
       shmem_quiet();
@@ -132,7 +134,7 @@ void bench_shmem_put_nbi_bibw(int min_msg_size, int max_msg_size) {
     end_time = mysecond();
 
     /* Calculate average time per operation in microseconds */
-    times[i] = (end_time - start_time) * 1e6 / (2 * NTIMES);
+    times[i] = (end_time - start_time) * 1e6 / (2 * ntimes);
 
     /* Calculate bidirectional bandwidth */
     bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
@@ -159,8 +161,9 @@ void bench_shmem_put_nbi_bibw(int min_msg_size, int max_msg_size) {
   @brief Run the latency benchmark for shmem_put_nbi
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
+  @param ntimes Number of repetitions to get the avgs from
  *************************************************************/
-void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size) {
+void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size, int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
     return;
@@ -194,8 +197,8 @@ void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size) {
     /* Sync PEs */
     shmem_barrier_all();
 
-    /* Perform NTIMES shmem_put_nbi and accumulate total time */
-    for (int j = 0; j < NTIMES; j++) {
+    /* Perform ntimes shmem_put_nbi and accumulate total time */
+    for (int j = 0; j < ntimes; j++) {
       double start_time = mysecond();
       shmem_put_nbi(dest, source, size, 1);
       shmem_quiet();
@@ -204,7 +207,7 @@ void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size) {
     }
 
     /* Calculate average latency per operation in microseconds */
-    times[i] = total_time / NTIMES;
+    times[i] = total_time / ntimes;
 
     /* Record latency */
     latencies[i] = times[i];

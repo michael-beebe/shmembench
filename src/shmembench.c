@@ -4,63 +4,76 @@
 
 #include "shmembench.h"
 
-/* Function pointer type for benchmarks */
-typedef void (*benchmark_func_t)(int min_msg_size, int max_msg_size);
+/* Function pointer type for benchmarks without stride */
+typedef void (*benchmark_func_t)(int min_msg_size, int max_msg_size, int ntimes);
+
+/* Function pointer type for benchmarks with stride */
+typedef void (*benchmark_func_with_stride_t)(int min_msg_size, int max_msg_size, int ntimes, int stride);
 
 /* Mapping of benchmarks and their types to functions */
 typedef struct {
   const char *benchmark;
   const char *benchtype;
   benchmark_func_t func;
+  benchmark_func_with_stride_t func_with_stride;
+  bool uses_stride;
 } benchmark_entry_t;
 
 /* Dispatch table for benchmarks */
 benchmark_entry_t benchmark_table[] = {
-  {"shmem_put", "bw", bench_shmem_put_bw},
-  {"shmem_put", "bibw", bench_shmem_put_bibw},
-  {"shmem_put", "latency", bench_shmem_put_latency},
+  {"shmem_put", "bw", bench_shmem_put_bw, NULL, false},
+  {"shmem_put", "bibw", bench_shmem_put_bibw, NULL, false},
+  {"shmem_put", "latency", bench_shmem_put_latency, NULL, false},
 
-  {"shmem_get", "bw", bench_shmem_get_bw},
-  {"shmem_get", "bibw", bench_shmem_get_bibw},
-  {"shmem_get", "latency", bench_shmem_get_latency},
+  {"shmem_get", "bw", bench_shmem_get_bw, NULL, false},
+  {"shmem_get", "bibw", bench_shmem_get_bibw, NULL, false},
+  {"shmem_get", "latency", bench_shmem_get_latency, NULL, false},
 
-  {"shmem_iput", "bw", bench_shmem_iput_bw},
-  {"shmem_iput", "bibw", bench_shmem_iput_bibw},
-  {"shmem_iput", "latency", bench_shmem_iput_latency},
+  {"shmem_iput", "bw", NULL, bench_shmem_iput_bw, true},
+  {"shmem_iput", "bibw", NULL, bench_shmem_iput_bibw, true},
+  {"shmem_iput", "latency", NULL, bench_shmem_iput_latency, true},
 
-  {"shmem_iget", "bw", bench_shmem_iget_bw},
-  {"shmem_iget", "bibw", bench_shmem_iget_bibw},
-  {"shmem_iget", "latency", bench_shmem_iget_latency},
+  {"shmem_iget", "bw", NULL, bench_shmem_iget_bw, true},
+  {"shmem_iget", "bibw", NULL, bench_shmem_iget_bibw, true},
+  {"shmem_iget", "latency", NULL, bench_shmem_iget_latency, true},
 
-  {"shmem_put_nbi", "bw", bench_shmem_put_nbi_bw},
-  {"shmem_put_nbi", "bibw", bench_shmem_put_nbi_bibw},
-  {"shmem_put_nbi", "latency", bench_shmem_put_nbi_latency},
+  {"shmem_put_nbi", "bw", bench_shmem_put_nbi_bw, NULL, false},
+  {"shmem_put_nbi", "bibw", bench_shmem_put_nbi_bibw, NULL, false},
+  {"shmem_put_nbi", "latency", bench_shmem_put_nbi_latency, NULL, false},
 
-  {"shmem_get_nbi", "bw", bench_shmem_get_nbi_bw},
-  {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw},
-  {"shmem_get_nbi", "latency", bench_shmem_get_nbi_latency},
+  {"shmem_get_nbi", "bw", bench_shmem_get_nbi_bw, NULL, false},
+  {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw, NULL, false},
+  {"shmem_get_nbi", "latency", bench_shmem_get_nbi_latency, NULL, false},
 
-  // {"shmem_alltoall", "bw", bench_shmem_alltoall_bw},
-  // {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw},
-  // {"shmem_broadcast", "bw", bench_shmem_broadcast_bw},
-  // {"shmem_collect", "bw", bench_shmem_collect_bw},
-  // {"shmem_fcollect", "bw", bench_shmem_fcollect_bw},
+  // {"shmem_alltoall", "bw", bench_shmem_alltoall_bw, NULL, false},
+  // {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw, NULL, false},
+  // {"shmem_broadcast", "bw", bench_shmem_broadcast_bw, NULL, false},
+  // {"shmem_collect", "bw", bench_shmem_collect_bw, NULL, false},
+  // {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, false},
 };
 
 /*******************************************************************
   @brief Run the selected benchmark
-  @param benchtype Either bw, bibw, or latency
+  @param benchmark The benchmark to be run (e.g., "shmem_put", "shmem_get")
+  @param benchtype The type of benchmark to run, either "bw", "bibw", or "latency"
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
+  @param ntimes Number of times the benchmark should run
+  @param stride Stride value to use for the benchmark (only used if applicable)
  *******************************************************************/
 void run_benchmark(char *benchmark, char *benchtype,
-                   int min_msg_size, int max_msg_size)
+                   int min_msg_size, int max_msg_size,
+                   int ntimes, int stride)
 {
   for (int i = 0; i < sizeof(benchmark_table) / sizeof(benchmark_entry_t); i++) {
     if (strcmp(benchmark, benchmark_table[i].benchmark) == 0 &&
         strcmp(benchtype, benchmark_table[i].benchtype) == 0) {
-        benchmark_table[i].func(min_msg_size, max_msg_size);
-        return;
+      if (benchmark_table[i].uses_stride) {
+        benchmark_table[i].func_with_stride(min_msg_size, max_msg_size, ntimes, stride);
+      } else {
+        benchmark_table[i].func(min_msg_size, max_msg_size, ntimes);
+      }
+      return;
     }
   }
   if (shmem_my_pe() == 0) {
@@ -100,8 +113,8 @@ double calculate_latency(double time) {
 /******************************************************************
   @param times Time array for benchmark timings
   @param msg_size Message size array
-  @param result BW/Latency array
-  @param benchtype bw, bibw, or latency
+  @param results BW/Latency array
+  @param benchtype Either "bw", "bibw", or "latency"
   @param num_sizes Number of rows in the table
  ******************************************************************/
 void display_results(double *times, int *msg_size, double *results,
@@ -131,7 +144,7 @@ void display_results(double *times, int *msg_size, double *results,
 }
 
 /******************************************************************
-  @return Current time
+  @return Current time in seconds
  ******************************************************************/
 double mysecond(void) {
   struct timeval tp;
@@ -142,7 +155,7 @@ double mysecond(void) {
 
 /******************************************************************
   @brief Check if there are exactly 2 PEs
-  @return True or false
+  @return True if there are exactly 2 PEs, false otherwise
  ******************************************************************/
 bool check_if_exactly_2_pes(void) {
   if (shmem_n_pes() != 2) {
@@ -157,7 +170,7 @@ bool check_if_exactly_2_pes(void) {
 
 /******************************************************************
   @brief Check if there are at least 2 PEs
-  @return True or false
+  @return True if there are at least 2 PEs, false otherwise
  ******************************************************************/
 bool check_if_atleast_2_pes(void) {
   if (!(shmem_n_pes() >= 2)) {
@@ -180,6 +193,7 @@ bool check_if_atleast_2_pes(void) {
   @param times Pointer to an array to store the timing results
   @param results Pointer to an array to store the results
                 (e.g., bandwidth or latency)
+  @return True if setup was successful, false otherwise
  ******************************************************************/
 bool setup_bench(int min_msg_size, int max_msg_size, int *num_sizes,
                  int **msg_sizes, double **times, double **results) {
@@ -228,10 +242,16 @@ void display_logo() {
  * @param shmem_version Version of the OpenSHMEM library.
  * @param npes Number of PEs (Processing Elements).
  * @param benchmark Selected benchmark
+ * @param benchtype The type of benchmark to run, either "bw", "bibw", or "latency"
+ * @param min_msg_size Minimum message size for test in bytes
+ * @param max_msg_size Maximum message size for test in bytes
+ * @param ntimes Number of times the benchmark should run
+ * @param stride Stride value to use for the benchmark (only applicable to certain benchmarks)
  ******************************************************************/
 void display_header(char *shmem_name, char* shmem_version, int npes,
                     char *benchmark, char *benchtype,
-                    int min_msg_size, int max_msg_size) {
+                    int min_msg_size, int max_msg_size,
+                    int ntimes, int stride) {
   printf("\n");
   printf("==============================================\n");
   printf("===          Test Information              ===\n");
@@ -244,6 +264,10 @@ void display_header(char *shmem_name, char* shmem_version, int npes,
   printf("  Benchmark Type:         %s\n", benchtype);
   printf("  Min Msg Size (bytes):   %d\n", min_msg_size);
   printf("  Max Msg Size (bytes):   %d\n", max_msg_size);
-  printf("  NTIMES:                 %d\n", NTIMES);
+  printf("  Ntimes:                 %d\n", ntimes);
+  if (strcmp(benchmark, "shmem_iput") == 0 || 
+      strcmp(benchmark, "shmem_iget") == 0) {
+    printf("  Stride:                 %d\n", stride);
+  }
   printf("\n");
 }
