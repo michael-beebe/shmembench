@@ -3,8 +3,8 @@
   @brief main driver file
  */
 
-#include "shmembench.h"
 #include "parse_opts.h"
+#include "shmembench.h"
 
 /**
   @brief Main function for running the test suite.
@@ -13,32 +13,32 @@
   @return EXIT_SUCCESS on success, EXIT_FAILURE on failure.
 */
 int main(int argc, char *argv[]) {
-  /**********************************************/
-  /* Start the OpenSHMEM instance */
-  /**********************************************/
+  /******************************************************************
+    Start the OpenSHMEM instance
+  ******************************************************************/
   shmem_init();
   int mype = shmem_my_pe();
   int npes = shmem_n_pes();
-  
-  /**********************************************/
-  /* Display logo */
-  /**********************************************/
-  if (mype == 0) { display_logo(); }
 
-  /**********************************************/
-  /* Get the OpenSHMEM impl version */
-  /**********************************************/
+  /******************************************************************
+    Display logo
+  ******************************************************************/
+  if (mype == 0) {
+    display_logo();
+  }
+
+  /******************************************************************
+    Get the OpenSHMEM impl version
+  ******************************************************************/
   int major, minor;
   shmem_info_get_version(&major, &minor);
   char *version = (char *)malloc(16 * sizeof(char));
   if (version != NULL) {
     snprintf(version, 16, "%d.%d", major, minor);
-    if ( !(strstr(version, "1.5") != NULL) ) {
+    if (!(strstr(version, "1.5") != NULL)) {
       if (mype == 0) {
-        fprintf(stderr,
-          RED_COLOR "\nERROR: " RESET_COLOR
-          "OpenSHMEM v1.5 is required!\n\n"
-        );
+        fprintf(stderr, RED_COLOR "\nERROR: " RESET_COLOR
+                                  "OpenSHMEM v1.5 is required!\n\n");
       }
       free(version);
       shmem_finalize();
@@ -46,28 +46,25 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  /**********************************************/
-  /* Get the OpenSHMEM impl name */
-  /**********************************************/
+  /******************************************************************
+    Get the OpenSHMEM impl name
+  ******************************************************************/
   char *name = (char *)malloc(SHMEM_MAX_NAME_LEN * sizeof(char));
   if (name != NULL) {
     shmem_info_get_name(name);
   }
 
-  /**********************************************/
-  /* Parse options */
-  /**********************************************/
+  /******************************************************************
+    Parse options
+  ******************************************************************/
   options opts;
   char *benchmark = (char *)malloc(100 * sizeof(char));
   char *benchtype = (char *)malloc(100 * sizeof(char));
   int min_msg_size, max_msg_size;
   int ntimes, stride;
   shmem_barrier_all();
-  if (!parse_opts(
-          argc, argv, &opts, &benchmark,
-          &benchtype, &min_msg_size, &max_msg_size,
-          &ntimes, &stride))
-  {
+  if (!parse_opts(argc, argv, &opts, &benchmark, &benchtype, &min_msg_size,
+                  &max_msg_size, &ntimes, &stride)) {
     if (mype == 0) {
       display_help();
     }
@@ -75,9 +72,9 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  /**********************************************/
-  /* Display help if requested */
-  /**********************************************/
+  /******************************************************************
+    Display help if requested
+  ******************************************************************/
   shmem_barrier_all();
   if (opts.help) {
     if (mype == 0) {
@@ -87,37 +84,30 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
   }
 
-  /**********************************************/
-  /* Display header */
-  /**********************************************/
+  /******************************************************************
+    Display header
+  ******************************************************************/
   shmem_barrier_all();
   if (mype == 0) {
-    display_header(
-      name, version, npes,
-      benchmark, benchtype,
-      min_msg_size, max_msg_size,
-      ntimes, stride
-    );
+    display_header(name, version, npes, benchmark, benchtype, min_msg_size,
+                   max_msg_size, ntimes, stride);
   }
 
-  /**********************************************/
-  /* Run benchmarks */
-  /**********************************************/
+  /******************************************************************
+    Run benchmarks
+  ******************************************************************/
   shmem_barrier_all();
-  run_benchmark(
-    benchmark, benchtype,
-    min_msg_size, max_msg_size,
-    ntimes, stride
-  );
+  run_benchmark(benchmark, benchtype, min_msg_size, max_msg_size, ntimes,
+                stride);
 
-  /**********************************************/
-  /* Finalize the program */
-  /**********************************************/
+  /******************************************************************
+    Finalize the program
+  ******************************************************************/
   free(version);
   free(name);
   free(benchmark);
   free(benchtype);
 
-  shmem_finalize();  
+  shmem_finalize();
   return EXIT_SUCCESS;
 }

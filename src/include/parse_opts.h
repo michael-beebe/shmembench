@@ -1,15 +1,15 @@
-/** 
+/**
   @file parse_opts.h
 */
 
 #ifndef PARSE_OPTS_H
 #define PARSE_OPTS_H
 
-#include <shmem.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <getopt.h>
+#include <shmem.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -20,7 +20,7 @@ typedef struct {
   /* Benchmark options */
   char *bench;
   char *benchtype;
-  
+
   /* Benchmark parameter options */
   int min_msg_size;
   int max_msg_size;
@@ -44,9 +44,8 @@ typedef struct {
   @param stride Stride value to use for the benchmark (only used if applicable)
   @return True if parsing is successful, false otherwise.
  */
-bool parse_opts(int argc, char *argv[], options *opts,
-                char **benchmark, char **benchtype,
-                int *min_msg_size, int *max_msg_size,
+bool parse_opts(int argc, char *argv[], options *opts, char **benchmark,
+                char **benchtype, int *min_msg_size, int *max_msg_size,
                 int *ntimes, int *stride);
 
 /**

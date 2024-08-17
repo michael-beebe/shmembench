@@ -15,20 +15,20 @@ void bench_shmem_put_nbi_bw(int min_msg_size, int max_msg_size, int ntimes) {
   if (!check_if_exactly_2_pes()) {
     return;
   }
-  
+
   /* Stuff that will be used throughout the benchmark */
   int *msg_sizes;
   double *times, *bandwidths;
   int num_sizes = 0;
 
   /* Setup the benchmark */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes,
-              &msg_sizes, &times, &bandwidths);
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &bandwidths);
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
     msg_sizes[i] = size;
-    
+
     /* Source and destination arrays for the shmem_put_nbi */
     long *source = (long *)shmem_malloc(size * sizeof(long));
     long *dest = (long *)shmem_malloc(size * sizeof(long));
@@ -98,8 +98,8 @@ void bench_shmem_put_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
   int num_sizes = 0;
 
   /* Setup the benchmark */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes,
-              &msg_sizes, &times, &bandwidths);
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &bandwidths);
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
@@ -163,7 +163,8 @@ void bench_shmem_put_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
   @param max_msg_size Maximum message size for test in bytes
   @param ntimes Number of repetitions to get the avgs from
  *************************************************************/
-void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size, int ntimes) {
+void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size,
+                                 int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
     return;
@@ -175,8 +176,8 @@ void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size, int ntimes)
   int num_sizes = 0;
 
   /* Setup the benchmark */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes,
-              &msg_sizes, &times, &latencies);
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &latencies);
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
@@ -229,4 +230,3 @@ void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size, int ntimes)
   free(times);
   free(latencies);
 }
-

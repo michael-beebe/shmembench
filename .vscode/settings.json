@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.rmd": "markdown",
+    "shmem_get_nbi.h": "c"
+  }
+}

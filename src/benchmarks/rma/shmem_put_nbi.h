@@ -6,9 +6,9 @@
 #define SHMEM_PUT_NBI_H
 
 #include <shmem.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "shmembench.h"
@@ -35,7 +35,7 @@ void bench_shmem_put_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes);
   @param max_msg_size Maximum message size for test in bytes
   @param ntimes Number of repetitions to get the avgs from
  */
-void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size, int ntimes);
+void bench_shmem_put_nbi_latency(int min_msg_size, int max_msg_size,
+                                 int ntimes);
 
 #endif /* SHMEM_PUT_NBI_H */
-

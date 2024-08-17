@@ -6,9 +6,9 @@
 #define SHMEM_PUT_H
 
 #include <shmem.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "shmembench.h"

@@ -5,11 +5,11 @@
 #ifndef SHMEMBENCH_H
 #define SHMEMBENCH_H
 
-#include <shmem.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <getopt.h>
+#include <shmem.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 
@@ -26,15 +26,16 @@
 /**
   @brief Run the selected benchmark
   @param benchmark The benchmark to be run (e.g., "shmem_put", "shmem_get")
-  @param benchtype The type of benchmark to run, either "bw", "bibw", or "latency"
+  @param benchtype The type of benchmark to run, either "bw", "bibw", or
+  "latency"
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
   @param ntimes Number of times the benchmark should run
-  @param stride Stride value to use for the benchmark (only applicable to certain benchmarks)
+  @param stride Stride value to use for the benchmark (only applicable to
+  certain benchmarks)
  */
-void run_benchmark(char *benchmark, char *benchtype,
-                   int min_msg_size, int max_msg_size,
-                   int ntimes, int stride);
+void run_benchmark(char *benchmark, char *benchtype, int min_msg_size,
+                   int max_msg_size, int ntimes, int stride);
 
 /**
   @brief Calculate bandwidth based on message size and time
@@ -89,13 +90,15 @@ bool check_if_exactly_2_pes(void);
 bool check_if_atleast_2_pes(void);
 
 /**
-  @brief Setup the benchmark by calculating the number of message sizes and allocating arrays
+  @brief Setup the benchmark by calculating the number of message sizes and
+  allocating arrays
   @param min_msg_size Minimum message size for the benchmark in bytes
   @param max_msg_size Maximum message size for the benchmark in bytes
   @param num_sizes Pointer to store the number of message sizes
   @param msg_sizes Pointer to an array to store the message sizes
   @param times Pointer to an array to store the timing results
-  @param results Pointer to an array to store the results (e.g., bandwidth or latency)
+  @param results Pointer to an array to store the results (e.g., bandwidth or
+  latency)
   @return True if setup was successful, false otherwise
  */
 bool setup_bench(int min_msg_size, int max_msg_size, int *num_sizes,
@@ -116,15 +119,16 @@ void display_logo(void);
   @param shmem_version Version of the OpenSHMEM library.
   @param npes Number of PEs (Processing Elements).
   @param benchmark Selected benchmark.
-  @param benchtype The type of benchmark to run, either "bw", "bibw", or "latency"
+  @param benchtype The type of benchmark to run, either "bw", "bibw", or
+  "latency"
   @param min_msg_size Minimum message size for test in bytes.
   @param max_msg_size Maximum message size for test in bytes.
   @param ntimes Number of times the benchmark should run.
-  @param stride Stride value to use for the benchmark (only applicable to certain benchmarks).
+  @param stride Stride value to use for the benchmark (only applicable to
+  certain benchmarks).
  */
-void display_header(char *shmem_name, char* shmem_version, int npes,
-                    char *benchmark, char *benchtype,
-                    int min_msg_size, int max_msg_size,
-                    int ntimes, int stride);
+void display_header(char *shmem_name, char *shmem_version, int npes,
+                    char *benchmark, char *benchtype, int min_msg_size,
+                    int max_msg_size, int ntimes, int stride);
 
 #endif /* SHMEMBENCH_H */
