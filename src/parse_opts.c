@@ -155,6 +155,7 @@ void display_help() {
   printf("                            shmem_broadcast\n");
   printf("                            shmem_collect\n");
   printf("                            shmem_fcollect\n");
+  printf("                            shmem_barrier_all\n");
 
   printf("  --benchtype <type>     Set the benchmark type (bw, bibw, latency)\n");
 
@@ -168,5 +169,8 @@ void display_help() {
   printf("  --help                 Display this help message\n");
 
   printf("\nExample Usage:\n");
-  printf("   oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min 128 --max 1024 --ntimes 100\n\n");
+  printf("   oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min 128 --max 1024 --ntimes 20\n");
+  printf("   oshrun -np 2 shmembench --bench shmem_iget --benchtype bw --min 128 --max 1024 --ntimes 20 --stride 20\n");
+  printf("   oshrun -np 64 shmembench --bench shmem_barrier_all --benchtype latency --ntimes 100\n");
+  printf("\n");
 }

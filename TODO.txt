@@ -1,4 +1,2 @@
-- Change the benchmark functions so there's only
-  one benchark function for each routine and does
-  different things based on which benchtype was
-  selected
+- Improve option handling/error handling
+

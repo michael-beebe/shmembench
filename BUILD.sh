@@ -96,4 +96,4 @@ oshrun $flags -np 1 $exe --help
 # oshrun $flags -np 6 $exe --bench shmem_fcollect --benchtype latency --min $min --max $max
 
 # --- shmem_barrier_all
-oshrun $flags -np 100 $exe --bench shmem_barrier_all --benchtype latency --ntimes 100
+# oshrun $flags -np 100 $exe --bench shmem_barrier_all --benchtype latency --ntimes 100
