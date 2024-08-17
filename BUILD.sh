@@ -47,20 +47,20 @@ oshrun $flags -np 1 $exe --help
 # oshrun $flags -np 2 $exe --bench shmem_put --benchtype bibw --min $min --max $max
 # oshrun $flags -np 2 $exe --bench shmem_put --benchtype latency --min $min --max $max
 
-# --- shmem_iput
-oshrun $flags -np 2 $exe --bench shmem_iput --benchtype bw --min $min --max $max
-oshrun $flags -np 2 $exe --bench shmem_iput --benchtype bibw --min $min --max $max
-oshrun $flags -np 2 $exe --bench shmem_iput --benchtype latency --min $min --max $max
-
 # # --- shmem_get
 # oshrun $flags -np 2 $exe --bench shmem_get --benchtype bw --min $min --max $max
 # oshrun $flags -np 2 $exe --bench shmem_get --benchtype bibw --min $min --max $max
 # oshrun $flags -np 2 $exe --bench shmem_get --benchtype latency --min $min --max $max
 
-# --- shmem_iget
-oshrun $flags -np 2 $exe --bench shmem_iget --benchtype bw --min $min --max $max
-oshrun $flags -np 2 $exe --bench shmem_iget --benchtype bibw --min $min --max $max
-oshrun $flags -np 2 $exe --bench shmem_iget --benchtype latency --min $min --max $max
+# # --- shmem_iput
+# oshrun $flags -np 2 $exe --bench shmem_iput --benchtype bw --min $min --max $max
+# oshrun $flags -np 2 $exe --bench shmem_iput --benchtype bibw --min $min --max $max
+# oshrun $flags -np 2 $exe --bench shmem_iput --benchtype latency --min $min --max $max
+
+# # --- shmem_iget
+# oshrun $flags -np 2 $exe --bench shmem_iget --benchtype bw --min $min --max $max
+# oshrun $flags -np 2 $exe --bench shmem_iget --benchtype bibw --min $min --max $max
+# oshrun $flags -np 2 $exe --bench shmem_iget --benchtype latency --min $min --max $max
 
 # # --- shmem_put_nbi
 # oshrun $flags -np 2 $exe --bench shmem_put_nbi --benchtype bw --min $min --max $max
