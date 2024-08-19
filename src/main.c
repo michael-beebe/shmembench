@@ -17,7 +17,12 @@ int main(int argc, char *argv[]) {
   /******************************************************************
     Start the OpenSHMEM instance
   ******************************************************************/
+#if defined(USE_14) || defined(USE_15)
   shmem_init();
+#else
+#error "Neither USE_14 nor USE_15 is defined."
+#endif 
+
   int mype = shmem_my_pe();
   int npes = shmem_n_pes();
 
@@ -31,11 +36,25 @@ int main(int argc, char *argv[]) {
   /******************************************************************
     Get the OpenSHMEM impl version
   ******************************************************************/
+#if defined(USE_14) || defined(USE_15)
   int major, minor;
   shmem_info_get_version(&major, &minor);
+#endif
+
   char *version = (char *)malloc(16 * sizeof(char));
   if (version != NULL) {
     snprintf(version, 16, "%d.%d", major, minor);
+#if defined(USE_14)
+    if (!(strstr(version, "1.4") != NULL)) {
+      if (mype == 0) {
+        fprintf(stderr, RED_COLOR "\nERROR: " RESET_COLOR
+                                  "OpenSHMEM v1.4 is required!\n\n");
+      }
+      free(version);
+      shmem_finalize();
+      return EXIT_FAILURE;
+    }
+#elif defined(USE_15)
     if (!(strstr(version, "1.5") != NULL)) {
       if (mype == 0) {
         fprintf(stderr, RED_COLOR "\nERROR: " RESET_COLOR
@@ -45,15 +64,18 @@ int main(int argc, char *argv[]) {
       shmem_finalize();
       return EXIT_FAILURE;
     }
+#endif
   }
 
   /******************************************************************
     Get the OpenSHMEM impl name
   ******************************************************************/
+#if defined(USE_14) || defined(USE_15)
   char *name = (char *)malloc(SHMEM_MAX_NAME_LEN * sizeof(char));
   if (name != NULL) {
     shmem_info_get_name(name);
   }
+#endif
 
   /******************************************************************
     Parse options
