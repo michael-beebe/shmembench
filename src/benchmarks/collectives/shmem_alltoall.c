@@ -29,6 +29,14 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
   /* Get the number of PEs */
   int npes = shmem_n_pes();
 
+#if defined(USE_14)
+  long pSync[SHMEM_ALLTOALL_SYNC_SIZE];
+  for (int i = 0; i < SHMEM_ALLTOALL_SYNC_SIZE; i++) {
+    pSync[i] = SHMEM_SYNC_VALUE;
+  }
+  shmem_barrier_all();
+#endif
+
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
     msg_sizes[i] = size;
@@ -53,7 +61,11 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Perform NTIMES shmem_alltoall operations */
     for (int j = 0; j < ntimes; j++) {
+#if defined(USE_14)
+      shmem_alltoall64(dest, source, size, 0, 0, npes, pSync);
+#elif defined(USE_15)
       shmem_alltoall(SHMEM_TEAM_WORLD, dest, source, size);
+#endif
     }
 
     /* Stop timer */
@@ -101,11 +113,19 @@ void bench_shmem_alltoall_latency(int min_msg_size, int max_msg_size, int ntimes
   int num_sizes = 0;
 
   /* Setup the benchmark */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes,
-              &msg_sizes, &times, &latencies);
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times, &latencies);
 
   /* Get the number of PEs */
   int npes = shmem_n_pes();
+
+#if defined(USE_14)
+  /* Define pSync for OpenSHMEM 1.4 */
+  long pSync[SHMEM_ALLTOALL_SYNC_SIZE];
+  for (int i = 0; i < SHMEM_ALLTOALL_SYNC_SIZE; i++) {
+    pSync[i] = SHMEM_SYNC_VALUE;
+  }
+  shmem_barrier_all();
+#endif
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
@@ -120,26 +140,29 @@ void bench_shmem_alltoall_latency(int min_msg_size, int max_msg_size, int ntimes
       source[j] = shmem_my_pe() + j;
     }
 
-    /* Initialize start and end time */
-    double start_time, end_time;
-
     /* Sync PEs */
     shmem_barrier_all();
 
-    /* Start timer */
-    start_time = mysecond();
+    /* Initialize total time */
+    double total_time = 0.0;
 
     /* Perform a single shmem_alltoall operation */
-    shmem_alltoall(SHMEM_TEAM_WORLD, dest, source, size);
-
-    /* Stop timer */
-    end_time = mysecond();
+    for (int j = 0; j < ntimes; j++) {
+      double start_time = mysecond();
+#if defined(USE_14)
+      shmem_alltoall64(dest, source, size, 0, 0, npes, pSync);
+#elif defined(USE_15)
+      shmem_alltoall(SHMEM_TEAM_WORLD, dest, source, size);
+#endif
+      double end_time = mysecond();
+      total_time += (end_time - start_time) * 1e6;
+    }
 
     /* Calculate latency for the single operation in microseconds */
-    times[i] = (end_time - start_time) * 1e6;
+    times[i] = total_time / ntimes;
 
     /* Record latency */
-    latencies[i] = times[i] / ntimes;
+    latencies[i] = times[i];
 
     /* Free the buffers */
     shmem_free(source);
