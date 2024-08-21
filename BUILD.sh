@@ -18,5 +18,5 @@ cmake \
 make -j 50
 
 # --- Run
-cd ../
-./RUN.sh
+# cd ../
+# ./RUN.sh

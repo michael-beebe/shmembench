@@ -30,7 +30,8 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
   int npes = shmem_n_pes();
 
 #if defined(USE_14)
-  long pSync[SHMEM_ALLTOALL_SYNC_SIZE];
+  /* Setup pSync array */
+  long *pSync = (long *)shmem_malloc(SHMEM_ALLTOALL_SYNC_SIZE * sizeof(long));
   for (int i = 0; i < SHMEM_ALLTOALL_SYNC_SIZE; i++) {
     pSync[i] = SHMEM_SYNC_VALUE;
   }
@@ -119,8 +120,8 @@ void bench_shmem_alltoall_latency(int min_msg_size, int max_msg_size, int ntimes
   int npes = shmem_n_pes();
 
 #if defined(USE_14)
-  /* Define pSync for OpenSHMEM 1.4 */
-  long pSync[SHMEM_ALLTOALL_SYNC_SIZE];
+  /* Setup pSync array */
+  long *pSync = (long *)shmem_malloc(SHMEM_ALLTOALL_SYNC_SIZE * sizeof(long));
   for (int i = 0; i < SHMEM_ALLTOALL_SYNC_SIZE; i++) {
     pSync[i] = SHMEM_SYNC_VALUE;
   }

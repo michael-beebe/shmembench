@@ -29,12 +29,11 @@ void bench_shmem_fcollect_bw(int min_msg_size, int max_msg_size, int ntimes) {
   int npes = shmem_n_pes(); /* Get the number of processing elements (PEs) */
 
 #if defined(USE_14)
-  /* Define and initialize pSync for OpenSHMEM 1.4 */
-  long pSync[SHMEM_FCOLLECT_SYNC_SIZE];
-  for (int i = 0; i < SHMEM_FCOLLECT_SYNC_SIZE; i++) {
+  /* Setup pSync array */
+  long *pSync = (long *)shmem_malloc(SHMEM_COLLECT_SYNC_SIZE * sizeof(long));
+  for (int i = 0; i < SHMEM_COLLECT_SYNC_SIZE; i++) {
     pSync[i] = SHMEM_SYNC_VALUE;
   }
-  /* Ensure all PEs are synchronized before starting the benchmark */
   shmem_barrier_all();
 #endif
 
@@ -114,12 +113,11 @@ void bench_shmem_fcollect_latency(int min_msg_size, int max_msg_size, int ntimes
   int npes = shmem_n_pes(); /* Get the number of processing elements (PEs) */
 
 #if defined(USE_14)
-  /* Define and initialize pSync for OpenSHMEM 1.4 */
-  long pSync[SHMEM_FCOLLECT_SYNC_SIZE];
-  for (int i = 0; i < SHMEM_FCOLLECT_SYNC_SIZE; i++) {
+  /* Setup pSync array */
+  long *pSync = (long *)shmem_malloc(SHMEM_COLLECT_SYNC_SIZE * sizeof(long));
+  for (int i = 0; i < SHMEM_COLLECT_SYNC_SIZE; i++) {
     pSync[i] = SHMEM_SYNC_VALUE;
   }
-  /* Ensure all PEs are synchronized before starting the benchmark */
   shmem_barrier_all();
 #endif
 
