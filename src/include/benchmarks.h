@@ -28,5 +28,6 @@
 #include "../benchmarks/atomics/shmem_atomic_compare_swap.h"
 #include "../benchmarks/atomics/shmem_atomic_fetch_nbi.h"
 #include "../benchmarks/atomics/shmem_atomic_fetch.h"
+#include "../benchmarks/atomics/shmem_atomic_inc.h"
 
 #endif /* BENCHMARK_H */
