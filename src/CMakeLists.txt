@@ -53,6 +53,7 @@ target_link_libraries(
   shmem_atomic_fetch_nbi
   shmem_atomic_fetch
   shmem_atomic_inc
+  shmem_atomic_set
 )
 
 # ---- Specify the output directory for the executable

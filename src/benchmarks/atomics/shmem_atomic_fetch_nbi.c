@@ -21,7 +21,9 @@ void bench_shmem_atomic_fetch_nbi_latency(int ntimes) {
   long *dest = (long *)shmem_malloc(npes * sizeof(long));
   long *source = (long *)shmem_malloc(sizeof(long));
   if (dest == NULL || source == NULL) {
-    fprintf(stderr, "PE %d: shmem_malloc failed\n", shmem_my_pe());
+    if (shmem_my_pe() == 0) {
+      fprintf(stderr, "PE %d: shmem_malloc failed\n", shmem_my_pe());
+    }
     shmem_global_exit(1);
   }
 
@@ -29,7 +31,9 @@ void bench_shmem_atomic_fetch_nbi_latency(int ntimes) {
   double *local_total_time = (double *)shmem_malloc(sizeof(double));
   double *total_time = (double *)shmem_malloc(sizeof(double));
   if (local_total_time == NULL || total_time == NULL) {
-    fprintf(stderr, "PE %d: shmem_malloc failed\n", shmem_my_pe());
+    if (shmem_my_pe() == 0) {
+      fprintf(stderr, "PE %d: shmem_malloc failed\n", shmem_my_pe());
+    }
     shmem_global_exit(1);
   }
 
