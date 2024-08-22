@@ -31,6 +31,7 @@ target_link_libraries(
   shmembench ${CMAKE_C_LINKER_FLAGS}
 
   # ============== Benchmarks libs ==============
+  # --- Pt2pt RMA
   shmem_put
   shmem_get
   shmem_iput
@@ -38,12 +39,17 @@ target_link_libraries(
   shmem_put_nbi
   shmem_get_nbi
 
+  # --- Collectives
   shmem_alltoall
   shmem_alltoalls
   shmem_broadcast
   shmem_collect
   shmem_fcollect
   shmem_barrier_all
+
+  # --- Atomics
+  shmem_atomic_add
+  shmem_atomic_compare_swap
 )
 
 # ---- Specify the output directory for the executable

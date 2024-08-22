@@ -134,6 +134,8 @@ bool parse_opts(int argc, char *argv[], options *opts,
 /******************************************************************
   @brief Displays usage information for the test suite.
   Prints out the usage information and available options.
+
+  TODO: add info about the atomics
  ******************************************************************/
 void display_help() {
   printf("\n\nThis program is a performance benchmark suite for "

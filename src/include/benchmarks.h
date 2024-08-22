@@ -23,4 +23,8 @@
 #include "../benchmarks/collectives/shmem_fcollect.h"
 #include "../benchmarks/collectives/shmem_barrier_all.h"
 
+/* Atomic benchmarks */
+#include "../benchmarks/atomics/shmem_atomic_add.h"
+#include "../benchmarks/atomics/shmem_atomic_compare_swap.h"
+
 #endif /* BENCHMARK_H */

@@ -83,6 +83,14 @@ void display_results(double *times, int *msg_size, double *results,
                      const char *benchtype, int num_sizes);
 
 /**
+  @brief Display results for atomic latency benchmarks
+  @param benchmark The name of the benchmark (e.g., "shmem_atomic_add")
+  @param total_time The total time taken for the operations in microseconds
+  @param ntimes The number of times the operation was performed
+ */
+void display_atomic_latency_results(const char *benchmark, double total_time, int ntimes);
+
+/**
   @brief Get current time
   @return Current time in seconds
  */
