@@ -50,8 +50,10 @@ void bench_shmem_put_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Perform ntimes shmem_puts */
     for (int j = 0; j < ntimes; j++) {
+#if defined(USE_14) || defined(USE_15)
       shmem_put(dest, source, size, 1);
       shmem_quiet();
+#endif
     }
 
     /* Stop timer */
@@ -126,9 +128,11 @@ void bench_shmem_put_bibw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Perform ntimes bidirectional shmem_puts */
     for (int j = 0; j < ntimes; j++) {
+#if defined(USE_14) || defined(USE_15)
       shmem_put(dest, source, size, 1); /* PE 0 sends to PE 1 */
       shmem_put(source, dest, size, 0); /* PE 1 sends to PE 0 */
       shmem_quiet();
+#endif
     }
 
     /* Stop timer */
@@ -201,8 +205,10 @@ void bench_shmem_put_latency(int min_msg_size, int max_msg_size, int ntimes) {
     /* Perform ntimes shmem_puts and accumulate total time */
     for (int j = 0; j < ntimes; j++) {
       double start_time = mysecond();
+#if defined(USE_14) || defined(USE_15)
       shmem_put(dest, source, size, 1);
       shmem_quiet();
+#endif
       double end_time = mysecond();
       total_time += (end_time - start_time) * 1e6;
     }

@@ -11,25 +11,34 @@ project(shmembench VERSION 0.1)
 # ---- Enable Testing 
 enable_testing()
 
-# ---- Add debug option
+# ---- Add options
+option(USE_14 "Enable OpenSHMEM v1.4" OFF)
+option(USE_15 "Enable OpenSHMEM v1.5" OFF)
 option(DEBUG "Enable debugging output" OFF)
 
-# ---- Add debug definition
+# ---- Ensure mutual exclusivity of USE_14 and USE_15
+if (USE_14 AND USE_15)
+  message(FATAL_ERROR "Cannot enable both USE_14 and USE_15. Please choose one.")
+endif()
+
+# ---- Ensure at least one version is selected
+if (NOT USE_14 AND NOT USE_15)
+  message(FATAL_ERROR "You must specify either USE_14 or USE_15.")
+endif()
+
+# ---- Add definitions
+if (USE_14)
+  add_definitions(-DUSE_14)
+endif()
+
+if (USE_15)
+  add_definitions(-DUSE_15)
+endif()
+
 if (DEBUG)
   add_definitions(-D_DEBUG_)
+  set(CMAKE_BUILD_TYPE Debug)
 endif()
-
-# ---- Add verbose definition
-if (VERBOSE)
-  add_definitions(-D_VERBOSE_)
-endif()
-
-# --- Add a options to use v1.4 of the spec
-if (USE_14)
-  add_definitions(-D_USE_14_)
-endif()
-
-# --- Add a options to use v1.5 of the spec
 
 # ---- Check for dlfcn.h
 # include(CheckIncludeFile)
