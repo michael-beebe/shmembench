@@ -8,6 +8,7 @@ add_library(shmem_atomic_fetch_nbi shmem_atomic_fetch_nbi.c shmem_atomic_fetch_n
 add_library(shmem_atomic_fetch shmem_atomic_fetch.c shmem_atomic_fetch.h)
 add_library(shmem_atomic_inc shmem_atomic_inc.c shmem_atomic_inc.h)
 add_library(shmem_atomic_set shmem_atomic_set.c shmem_atomic_set.h)
+add_library(shmem_atomic_swap shmem_atomic_swap.c shmem_atomic_swap.h)
 
 # -- Link the libraries with the additional linker flags
 target_link_libraries(shmem_atomic_add ${CMAKE_C_LINKER_FLAGS})
@@ -16,4 +17,5 @@ target_link_libraries(shmem_atomic_fetch_nbi ${CMAKE_C_LINKER_FLAGS})
 target_link_libraries(shmem_atomic_fetch ${CMAKE_C_LINKER_FLAGS})
 target_link_libraries(shmem_atomic_inc ${CMAKE_C_LINKER_FLAGS})
 target_link_libraries(shmem_atomic_set ${CMAKE_C_LINKER_FLAGS})
+target_link_libraries(shmem_atomic_swap ${CMAKE_C_LINKER_FLAGS})
 
