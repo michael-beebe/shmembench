@@ -59,6 +59,8 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Perform the shmem_alltoalls operation for the specified number of times */
     for (int j = 0; j < ntimes; j++) {
+      // printf("PE %d: Before shmem_alltoalls64, size = %d, npes = %d\n", shmem_my_pe(), size, npes);
+      shmem_barrier_all();
 #if defined(USE_14)
       shmem_alltoalls64(dest, source, 1, size, size, 0, 0, npes, pSync);
 #elif defined(USE_15)
