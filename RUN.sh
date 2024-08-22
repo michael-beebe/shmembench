@@ -29,8 +29,8 @@ export SHMEM_SYMMETRIC_SIZE=10000000000
 # # --- Help message
 # oshrun $flags -np 1 $exe --help
 
-# --- shmem_put
-oshrun $flags -np 2 $exe --bench shmem_put --benchtype bw --min $min --max $max --ntimes $ntimes
+# # --- shmem_put
+# oshrun $flags -np 2 $exe --bench shmem_put --benchtype bw --min $min --max $max --ntimes $ntimes
 # oshrun $flags -np 2 $exe --bench shmem_put --benchtype bibw --min $min --max $max --ntimes $ntimes
 # oshrun $flags -np 2 $exe --bench shmem_put --benchtype latency --min $min --max $max --ntimes $ntimes
 
@@ -81,16 +81,16 @@ oshrun $flags -np 2 $exe --bench shmem_put --benchtype bw --min $min --max $max 
 # oshrun $flags -np 6 $exe --bench shmem_fcollect --benchtype bw --min $min --max $max --ntimes $ntimes
 # oshrun $flags -np 6 $exe --bench shmem_fcollect --benchtype latency --min $min --max $max --ntimes $ntimes
 
-# --- shmem_barrier_all
-oshrun $flags -np 100 $exe --bench shmem_barrier_all --benchtype latency --ntimes 10
+# # --- shmem_barrier_all
+# oshrun $flags -np 100 $exe --bench shmem_barrier_all --benchtype latency --ntimes 10
 
 #=====================================================================================
 
 # --- Atomic Operations Latency Tests
 oshrun $flags -np 2 $exe --bench shmem_atomic_add --benchtype latency --ntimes $ntimes
 oshrun $flags -np 2 $exe --bench shmem_atomic_compare_swap --benchtype latency --ntimes $ntimes
-#oshrun $flags -np 2 $exe --bench shmem_atomic_fetch --benchtype latency --ntimes $ntimes
-#oshrun $flags -np 2 $exe --bench shmem_atomic_fetch_nbi --benchtype latency --ntimes $ntimes
+# oshrun $flags -np 2 $exe --bench shmem_atomic_fetch --benchtype latency --ntimes $ntimes
+oshrun $flags -np 2 $exe --bench shmem_atomic_fetch_nbi --benchtype latency --ntimes $ntimes
 #oshrun $flags -np 2 $exe --bench shmem_atomic_inc --benchtype latency --ntimes $ntimes
 #oshrun $flags -np 2 $exe --bench shmem_atomic_set --benchtype latency --ntimes $ntimes
 #oshrun $flags -np 2 $exe --bench shmem_atomic_swap --benchtype latency --ntimes $ntimes

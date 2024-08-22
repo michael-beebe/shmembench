@@ -50,6 +50,7 @@ target_link_libraries(
   # --- Atomics
   shmem_atomic_add
   shmem_atomic_compare_swap
+  shmem_atomic_fetch_nbi
 )
 
 # ---- Specify the output directory for the executable
