@@ -72,6 +72,7 @@ benchmark_entry_t benchmark_table[] = {
   {"shmem_atomic_add", "latency", NULL, NULL, bench_shmem_atomic_add_latency, false},
   {"shmem_atomic_compare_swap", "latency", NULL, NULL, bench_shmem_atomic_compare_swap_latency, false},
   {"shmem_atomic_fetch_nbi", "latency", NULL, NULL, bench_shmem_atomic_fetch_nbi_latency, false},
+  {"shmem_atomic_fetch", "latency", NULL, NULL, bench_shmem_atomic_fetch_latency, false},
   // TODO: add the rest of the atomic benchmarks
 };
 

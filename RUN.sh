@@ -89,7 +89,7 @@ export SHMEM_SYMMETRIC_SIZE=10000000000
 # --- Atomic Operations Latency Tests
 oshrun $flags -np 2 $exe --bench shmem_atomic_add --benchtype latency --ntimes $ntimes
 oshrun $flags -np 2 $exe --bench shmem_atomic_compare_swap --benchtype latency --ntimes $ntimes
-# oshrun $flags -np 2 $exe --bench shmem_atomic_fetch --benchtype latency --ntimes $ntimes
+oshrun $flags -np 2 $exe --bench shmem_atomic_fetch --benchtype latency --ntimes $ntimes
 oshrun $flags -np 2 $exe --bench shmem_atomic_fetch_nbi --benchtype latency --ntimes $ntimes
 #oshrun $flags -np 2 $exe --bench shmem_atomic_inc --benchtype latency --ntimes $ntimes
 #oshrun $flags -np 2 $exe --bench shmem_atomic_set --benchtype latency --ntimes $ntimes
