@@ -17,4 +17,4 @@ build
 *.bk
 .vscode
 .DSStore
-*results.txt
+*_results.txt
