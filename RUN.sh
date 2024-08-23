@@ -26,8 +26,8 @@ ntimes=100
 export SHMEM_SYMMETRIC_SIZE=10000000000
 
 #=====================================================================================
-# # --- Help message
-# oshrun $flags -np 1 $exe --help
+# --- Help message
+oshrun $flags -np 1 $exe --help
 
 # # --- shmem_put
 # oshrun $flags -np 2 $exe --bench shmem_put --benchtype bw --min $min --max $max --ntimes $ntimes
@@ -86,13 +86,13 @@ export SHMEM_SYMMETRIC_SIZE=10000000000
 
 #=====================================================================================
 
-# --- Atomic Operations Latency Tests
-# oshrun $flags -np 2 $exe --bench shmem_atomic_add --benchtype latency --ntimes $ntimes
-# oshrun $flags -np 2 $exe --bench shmem_atomic_compare_swap --benchtype latency --ntimes $ntimes
-# oshrun $flags -np 2 $exe --bench shmem_atomic_fetch --benchtype latency --ntimes $ntimes
-# oshrun $flags -np 2 $exe --bench shmem_atomic_fetch_nbi --benchtype latency --ntimes $ntimes
-# oshrun $flags -np 2 $exe --bench shmem_atomic_inc --benchtype latency --ntimes $ntimes
-# oshrun $flags -np 2 $exe --bench shmem_atomic_set --benchtype latency --ntimes $ntimes
-oshrun $flags -np 2 $exe --bench shmem_atomic_swap --benchtype latency --ntimes $ntimes
+# # --- Atomic Operations Latency Tests
+# oshrun $flags -np 6 $exe --bench shmem_atomic_add --benchtype latency --ntimes $ntimes
+# oshrun $flags -np 6 $exe --bench shmem_atomic_compare_swap --benchtype latency --ntimes $ntimes
+# oshrun $flags -np 6 $exe --bench shmem_atomic_fetch --benchtype latency --ntimes $ntimes
+# oshrun $flags -np 6 $exe --bench shmem_atomic_fetch_nbi --benchtype latency --ntimes $ntimes
+# oshrun $flags -np 6 $exe --bench shmem_atomic_inc --benchtype latency --ntimes $ntimes
+# oshrun $flags -np 6 $exe --bench shmem_atomic_set --benchtype latency --ntimes $ntimes
+# oshrun $flags -np 6 $exe --bench shmem_atomic_swap --benchtype latency --ntimes $ntimes
 
 

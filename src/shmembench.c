@@ -314,7 +314,7 @@ void display_header(char *shmem_name, char *shmem_version, int npes,
   printf("  Number of PEs:          %d\n", npes);
   printf("  Benchmark:              %s\n", benchmark);
   printf("  Benchmark Type:         %s\n", benchtype);
-  if (strstr(benchmark, "atomic") == NULL) {
+  if (strstr(benchmark, "atomic") == NULL && strstr(benchmark, "shmem_barrier_all") == NULL) {
     printf("  Min Msg Size (bytes):   %d\n", min_msg_size);
     printf("  Max Msg Size (bytes):   %d\n", max_msg_size);
   }
