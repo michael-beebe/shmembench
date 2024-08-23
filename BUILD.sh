@@ -11,7 +11,7 @@ cmake \
   -DCMAKE_C_LINKER_FLAGS="-lpmi_simple -lsma" \
   -DCMAKE_INSTALL_PREFIX=$SWHOME/shmemvv \
   -DDEBUG=OFF \
-  -DUSE_14=ON \
+  -DUSE_15=ON \
   ../
 
 # --- Compile

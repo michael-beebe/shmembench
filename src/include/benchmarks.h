@@ -23,4 +23,13 @@
 #include "../benchmarks/collectives/shmem_fcollect.h"
 #include "../benchmarks/collectives/shmem_barrier_all.h"
 
+/* Atomic benchmarks */
+#include "../benchmarks/atomics/shmem_atomic_add.h"
+#include "../benchmarks/atomics/shmem_atomic_compare_swap.h"
+#include "../benchmarks/atomics/shmem_atomic_fetch_nbi.h"
+#include "../benchmarks/atomics/shmem_atomic_fetch.h"
+#include "../benchmarks/atomics/shmem_atomic_inc.h"
+#include "../benchmarks/atomics/shmem_atomic_set.h"
+#include "../benchmarks/atomics/shmem_atomic_swap.h"
+
 #endif /* BENCHMARK_H */
