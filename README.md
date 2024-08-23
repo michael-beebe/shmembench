@@ -78,5 +78,48 @@ export SHMEM_SYMMETRIC_SIZE=1000000000    # v1.4
 export SHMEM_SYMMETRIC_SIZE=1G            # v1.5
 ```
 
+## Sample Output
+```text
+
+==============================================
+===          Test Information              ===
+==============================================
+  OpenSHMEM Name:         Sandia OpenSHMEM
+  OpenSHMEM Version:      1.5
+
+  Number of PEs:          2
+  Benchmark:              shmem_put
+  Benchmark Type:         bw
+  Min Msg Size (bytes):   1
+  Max Msg Size (bytes):   1048576
+  Ntimes:                 100
+
+==============================================
+===          Benchmark Results             ===
+==============================================
+Message Size     Avg Time (us)    Avg MB/s
+1                21.18            0.36
+2                21.20            0.72
+4                18.86            1.62
+8                18.99            3.21
+16               19.01            6.42
+32               19.14            12.76
+64               21.63            22.57
+128              31.48            31.02
+256              27.33            71.46
+512              28.12            138.91
+1024             29.01            269.30
+2048             30.27            516.15
+4096             32.28            968.04
+8192             38.54            1621.68
+16384            49.32            2534.51
+32768            69.31            3606.95
+65536            122.52           4080.94
+131072           276.71           3613.88
+262144           558.86           3578.71
+524288           1040.42          3844.61
+1048576          1847.40          4330.41
+```
+
 ## Contact
 Michael Beebe: michael.beebe@ttu.edu
