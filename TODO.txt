@@ -1,13 +1,10 @@
 ----------
- Atomics
-----------
-Update help message and README to include options
-for atomics
-
-----------
  Main
 ----------
 - Improve option handling/error handling
 - Add ability to add install prefix in cmake
 
 - Fix up shmem_iput, and shmem_iget benchmarks
+
+
+
