@@ -21,3 +21,4 @@ build
 RUN.sh
 BUILD.sh
 TODO.txt
+test
