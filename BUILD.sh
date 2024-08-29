@@ -5,13 +5,16 @@ rm -rf build
 mkdir build
 cd build
 
+
+export CC=`which oshcc`
+export CXX=`which oshc++`
+
 # --- Configure build with SOS
 cmake \
-  -DCMAKE_LIBRARY_PATH=$SOS_LIB         \
-  -DCMAKE_C_LINKER_FLAGS="-lpmi_simple -lsma" \
+  -DCMAKE_LIBRARY_PATH=$OSSS_LIB         \
   -DCMAKE_INSTALL_PREFIX=$SWHOME/shmemvv \
   -DDEBUG=OFF \
-  -DUSE_15=ON \
+  -DUSE_14=ON \
   ../
 
 # --- Compile

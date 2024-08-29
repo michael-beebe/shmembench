@@ -51,8 +51,7 @@ int main(int argc, char *argv[]) {
                                   "OpenSHMEM v1.4 is required!\n\n");
       }
       free(version);
-      shmem_finalize();
-      return EXIT_FAILURE;
+      shmem_global_exit(EXIT_FAILURE);
     }
 #elif defined(USE_15)
     if (!(strstr(version, "1.5") != NULL)) {
@@ -61,8 +60,7 @@ int main(int argc, char *argv[]) {
                                   "OpenSHMEM v1.5 is required!\n\n");
       }
       free(version);
-      shmem_finalize();
-      return EXIT_FAILURE;
+      shmem_global_exit(EXIT_FAILURE);
     }
 #endif
   }
@@ -91,8 +89,7 @@ int main(int argc, char *argv[]) {
     if (mype == 0) {
       display_help();
     }
-    shmem_finalize();
-    return EXIT_FAILURE;
+    shmem_global_exit(EXIT_FAILURE);
   }
 
   /******************************************************************
