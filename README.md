@@ -10,7 +10,7 @@ $ cd build
 $ cmake \
     -DCMAKE_LIBRARY_PATH=</path/to/openshmem/lib/dir>      \
     -DCMAKE_C_LINKER_FLAGS="<linker flags, such as -lsma>" \
-    -DUSE_<OpenSHMEM VERSION (either -DUSE_14 or -DUSE_15)> \
+    -DUSE_<OpenSHMEM VERSION (either -DUSE_14 or -DUSE_15)>=ON \
     ../
 ```
 
@@ -20,7 +20,7 @@ $ mkdir build
 $ cd build
 $ export CC=`which oshcc`
 $ cmake \
-    -DUSE_<OpenSHMEM VERSION (either -DUSE_14 or -DUSE_15)> \
+    -DUSE_<OpenSHMEM VERSION (either -DUSE_14 or -DUSE_15)>=ON \
     ../
 ```
 
