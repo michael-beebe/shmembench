@@ -13,7 +13,8 @@ typedef void (*benchmark_func_t)(int min_msg_size, int max_msg_size,
 typedef void (*benchmark_func_with_stride_t)(int min_msg_size, int max_msg_size,
                                              int ntimes, int stride);
 
-/* Function pointer type for benchmarks without message size parameters (like barriers and atomics) */
+/* Function pointer type for benchmarks without message size parameters (like
+ * barriers and atomics) */
 typedef void (*benchmark_func_no_size_t)(int ntimes);
 
 /* Mapping of benchmarks and their types to functions */
@@ -28,55 +29,69 @@ typedef struct {
 
 /* Dispatch table for benchmarks */
 benchmark_entry_t benchmark_table[] = {
-  {"shmem_put", "bw", bench_shmem_put_bw, NULL, NULL, false},
-  {"shmem_put", "bibw", bench_shmem_put_bibw, NULL, NULL, false},
-  {"shmem_put", "latency", bench_shmem_put_latency, NULL, NULL, false},
+    {"shmem_put", "bw", bench_shmem_put_bw, NULL, NULL, false},
+    {"shmem_put", "bibw", bench_shmem_put_bibw, NULL, NULL, false},
+    {"shmem_put", "latency", bench_shmem_put_latency, NULL, NULL, false},
 
-  {"shmem_get", "bw", bench_shmem_get_bw, NULL, NULL, false},
-  {"shmem_get", "bibw", bench_shmem_get_bibw, NULL, NULL, false},
-  {"shmem_get", "latency", bench_shmem_get_latency, NULL, NULL, false},
+    {"shmem_get", "bw", bench_shmem_get_bw, NULL, NULL, false},
+    {"shmem_get", "bibw", bench_shmem_get_bibw, NULL, NULL, false},
+    {"shmem_get", "latency", bench_shmem_get_latency, NULL, NULL, false},
 
-  {"shmem_iput", "bw", NULL, bench_shmem_iput_bw, NULL, true},
-  {"shmem_iput", "bibw", NULL, bench_shmem_iput_bibw, NULL, true},
-  {"shmem_iput", "latency", NULL, bench_shmem_iput_latency, NULL, true},
+    {"shmem_iput", "bw", NULL, bench_shmem_iput_bw, NULL, true},
+    {"shmem_iput", "bibw", NULL, bench_shmem_iput_bibw, NULL, true},
+    {"shmem_iput", "latency", NULL, bench_shmem_iput_latency, NULL, true},
 
-  {"shmem_iget", "bw", NULL, bench_shmem_iget_bw, NULL, true},
-  {"shmem_iget", "bibw", NULL, bench_shmem_iget_bibw, NULL, true},
-  {"shmem_iget", "latency", NULL, bench_shmem_iget_latency, NULL, true},
+    {"shmem_iget", "bw", NULL, bench_shmem_iget_bw, NULL, true},
+    {"shmem_iget", "bibw", NULL, bench_shmem_iget_bibw, NULL, true},
+    {"shmem_iget", "latency", NULL, bench_shmem_iget_latency, NULL, true},
 
-  {"shmem_put_nbi", "bw", bench_shmem_put_nbi_bw, NULL, NULL, false},
-  {"shmem_put_nbi", "bibw", bench_shmem_put_nbi_bibw, NULL, NULL, false},
-  {"shmem_put_nbi", "latency", bench_shmem_put_nbi_latency, NULL, NULL, false},
+    {"shmem_put_nbi", "bw", bench_shmem_put_nbi_bw, NULL, NULL, false},
+    {"shmem_put_nbi", "bibw", bench_shmem_put_nbi_bibw, NULL, NULL, false},
+    {"shmem_put_nbi", "latency", bench_shmem_put_nbi_latency, NULL, NULL,
+     false},
 
-  {"shmem_get_nbi", "bw", bench_shmem_get_nbi_bw, NULL, NULL, false},
-  {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw, NULL, NULL, false},
-  {"shmem_get_nbi", "latency", bench_shmem_get_nbi_latency, NULL, NULL, false},
+    {"shmem_get_nbi", "bw", bench_shmem_get_nbi_bw, NULL, NULL, false},
+    {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw, NULL, NULL, false},
+    {"shmem_get_nbi", "latency", bench_shmem_get_nbi_latency, NULL, NULL,
+     false},
 
-  {"shmem_alltoall", "bw", bench_shmem_alltoall_bw, NULL, NULL, false},
-  {"shmem_alltoall", "latency", bench_shmem_alltoall_latency, NULL, NULL, false},
+    {"shmem_alltoall", "bw", bench_shmem_alltoall_bw, NULL, NULL, false},
+    {"shmem_alltoall", "latency", bench_shmem_alltoall_latency, NULL, NULL,
+     false},
 
-  {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw, NULL, NULL, false},
-  {"shmem_alltoalls", "latency", bench_shmem_alltoalls_latency, NULL, NULL, false},
+    {"shmem_alltoalls", "bw", bench_shmem_alltoalls_bw, NULL, NULL, false},
+    {"shmem_alltoalls", "latency", bench_shmem_alltoalls_latency, NULL, NULL,
+     false},
 
-  {"shmem_broadcast", "bw", bench_shmem_broadcast_bw, NULL, NULL, false},
-  {"shmem_broadcast", "latency", bench_shmem_broadcast_latency, NULL, NULL, false},
-    
-  {"shmem_collect", "bw", bench_shmem_collect_bw, NULL, NULL, false},
-  {"shmem_collect", "latency", bench_shmem_collect_latency, NULL, NULL, false},
-    
-  {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, NULL, false},
-  {"shmem_fcollect", "latency", bench_shmem_fcollect_latency, NULL, NULL, false},
+    {"shmem_broadcast", "bw", bench_shmem_broadcast_bw, NULL, NULL, false},
+    {"shmem_broadcast", "latency", bench_shmem_broadcast_latency, NULL, NULL,
+     false},
 
-  {"shmem_barrier_all", "latency", NULL, NULL, bench_shmem_barrier_all_latency, false},
+    {"shmem_collect", "bw", bench_shmem_collect_bw, NULL, NULL, false},
+    {"shmem_collect", "latency", bench_shmem_collect_latency, NULL, NULL,
+     false},
 
-  {"shmem_atomic_add", "latency", NULL, NULL, bench_shmem_atomic_add_latency, false},
-  {"shmem_atomic_compare_swap", "latency", NULL, NULL, bench_shmem_atomic_compare_swap_latency, false},
-  {"shmem_atomic_fetch_nbi", "latency", NULL, NULL, bench_shmem_atomic_fetch_nbi_latency, false},
-  {"shmem_atomic_fetch", "latency", NULL, NULL, bench_shmem_atomic_fetch_latency, false},
-  {"shmem_atomic_inc", "latency", NULL, NULL, bench_shmem_atomic_inc_latency, false},
-  {"shmem_atomic_set", "latency", NULL, NULL, bench_shmem_atomic_set_latency, false},
-  {"shmem_atomic_swap", "latency", NULL, NULL, bench_shmem_atomic_swap_latency, false}
-};
+    {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, NULL, false},
+    {"shmem_fcollect", "latency", bench_shmem_fcollect_latency, NULL, NULL,
+     false},
+
+    {"shmem_barrier_all", "latency", NULL, NULL,
+     bench_shmem_barrier_all_latency, false},
+
+    {"shmem_atomic_add", "latency", NULL, NULL, bench_shmem_atomic_add_latency,
+     false},
+    {"shmem_atomic_compare_swap", "latency", NULL, NULL,
+     bench_shmem_atomic_compare_swap_latency, false},
+    {"shmem_atomic_fetch_nbi", "latency", NULL, NULL,
+     bench_shmem_atomic_fetch_nbi_latency, false},
+    {"shmem_atomic_fetch", "latency", NULL, NULL,
+     bench_shmem_atomic_fetch_latency, false},
+    {"shmem_atomic_inc", "latency", NULL, NULL, bench_shmem_atomic_inc_latency,
+     false},
+    {"shmem_atomic_set", "latency", NULL, NULL, bench_shmem_atomic_set_latency,
+     false},
+    {"shmem_atomic_swap", "latency", NULL, NULL,
+     bench_shmem_atomic_swap_latency, false}};
 
 /*******************************************************************
   @brief Run the selected benchmark
@@ -90,11 +105,13 @@ benchmark_entry_t benchmark_table[] = {
  *******************************************************************/
 void run_benchmark(char *benchmark, char *benchtype, int min_msg_size,
                    int max_msg_size, int ntimes, int stride) {
-  for (int i = 0; i < sizeof(benchmark_table) / sizeof(benchmark_entry_t); i++) {
+  for (int i = 0; i < sizeof(benchmark_table) / sizeof(benchmark_entry_t);
+       i++) {
     if (strcmp(benchmark, benchmark_table[i].benchmark) == 0 &&
         strcmp(benchtype, benchmark_table[i].benchtype) == 0) {
       if (benchmark_table[i].uses_stride) {
-        benchmark_table[i].func_with_stride(min_msg_size, max_msg_size, ntimes, stride);
+        benchmark_table[i].func_with_stride(min_msg_size, max_msg_size, ntimes,
+                                            stride);
       } else if (benchmark_table[i].func != NULL) {
         benchmark_table[i].func(min_msg_size, max_msg_size, ntimes);
       } else if (benchmark_table[i].func_no_size != NULL) {
@@ -185,7 +202,8 @@ void display_results(double *times, int *msg_size, double *results,
   @param total_time The total time taken for the operations in microseconds
   @param ntimes The number of times the operation was performed
  ******************************************************************/
-void display_atomic_latency_results(const char *benchmark, double total_time, int ntimes) {
+void display_atomic_latency_results(const char *benchmark, double total_time,
+                                    int ntimes) {
   double avg_time = total_time / ntimes;
 
   printf("==============================================\n");
@@ -314,7 +332,8 @@ void display_header(char *shmem_name, char *shmem_version, int npes,
   printf("  Number of PEs:          %d\n", npes);
   printf("  Benchmark:              %s\n", benchmark);
   printf("  Benchmark Type:         %s\n", benchtype);
-  if (strstr(benchmark, "atomic") == NULL && strstr(benchmark, "shmem_barrier_all") == NULL) {
+  if (strstr(benchmark, "atomic") == NULL &&
+      strstr(benchmark, "shmem_barrier_all") == NULL) {
     printf("  Min Msg Size (bytes):   %d\n", min_msg_size);
     printf("  Max Msg Size (bytes):   %d\n", max_msg_size);
   }

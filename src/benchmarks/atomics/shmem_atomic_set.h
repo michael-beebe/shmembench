@@ -1,6 +1,7 @@
 /**
   @file shmem_atomic_set.h
-  @brief Header file for shmem_atomic_set latency benchmark with support for OpenSHMEM 1.4 and 1.5
+  @brief Header file for shmem_atomic_set latency benchmark with support for
+  OpenSHMEM 1.4 and 1.5
 */
 
 #ifndef SHMEM_ATOMIC_SET_H

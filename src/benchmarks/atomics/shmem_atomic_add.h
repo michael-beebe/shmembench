@@ -1,6 +1,7 @@
 /**
   @file shmem_atomic_add.h
-  @brief Header file for shmem_atomic_add latency benchmark without size parameter
+  @brief Header file for shmem_atomic_add latency benchmark without size
+  parameter
 */
 
 #ifndef SHMEM_ATOMIC_ADD_H
@@ -21,4 +22,3 @@
 void bench_shmem_atomic_add_latency(int ntimes);
 
 #endif /* SHMEM_ATOMIC_ADD_H */
-

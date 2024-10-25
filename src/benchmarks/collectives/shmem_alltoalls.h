@@ -29,7 +29,7 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes);
   @param max_msg_size Maximum message size for test in bytes
   @param ntimes Number of times the benchmark should run
  */
-void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size, int ntimes);
+void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size,
+                                   int ntimes);
 
 #endif /* SHMEM_ALLTOALLS_H */
-

@@ -52,9 +52,9 @@ void bench_shmem_get_bw(int min_msg_size, int max_msg_size, int ntimes) {
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
       shmem_get(dest, source, size, 1);
-      shmem_quiet();
 #endif
     }
+    shmem_quiet();
 
     /* Stop timer */
     end_time = mysecond();

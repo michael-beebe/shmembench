@@ -23,8 +23,10 @@ void bench_shmem_collect_bw(int min_msg_size, int max_msg_size, int ntimes) {
   double *times, *bandwidths;
   int num_sizes = 0;
 
-  /* Initialize the benchmark setup, including message sizes, times, and bandwidths */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times, &bandwidths);
+  /* Initialize the benchmark setup, including message sizes, times, and
+   * bandwidths */
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &bandwidths);
 
   int npes = shmem_n_pes(); /* Get the number of processing elements (PEs) */
 
@@ -54,7 +56,7 @@ void bench_shmem_collect_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Synchronize all PEs before starting the benchmark */
     shmem_barrier_all();
-    start_time = mysecond();  /* Record the start time */
+    start_time = mysecond(); /* Record the start time */
 
     /* Perform the shmem_collect operation for the specified number of times */
     for (int j = 0; j < ntimes; j++) {
@@ -64,8 +66,8 @@ void bench_shmem_collect_bw(int min_msg_size, int max_msg_size, int ntimes) {
       shmem_collect(SHMEM_TEAM_WORLD, dest, source, size);
 #endif
     }
-
-    end_time = mysecond();  /* Record the end time */
+    shmem_quiet();
+    end_time = mysecond(); /* Record the end time */
 
     /* Calculate the average time per operation and bandwidth */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
@@ -96,7 +98,8 @@ void bench_shmem_collect_bw(int min_msg_size, int max_msg_size, int ntimes) {
   @param max_msg_size Maximum message size for the test in bytes
   @param ntimes Number of times to run the benchmark
  *************************************************************/
-void bench_shmem_collect_latency(int min_msg_size, int max_msg_size, int ntimes) {
+void bench_shmem_collect_latency(int min_msg_size, int max_msg_size,
+                                 int ntimes) {
   /* Ensure there are at least 2 PEs available to run the benchmark */
   if (!check_if_atleast_2_pes()) {
     return;
@@ -107,8 +110,10 @@ void bench_shmem_collect_latency(int min_msg_size, int max_msg_size, int ntimes)
   double *times, *latencies;
   int num_sizes = 0;
 
-  /* Initialize the benchmark setup, including message sizes, times, and latencies */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times, &latencies);
+  /* Initialize the benchmark setup, including message sizes, times, and
+   * latencies */
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &latencies);
 
   int npes = shmem_n_pes(); /* Get the number of processing elements (PEs) */
 
@@ -138,7 +143,7 @@ void bench_shmem_collect_latency(int min_msg_size, int max_msg_size, int ntimes)
 
     /* Synchronize all PEs before starting the benchmark */
     shmem_barrier_all();
-    start_time = mysecond();  /* Record the start time */
+    start_time = mysecond(); /* Record the start time */
 
     /* Perform the shmem_collect operation for the specified number of times */
     for (int j = 0; j < ntimes; j++) {
@@ -148,8 +153,9 @@ void bench_shmem_collect_latency(int min_msg_size, int max_msg_size, int ntimes)
       shmem_collect(SHMEM_TEAM_WORLD, dest, source, size);
 #endif
     }
+    shmem_quiet();
 
-    end_time = mysecond();  /* Record the end time */
+    end_time = mysecond(); /* Record the end time */
 
     /* Calculate the average time per operation and record latency */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
@@ -173,6 +179,3 @@ void bench_shmem_collect_latency(int min_msg_size, int max_msg_size, int ntimes)
   free(times);
   free(latencies);
 }
-
-
-

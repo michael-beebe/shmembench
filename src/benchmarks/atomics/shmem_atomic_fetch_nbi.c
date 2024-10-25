@@ -1,6 +1,7 @@
 /**
   @file shmem_atomic_fetch_nbi.c
-  @brief Source file for shmem_atomic_fetch_nbi latency benchmark with support for OpenSHMEM 1.5
+  @brief Source file for shmem_atomic_fetch_nbi latency benchmark with support
+  for OpenSHMEM 1.5
 */
 
 #include "shmem_atomic_fetch_nbi.h"
@@ -16,21 +17,15 @@ void bench_shmem_atomic_fetch_nbi_latency(int ntimes) {
     return;
   }
 
-  /* Allocate memory for the destination and source variables */
+  /* Allocate memory for the destination, source, and timing variables */
   int npes = shmem_n_pes();
   long *dest = (long *)shmem_malloc(npes * sizeof(long));
   long *source = (long *)shmem_malloc(sizeof(long));
-  if (dest == NULL || source == NULL) {
-    if (shmem_my_pe() == 0) {
-      fprintf(stderr, "PE %d: shmem_malloc failed\n", shmem_my_pe());
-    }
-    shmem_global_exit(1);
-  }
-
-  /* Allocate memory for timing variables */
   double *local_total_time = (double *)shmem_malloc(sizeof(double));
   double *total_time = (double *)shmem_malloc(sizeof(double));
-  if (local_total_time == NULL || total_time == NULL) {
+
+  /* Check for successful memory allocation */
+  if (!dest || !source || !local_total_time || !total_time) {
     if (shmem_my_pe() == 0) {
       fprintf(stderr, "PE %d: shmem_malloc failed\n", shmem_my_pe());
     }
@@ -55,14 +50,16 @@ void bench_shmem_atomic_fetch_nbi_latency(int ntimes) {
     shmem_quiet();
 
     double end_time = mysecond();
-    *local_total_time += (end_time - start_time) * 1e6; /* Convert to microseconds */
+    *local_total_time +=
+        (end_time - start_time) * 1e6; /* Convert to microseconds */
   }
 
   /* Aggregate and display results */
   shmem_double_sum_reduce(SHMEM_TEAM_WORLD, total_time, local_total_time, 1);
 
   if (shmem_my_pe() == 0) {
-    display_atomic_latency_results("shmem_atomic_fetch_nbi", *total_time / npes, ntimes);
+    display_atomic_latency_results("shmem_atomic_fetch_nbi", *total_time / npes,
+                                   ntimes);
   }
 
   shmem_barrier_all();
@@ -75,7 +72,9 @@ void bench_shmem_atomic_fetch_nbi_latency(int ntimes) {
 
 #else
   if (shmem_my_pe() == 0) {
-    fprintf(stderr, "shmem_atomic_fetch_nbi is not supported by this OpenSHMEM version!\n");
+    fprintf(
+        stderr,
+        "shmem_atomic_fetch_nbi is not supported by this OpenSHMEM version!\n");
   }
 #endif
 }

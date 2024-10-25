@@ -3,18 +3,7 @@
 Benchmarking suite for OpenSHMEM implementations adhering to either the [v1.4](http://www.openshmem.org/site/sites/default/site_files/OpenSHMEM-1.4.pdf) or [v1.5](http://www.openshmem.org/site/sites/default/site_files/OpenSHMEM-1.5.pdf) specification.
 
 ## Building
-You can use your default compiler and link in your openshmem libraries like so:
-```bash
-$ mkdir build
-$ cd build
-$ cmake \
-    -DCMAKE_LIBRARY_PATH=</path/to/openshmem/lib/dir>      \
-    -DCMAKE_C_LINKER_FLAGS="<linker flags, such as -lsma>" \
-    -DUSE_<OpenSHMEM VERSION (either -DUSE_14 or -DUSE_15)>=ON \
-    ../
-```
-
-or you can set your default C compiler to `oshcc` like so. This assumes you have `oshcc` in your PATH, shmem.h in your CPATH/C_INCLUDE_PATH, and OpenSHMEM libraries in your LD_LIBRARY_PATH:
+You can set your default C compiler to `oshcc` like so. This assumes you have `oshcc` in your PATH, shmem.h in your CPATH/C_INCLUDE_PATH, and OpenSHMEM libraries in your LD_LIBRARY_PATH:
 ```bash
 $ mkdir build
 $ cd build

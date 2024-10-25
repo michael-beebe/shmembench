@@ -29,6 +29,7 @@ void bench_shmem_collect_bw(int min_msg_size, int max_msg_size, int ntimes);
   @param max_msg_size Maximum message size for the test in bytes
   @param ntimes Number of times to run the benchmark
  */
-void bench_shmem_collect_latency(int min_msg_size, int max_msg_size, int ntimes);
+void bench_shmem_collect_latency(int min_msg_size, int max_msg_size,
+                                 int ntimes);
 
 #endif /* SHMEM_COLLECT_H */

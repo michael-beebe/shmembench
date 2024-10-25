@@ -18,7 +18,7 @@ build
 .vscode
 .DSStore
 *_results.txt
-RUN.sh
-BUILD.sh
+#RUN.sh
+#BUILD.sh
 TODO.txt
 test

@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   shmem_init();
 #else
 #error "Neither USE_14 nor USE_15 is defined."
-#endif 
+#endif
 
   int mype = shmem_my_pe();
   int npes = shmem_n_pes();

@@ -1,6 +1,7 @@
 /**
   @file shmem_atomic_compare_swap.h
-  @brief Header file for shmem_atomic_compare_swap latency benchmark with improvements
+  @brief Header file for shmem_atomic_compare_swap latency benchmark with
+  improvements
 */
 
 #ifndef SHMEM_ATOMIC_COMPARE_SWAP_H

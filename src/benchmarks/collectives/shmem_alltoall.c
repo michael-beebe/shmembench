@@ -23,8 +23,8 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
   int num_sizes = 0;
 
   /* Setup the benchmark */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes,
-              &msg_sizes, &times, &bandwidths);
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &bandwidths);
 
   /* Get the number of PEs */
   int npes = shmem_n_pes();
@@ -68,6 +68,7 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
       shmem_alltoall(SHMEM_TEAM_WORLD, dest, source, size);
 #endif
     }
+    shmem_quiet();
 
     /* Stop timer */
     end_time = mysecond();
@@ -102,7 +103,8 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
   @param max_msg_size Maximum message size for test in bytes
   @param ntimes Number of iterations for the benchmark
  *************************************************************/
-void bench_shmem_alltoall_latency(int min_msg_size, int max_msg_size, int ntimes) {
+void bench_shmem_alltoall_latency(int min_msg_size, int max_msg_size,
+                                  int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_atleast_2_pes()) {
     return;
@@ -114,7 +116,8 @@ void bench_shmem_alltoall_latency(int min_msg_size, int max_msg_size, int ntimes
   int num_sizes = 0;
 
   /* Setup the benchmark */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times, &latencies);
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &latencies);
 
   /* Get the number of PEs */
   int npes = shmem_n_pes();

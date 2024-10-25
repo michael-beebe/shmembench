@@ -23,8 +23,10 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
   double *times, *bandwidths;
   int num_sizes = 0;
 
-  /* Initialize the benchmark setup, including message sizes, times, and bandwidths */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times, &bandwidths);
+  /* Initialize the benchmark setup, including message sizes, times, and
+   * bandwidths */
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &bandwidths);
 
   /* Get the number of processing elements (PEs) */
   int npes = shmem_n_pes();
@@ -55,20 +57,21 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Synchronize all PEs before starting the benchmark */
     shmem_barrier_all();
-    start_time = mysecond();  /* Record the start time */
+    start_time = mysecond(); /* Record the start time */
 
-    /* Perform the shmem_alltoalls operation for the specified number of times */
+    /* Perform the shmem_alltoalls operation for the specified number of times
+     */
     for (int j = 0; j < ntimes; j++) {
-      // printf("PE %d: Before shmem_alltoalls64, size = %d, npes = %d\n", shmem_my_pe(), size, npes);
-      shmem_barrier_all();
+      // printf("PE %d: Before shmem_alltoalls64, size = %d, npes = %d\n",
+      // shmem_my_pe(), size, npes);
 #if defined(USE_14)
       shmem_alltoalls64(dest, source, 1, size, size, 0, 0, npes, pSync);
 #elif defined(USE_15)
       shmem_alltoalls(SHMEM_TEAM_WORLD, dest, source, 1, size, 1);
 #endif
     }
-
-    end_time = mysecond();  /* Record the end time */
+    shmem_quiet();
+    end_time = mysecond(); /* Record the end time */
 
     /* Calculate the average time per operation and bandwidth */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
@@ -99,7 +102,8 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
   @param max_msg_size Maximum message size for test in bytes
   @param ntimes Number of times the benchmark should run
  *************************************************************/
-void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size, int ntimes) {
+void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size,
+                                   int ntimes) {
   /* Ensure there are at least 2 PEs available to run the benchmark */
   if (!check_if_atleast_2_pes()) {
     return;
@@ -110,8 +114,10 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size, int ntime
   double *times, *latencies;
   int num_sizes = 0;
 
-  /* Initialize the benchmark setup, including message sizes, times, and latencies */
-  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times, &latencies);
+  /* Initialize the benchmark setup, including message sizes, times, and
+   * latencies */
+  setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
+              &latencies);
 
   /* Get the number of processing elements (PEs) */
   int npes = shmem_n_pes();
@@ -142,9 +148,10 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size, int ntime
 
     /* Synchronize all PEs before starting the benchmark */
     shmem_barrier_all();
-    start_time = mysecond();  /* Record the start time */
+    start_time = mysecond(); /* Record the start time */
 
-    /* Perform the shmem_alltoalls operation for the specified number of times */
+    /* Perform the shmem_alltoalls operation for the specified number of times
+     */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14)
       shmem_alltoalls64(dest, source, 1, size, size, 0, 0, npes, pSync);
@@ -152,8 +159,9 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size, int ntime
       shmem_alltoalls(SHMEM_TEAM_WORLD, dest, source, 1, size, 1);
 #endif
     }
+    shmem_quiet();
 
-    end_time = mysecond();  /* Record the end time */
+    end_time = mysecond(); /* Record the end time */
 
     /* Calculate the average time per operation and record latency */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
@@ -177,6 +185,3 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size, int ntime
   free(times);
   free(latencies);
 }
-
-
-

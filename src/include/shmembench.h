@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <omp.h>
 
 #include "benchmarks.h"
 
@@ -88,7 +89,8 @@ void display_results(double *times, int *msg_size, double *results,
   @param total_time The total time taken for the operations in microseconds
   @param ntimes The number of times the operation was performed
  */
-void display_atomic_latency_results(const char *benchmark, double total_time, int ntimes);
+void display_atomic_latency_results(const char *benchmark, double total_time,
+                                    int ntimes);
 
 /**
   @brief Get current time
