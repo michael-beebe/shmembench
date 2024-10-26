@@ -219,8 +219,7 @@ void display_atomic_latency_results(const char *benchmark, double total_time,
  ******************************************************************/
 double mysecond(void) {
   struct timeval tp;
-  struct timezone tzp;
-  int i = gettimeofday(&tp, &tzp);
+  int i = gettimeofday(&tp, NULL);
   return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
 }
 
