@@ -5,6 +5,7 @@ CFLAGS = -std=gnu11 -Wall -I./src/include
 LDFLAGS =
 
 SRC_DIR = ./src
+RS_SRC_DIR = ./rs
 INCLUDE_DIR = $(SRC_DIR)/include
 BENCHMARKS_DIR = $(SRC_DIR)/benchmarks
 
@@ -34,5 +35,9 @@ $(TARGET): $(OBJS)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
+	rm -rf $(RS_SRC_DIR)/target
+
+rs-bin:
+	cd $(RS_SRC_DIR) && cargo build --release
 
 .PHONY: all clean
