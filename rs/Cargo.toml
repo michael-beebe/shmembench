@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.5.22", features = ["derive"] }
 # update revision as wanted
-openshmem-rs = { git = "https://github.com/kumaryash6352/openshmem_rs.git", rev = "74456b07" }
+openshmem-rs = { git = "https://github.com/kumaryash6352/openshmem_rs.git", rev = "d57bf34e" }

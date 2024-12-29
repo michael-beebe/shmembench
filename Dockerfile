@@ -55,6 +55,13 @@ RUN ./configure
 RUN make
 RUN make install
 
+# Grab Rust
+RUN yes | pacman -S rustup llvm clang
+RUN rustup default nightly
+ENV SHMEM_INSTALL_DIR=/scratch/sos-bin/
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/scratch/sos-bin/lib
+
+
 # Copy the entire damn worktree.
 WORKDIR /scratch/shmembench
 COPY . .
@@ -62,5 +69,9 @@ COPY . .
 # BUILD
 RUN CC=oshcc CXX=oshc++ make
 
+# BUILD PT 2
+WORKDIR /scratch/shmembench/rs
+RUN cargo build --release
+
 WORKDIR /scratch/shmembench/scripts
-ENTRYPOINT ["./RUN.sh"]
+ENTRYPOINT ["mpiexec.hydra", "-n", "2", "./../rs/target/release/shmembench-rs", "--bench", "put"]

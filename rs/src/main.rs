@@ -76,7 +76,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match args.routine {
         Routine::Get => bench_get(n_times, msg_sizes, &ctx),
-        Routine::Put => todo!(),
+        Routine::Put => bench_put(n_times, msg_sizes, &ctx),
         Routine::AtomicAdd => todo!(),
         Routine::AtomicCmpSwp => todo!(),
         Routine::AtomicFetch => todo!(),
@@ -93,10 +93,42 @@ fn bench_header() {
     println!("==============================================");
 }
 
+fn bench_put(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
+    let max_msg = *sizes.iter().max().unwrap();
+    let shmalloc = ctx.shmallocator();
+    let mut dest = shmalloc.array(0u8, max_msg);
+
+    ctx.barrier_all();
+    let mut times = Vec::with_capacity(sizes.capacity());
+    let mut src = vec![ctx.my_pe().raw() as u8; max_msg];
+
+    let access = ctx.pe(0);
+    for size in sizes {
+        let data = &src[0..size];
+        ctx.barrier_all();
+        let start = Instant::now();
+        for _ in 0..ntimes {
+            black_box(access.write_from(&mut dest, data));
+        }
+        ctx.barrier_all();
+        times.push((size, start.elapsed().as_secs_f32()));
+    }
+
+    if ctx.my_pe() == 0 {
+        bench_header();
+        println!("size (b)\r\t\tlatency (us)\r\t\t\t\tbandwidth (mb/s)");
+        for (size, time) in times {
+            let latency = (time / ntimes as f32) * 1_000_000.0;
+            let bandwidth = (size * ntimes) as f32 / time / 1_000_000.0;
+            println!("{size}\r\t\t{latency:>0.2}\r\t\t\t\t{bandwidth:>0.2}");
+        }
+    }
+}
+
 fn bench_get(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
     let max_msg = *sizes.iter().max().unwrap();
     let shmalloc = ctx.shmallocator();
-    let buffer = shmalloc.array(0u8, max_msg);
+    let src = shmalloc.array(0u8, max_msg);
 
     ctx.barrier_all();
     let mut times = Vec::with_capacity(sizes.capacity());
@@ -107,7 +139,7 @@ fn bench_get(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
         ctx.barrier_all();
         let start = Instant::now();
         for _ in 0..ntimes {
-            black_box(access.read_into(&buffer, 0..size, &mut dest));
+            black_box(access.read_into(&src, 0..size, &mut dest));
         }
         ctx.barrier_all();
         times.push((size, start.elapsed().as_secs_f32()));
@@ -117,8 +149,8 @@ fn bench_get(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
         bench_header();
         println!("size (b)\r\t\tlatency (us)\r\t\t\t\tbandwidth (mb/s)");
         for (size, time) in times {
-            let latency = (time / ntimes as f32) / 1_000_000.0;
-            let bandwidth = (size * ntimes) as f32 / time;
+            let latency = (time / ntimes as f32) * 1_000_000.0;
+            let bandwidth = (size * ntimes) as f32 / time / 1_000_000.0;
             println!("{size}\r\t\t{latency:>0.2}\r\t\t\t\t{bandwidth:>0.2}");
         }
     }
