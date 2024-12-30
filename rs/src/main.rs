@@ -1,7 +1,7 @@
 use std::{error::Error, hint::black_box, time::Instant};
 
 use clap::{Parser, ValueEnum};
-use openshmem_rs::ShmemCtx;
+use openshmem_rs::{atomics::Atomic, ShmemCtx, PE};
 
 #[derive(Debug, ValueEnum, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 enum Routine {
@@ -77,7 +77,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     match args.routine {
         Routine::Get => bench_get(n_times, msg_sizes, &ctx),
         Routine::Put => bench_put(n_times, msg_sizes, &ctx),
-        Routine::AtomicAdd => todo!(),
+        Routine::AtomicAdd => bench_atomic_add(n_times, &ctx),
         Routine::AtomicCmpSwp => todo!(),
         Routine::AtomicFetch => todo!(),
         Routine::AtomicInc => todo!(),
@@ -87,10 +87,34 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn bench_header() {
+fn header() {
     println!("==============================================");
     println!("===          Benchmark Results             ===");
     println!("==============================================");
+}
+
+// TODO: macro
+
+fn bench_atomic_add(ntimes: usize, ctx: &ShmemCtx) {
+    let shmalloc = ctx.shmallocator();
+    let mut dest = shmalloc.shbox(Atomic::new(0usize));
+    let mut target_pe = PE(0);
+    ctx.barrier_all();
+    let start = Instant::now();
+
+    for _ in 0..ntimes {
+        black_box(dest.atomic_add(1, target_pe, ctx));
+    }
+    ctx.barrier_all();
+
+    let elapsed = start.elapsed().as_secs_f32();
+    let avg = elapsed / ntimes as f32;
+
+    if ctx.my_pe() == 0 {
+        header();
+        println!("Avg Time per Add (s): {avg:.08} ({elapsed:.08} total)");
+    }
+    ctx.barrier_all();
 }
 
 fn bench_put(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
@@ -115,7 +139,7 @@ fn bench_put(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
     }
 
     if ctx.my_pe() == 0 {
-        bench_header();
+        header();
         println!("size (b)\r\t\tlatency (us)\r\t\t\t\tbandwidth (mb/s)");
         for (size, time) in times {
             let latency = (time / ntimes as f32) * 1_000_000.0;
@@ -146,7 +170,7 @@ fn bench_get(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
     }
 
     if ctx.my_pe() == 0 {
-        bench_header();
+        header();
         println!("size (b)\r\t\tlatency (us)\r\t\t\t\tbandwidth (mb/s)");
         for (size, time) in times {
             let latency = (time / ntimes as f32) * 1_000_000.0;
@@ -168,7 +192,7 @@ fn bench_barrier(ntimes: usize, ctx: &ShmemCtx) {
     let avg = elapsed / ntimes as f32;
 
     if ctx.my_pe() == 0 {
-        bench_header();
+        header();
         println!("Avg Time per Barrier (s): {avg:.08} ({elapsed:.08} total)");
     }
     ctx.barrier_all();
