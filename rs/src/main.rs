@@ -78,9 +78,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         Routine::Get => bench_get(n_times, msg_sizes, &ctx),
         Routine::Put => bench_put(n_times, msg_sizes, &ctx),
         Routine::AtomicAdd => bench_atomic_add(n_times, &ctx),
-        Routine::AtomicCmpSwp => todo!(),
-        Routine::AtomicFetch => todo!(),
-        Routine::AtomicInc => todo!(),
+        Routine::AtomicCmpSwp => bench_atomic_cmp_swp(n_times, &ctx),
+        Routine::AtomicFetch => bench_atomic_fetch(n_times, &ctx),
+        Routine::AtomicInc => bench_atomic_inc(n_times, &ctx),
         Routine::Barrier => bench_barrier(n_times, &ctx),
     }
 
@@ -94,6 +94,74 @@ fn header() {
 }
 
 // TODO: macro
+
+fn bench_atomic_inc(ntimes: usize, ctx: &ShmemCtx) {
+    let shmalloc = ctx.shmallocator();
+    let mut dest = shmalloc.shbox(Atomic::new(0usize));
+    let mut target_pe = PE(0);
+    ctx.barrier_all();
+    let start = Instant::now();
+
+    for _ in 0..ntimes {
+        black_box(dest.atomic_inc(target_pe, ctx));
+    }
+    ctx.barrier_all();
+
+    let elapsed = start.elapsed().as_secs_f32();
+    let avg = elapsed / ntimes as f32;
+
+    if ctx.my_pe() == 0 {
+        header();
+        println!("Avg Time per Increment (s): {avg:.08} ({elapsed:.08} total)");
+    }
+    ctx.barrier_all();
+}
+
+fn bench_atomic_cmp_swp(ntimes: usize, ctx: &ShmemCtx) {
+    let shmalloc = ctx.shmallocator();
+    let mut dest = shmalloc.shbox(Atomic::new(0usize));
+    let mut target_pe = PE(0);
+    let swp_with = ctx.my_pe().raw();
+    let if_eqs = (swp_with + 1) % ctx.n_pes();
+    ctx.barrier_all();
+    let start = Instant::now();
+
+    for _ in 0..ntimes {
+        black_box(dest.atomic_compare_swap(0, swp_with, target_pe, ctx));
+    }
+    ctx.barrier_all();
+
+    let elapsed = start.elapsed().as_secs_f32();
+    let avg = elapsed / ntimes as f32;
+
+    if ctx.my_pe() == 0 {
+        header();
+        println!("Avg Time per Compare+Swap (s): {avg:.08} ({elapsed:.08} total)");
+    }
+    ctx.barrier_all();
+}
+
+fn bench_atomic_fetch(ntimes: usize, ctx: &ShmemCtx) {
+    let shmalloc = ctx.shmallocator();
+    let mut dest = shmalloc.shbox(Atomic::new(0usize));
+    let mut target_pe = PE(0);
+    ctx.barrier_all();
+    let start = Instant::now();
+
+    for _ in 0..ntimes {
+        black_box(dest.atomic_fetch(target_pe, ctx));
+    }
+    ctx.barrier_all();
+
+    let elapsed = start.elapsed().as_secs_f32();
+    let avg = elapsed / ntimes as f32;
+
+    if ctx.my_pe() == 0 {
+        header();
+        println!("Avg Time per Fetch (s): {avg:.08} ({elapsed:.08} total)");
+    }
+    ctx.barrier_all();
+}
 
 fn bench_atomic_add(ntimes: usize, ctx: &ShmemCtx) {
     let shmalloc = ctx.shmallocator();
