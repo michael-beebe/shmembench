@@ -39,7 +39,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args = CliArgs::parse();
     let msg_sizes = args
         .msg_sizes
-        .or(args.msg_size_max.map(|to| (1..to).collect()))
+        .or(args.msg_size_max.map(|to| {
+            (0..((to - 1) as f32).sqrt().floor() as usize)
+                .map(|x| 2usize.pow(x as _))
+                .collect()
+        }))
         .unwrap_or((0..=20).map(|x| 1 << x).collect());
 
     let ctx = ShmemCtx::init()?;
