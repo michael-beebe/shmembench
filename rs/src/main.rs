@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let msg_sizes = args
         .msg_sizes
         .or(args.msg_size_max.map(|to| {
-            (0..((to - 1) as f32).sqrt().floor() as usize)
+            (0..((to - 1) as f32).log2().floor() as usize)
                 .map(|x| 2usize.pow(x as _))
                 .collect()
         }))
@@ -99,6 +99,9 @@ fn header() {
 
 // TODO: macro
 
+const BYTES_PER_MIB: f32 = 1024.0 * 1024.0;
+const US_PER_S: f32 = 1_000_000.0;
+
 fn bench_atomic_inc(ntimes: usize, ctx: &ShmemCtx) {
     let shmalloc = ctx.shmallocator();
     let mut dest = shmalloc.shbox(Atomic::new(0usize));
@@ -116,7 +119,7 @@ fn bench_atomic_inc(ntimes: usize, ctx: &ShmemCtx) {
 
     if ctx.my_pe() == 0 {
         header();
-        println!("Avg Time per Increment (s): {avg:.08} ({elapsed:.08} total)");
+        println!("Avg Time per Increment (us): {avg:.08} ({elapsed:.08} total)");
     }
     ctx.barrier_all();
 }
@@ -214,8 +217,8 @@ fn bench_put(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
         header();
         println!("size (b)\r\t\tlatency (us)\r\t\t\t\tbandwidth (mb/s)");
         for (size, time) in times {
-            let latency = (time / ntimes as f32) * 1_000_000.0;
-            let bandwidth = (size * ntimes) as f32 / time / 1_000_000.0;
+            let latency = (time / ntimes as f32) * US_PER_S;
+            let bandwidth = (size * ntimes) as f32 / time / BYTES_PER_MIB;
             println!("{size}\r\t\t{latency:>0.2}\r\t\t\t\t{bandwidth:>0.2}");
         }
     }
@@ -245,8 +248,8 @@ fn bench_get(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
         header();
         println!("size (b)\r\t\tlatency (us)\r\t\t\t\tbandwidth (mb/s)");
         for (size, time) in times {
-            let latency = (time / ntimes as f32) * 1_000_000.0;
-            let bandwidth = (size * ntimes) as f32 / time / 1_000_000.0;
+            let latency = (time / ntimes as f32) * US_PER_S;
+            let bandwidth = (size * ntimes) as f32 / time / BYTES_PER_MIB;
             println!("{size}\r\t\t{latency:>0.2}\r\t\t\t\t{bandwidth:>0.2}");
         }
     }
