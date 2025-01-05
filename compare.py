@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from typing import TypeVar, cast
+from typing import TypeVar, cast, List, Tuple
 
 
 runner = ["mpiexec.hydra", "-n", "2"]
@@ -45,15 +45,15 @@ def extract_latency(out: str) -> float:
     avg = unwrap(re.findall(r'\d+\.\d{2,}', out), "didn't find any times in latency output")
     return float(avg[0]) if "(s)" in out else float(avg[0]) / US_PER_S
 
-def run_latency_bench(cname: str, rsname: str) -> tuple[float, float]:
+def run_latency_bench(cname: str, rsname: str) -> Tuple[float, float]:
     cout = shmrunc("--bench", cname, "--benchtype", "latency", "--ntimes", "100")
     rsout = shmrunrs("--bench", rsname, "--ntimes", "100")
-    return cast(tuple[float, float], tuple(map(extract_latency, (cout, rsout))))
+    return cast(Tuple[float, float], tuple(map(extract_latency, (cout, rsout))))
 
-def extract_bws(out: str) -> list[tuple[int, float, float]]:
+def extract_bws(out: str) -> List[Tuple[int, float, float]]:
     raise Exception("unimplemented")
 
-def run_bw_bench(cname: str, rsname: str) -> list[tuple[tuple[float, float], tuple[float, float]]]:
+def run_bw_bench(cname: str, rsname: str) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
     raise Exception("unimplemented")
 
 if __name__ == '__main__':
