@@ -56,7 +56,12 @@ def extract_bws(out: str) -> List[Tuple[int, float, float]]:
 def run_bw_bench(cname: str, rsname: str) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
     raise Exception("unimplemented")
 
+median = lambda xs: list(sorted(xs))[int(len(xs) / 2)]
+
 str_of_int = lambda x: "%.10f" % x
+
+median_n = 5
+assert median_n % 1, "median_n must be odd"
 
 if __name__ == '__main__':
     import csv
@@ -64,5 +69,6 @@ if __name__ == '__main__':
         writer = csv.writer(f)
         writer.writerow(["Routine", "C (baseline)", "RS (normalized)", "C (raw, us)", "RS (raw, us)"])
         for cname, rsname in latency_benches:
-            latency = run_latency_bench(cname, rsname)
+            latencies = [run_latency_bench(cname, rsname) for _ in range(median_n)]
+            latency = median(x[0] for x in latencies), median(x[1] for x in latencies)
             writer.writerow([cname, 1.0, *map(str_of_int, [latency[1] / latency[0], latency[0], latency[1]])])
