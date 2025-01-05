@@ -56,6 +56,8 @@ def extract_bws(out: str) -> List[Tuple[int, float, float]]:
 def run_bw_bench(cname: str, rsname: str) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
     raise Exception("unimplemented")
 
+str_of_int = lambda x: "%.10f" % x
+
 if __name__ == '__main__':
     import csv
     with open(f"latency.csv", "w+", newline="") as f:
@@ -63,4 +65,4 @@ if __name__ == '__main__':
         writer.writerow(["Routine", "C (baseline)", "RS (normalized)", "C (raw, us)", "RS (raw, us)"])
         for cname, rsname in latency_benches:
             latency = run_latency_bench(cname, rsname)
-            writer.writerow([cname, 1.0, latency[1] / latency[0], latency[0], latency[1]])
+            writer.writerow([cname, 1.0, *map(str_of_int, [latency[1] / latency[0], latency[0], latency[1]])])
