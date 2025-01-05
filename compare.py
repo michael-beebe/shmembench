@@ -24,7 +24,7 @@ def shmrun(*args: str) -> str:
     try:
         argv = [*runner, *args]
         print(f"running:  {' '.join(argv)}")
-        result = subprocess.run(argv, capture_output=True, text=True, check=True)
+        result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"failed running {args}:\n{e.stderr}")
