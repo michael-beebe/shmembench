@@ -1,7 +1,7 @@
 
 
 CC = oshcc
-CFLAGS = -std=gnu11 -Wall -I./src/include
+CFLAGS = -std=gnu11 -Wall -I./src/include -O2
 LDFLAGS =
 
 SRC_DIR = ./src

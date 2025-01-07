@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
+from os import mkdir
+import os
 from typing import TypeVar, cast, List, Tuple
+import re
 
 
 runner = ["mpiexec.hydra", "-n", "2"]
@@ -41,7 +44,6 @@ def unwrap(x: T, msg = "unwrapped falsy value") -> T:
 US_PER_S = 1_000_000
 B_PER_MIB = pow(1024, 2)
 def extract_latency(out: str) -> float:
-    import re
     avg = unwrap(re.findall(r'\d+\.\d{2,}', out), "didn't find any times in latency output")
     return float(avg[0]) if "(s)" in out else float(avg[0]) / US_PER_S
 
@@ -50,25 +52,51 @@ def run_latency_bench(cname: str, rsname: str) -> Tuple[float, float]:
     rsout = shmrunrs("--bench", rsname, "--ntimes", "100")
     return cast(Tuple[float, float], tuple(map(extract_latency, (cout, rsout))))
 
+last = lambda xs: xs[len(xs) - 1]
+
+bw_data_point_r = re.compile(r"(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)?", re.MULTILINE)
 def extract_bws(out: str) -> List[Tuple[int, float, float]]:
-    raise Exception("unimplemented")
+    return [(int(sz), float(us), float(bw or 0))
+            for sz, us, bw in
+            (found.group(1, 2, 3)
+             for found in bw_data_point_r.finditer(out))]
 
-def run_bw_bench(cname: str, rsname: str) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
-    raise Exception("unimplemented")
+def run_bw_bench(
+    cname: str,
+    rsname: str,
+    # args: Iterable[str],
+    # rsargs: Iterable[str] = [],
+    # cargs: Iterable[str] = []
+) -> List[Tuple[int, Tuple[float, float], Tuple[float, float]]]:
+    cout = shmrunc("--bench", cname, "--benchtype", "latency", "--ntimes", "100", "--min", "1", "--max", "1048576")
+    rsout = shmrunrs("--bench", rsname, "--ntimes", "100", "--msg-size-max", "1048576")
+    cout = extract_bws(cout)
+    rsout = extract_bws(rsout)
+    return [(csize, (cus, cbw), (rsus, rsbw))
+            for ((csize, cus, cbw), (_rssize, rsus, rsbw))
+            in zip(cout, rsout)]
 
-median = lambda xs: list(sorted(xs))[int(len(xs) / 2)]
+median = lambda xs: list(sorted(xs))[int(len(list(xs)) / 2)]
 
-str_of_int = lambda x: "%.10f" % x
+str_of_float = lambda x: "%.10f" % x
 
-median_n = 5
-assert median_n % 1, "median_n must be odd"
+median_n = 3
+assert median_n % 2, "median_n must be odd"
 
 if __name__ == '__main__':
     import csv
-    with open(f"latency.csv", "w+", newline="") as f:
+    mkdir("/tmp/results")
+    with open(f"/tmp/results/latency.csv", "w+", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["Routine", "C (baseline)", "RS (normalized)", "C (raw, us)", "RS (raw, us)"])
         for cname, rsname in latency_benches:
             latencies = [run_latency_bench(cname, rsname) for _ in range(median_n)]
             latency = median(x[0] for x in latencies), median(x[1] for x in latencies)
-            writer.writerow([cname, 1.0, *map(str_of_int, [latency[1] / latency[0], latency[0], latency[1]])])
+            writer.writerow([cname, 1.0, *map(str_of_float, [latency[1] / latency[0], latency[0], latency[1]])])
+    for cname, rsname in bw_benches:
+        with open(f"/tmp/results/bw_{cname}.csv", "w+", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Msg Size (b)", "C (baseline)", "RS (normalized)", "C (raw, us)", "RS (raw, us)"])
+            datapoints = run_bw_bench(cname, rsname)
+            for size, (ctime, cbw), (rstime, rsbw) in datapoints:
+                writer.writerow([size, *map(str_of_float, [1.0, rstime / ctime, ctime, rstime])])
