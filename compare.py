@@ -85,6 +85,8 @@ assert median_n % 2, "median_n must be odd"
 
 if __name__ == '__main__':
     import csv
+    from shutil import rmtree
+    rmtree("/tmp/results", True)
     mkdir("/tmp/results")
     with open(f"/tmp/results/latency.csv", "w+", newline="") as f:
         writer = csv.writer(f)
