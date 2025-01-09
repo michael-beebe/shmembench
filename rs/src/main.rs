@@ -60,7 +60,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("==============================================");
         println!("  OpenSHMEM Name:         {shmemname}");
         println!("  OpenSHMEM Version:      {major}.{minor}");
-        println!("  Bindings Version:       1.5.3@74456b");
+        println!("  Bindings Version:       1.5.3@d3e93ced"); // update me!
         println!("  Number of PEs:          {n_pes}");
         println!("  Benchmark:              {benchname:?}");
         if args.routine.uses_msg_size() {
@@ -112,14 +112,16 @@ fn bench_atomic_inc(ntimes: usize, ctx: &ShmemCtx) {
     for _ in 0..ntimes {
         black_box(dest.atomic_inc(target_pe, ctx));
     }
+    unsafe { openshmem_rs::ffi::shmem_quiet(); }
     ctx.barrier_all();
 
     let elapsed = start.elapsed().as_secs_f32();
     let avg = elapsed / ntimes as f32;
 
+    dbg!(dest.atomic_fetch(target_pe, ctx));
     if ctx.my_pe() == 0 {
         header();
-        println!("Avg Time per Increment (us): {avg:.08} ({elapsed:.08} total)");
+        println!("Avg Time per Increment (s): {avg:.08} ({elapsed:.08} total)");
     }
     ctx.barrier_all();
 }
@@ -136,6 +138,7 @@ fn bench_atomic_cmp_swp(ntimes: usize, ctx: &ShmemCtx) {
     for _ in 0..ntimes {
         black_box(dest.atomic_compare_swap(0, swp_with, target_pe, ctx));
     }
+    unsafe { openshmem_rs::ffi::shmem_quiet(); }
     ctx.barrier_all();
 
     let elapsed = start.elapsed().as_secs_f32();
@@ -158,6 +161,7 @@ fn bench_atomic_fetch(ntimes: usize, ctx: &ShmemCtx) {
     for _ in 0..ntimes {
         black_box(dest.atomic_fetch(target_pe, ctx));
     }
+    unsafe { openshmem_rs::ffi::shmem_quiet(); }
     ctx.barrier_all();
 
     let elapsed = start.elapsed().as_secs_f32();
@@ -180,6 +184,7 @@ fn bench_atomic_add(ntimes: usize, ctx: &ShmemCtx) {
     for _ in 0..ntimes {
         black_box(dest.atomic_add(1, target_pe, ctx));
     }
+    unsafe { openshmem_rs::ffi::shmem_quiet(); }
     ctx.barrier_all();
 
     let elapsed = start.elapsed().as_secs_f32();

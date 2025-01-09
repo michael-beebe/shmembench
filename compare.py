@@ -45,7 +45,7 @@ US_PER_S = 1_000_000
 B_PER_MIB = pow(1024, 2)
 def extract_latency(out: str) -> float:
     avg = unwrap(re.findall(r'\d+\.\d{2,}', out), "didn't find any times in latency output")
-    return float(avg[0]) if "(s)" in out else float(avg[0]) / US_PER_S
+    return (float(avg[0]) / US_PER_S) if "(s)" in out else float(avg[0])
 
 def run_latency_bench(cname: str, rsname: str) -> Tuple[float, float]:
     cout = shmrunc("--bench", cname, "--benchtype", "latency", "--ntimes", "100")
