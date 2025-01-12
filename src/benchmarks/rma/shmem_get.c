@@ -31,8 +31,8 @@ void bench_shmem_get_bw(int min_msg_size, int max_msg_size, int ntimes) {
     msg_sizes[i] = size;
 
     /* Source and destination arrays for the shmem_get */
-    long *source = (long *)shmem_malloc(size * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * sizeof(long));
+    char *source = (char *)shmem_malloc(size);
+    char *dest = (char *)shmem_malloc(size);
 
     /* Initialize source buffer */
     for (int j = 0; j < size; j++) {
@@ -51,7 +51,7 @@ void bench_shmem_get_bw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Perform ntimes shmem_gets */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
-      shmem_get(dest, source, size, 1);
+      shmem_get8(dest, source, size, 1);
 #endif
     }
     shmem_quiet();
@@ -63,7 +63,7 @@ void bench_shmem_get_bw(int min_msg_size, int max_msg_size, int ntimes) {
     times[i] = (end_time - start_time) * 1e6 / ntimes;
 
     /* Calculate bandwidth */
-    bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
+    bandwidths[i] = calculate_bw(size, times[i]);
 
     /* Free the buffers */
     shmem_free(source);

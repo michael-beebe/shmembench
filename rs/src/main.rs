@@ -39,10 +39,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args = CliArgs::parse();
     let msg_sizes = args
         .msg_sizes
-        .or(args.msg_size_max.map(|to| {
-            (0..((to - 1) as f32).log2().floor() as usize)
-                .map(|x| 2usize.pow(x as _))
-                .collect()
+        .or(args.msg_size_max.map(|max| {
+            let mut powers = Vec::with_capacity(max.ilog2() + 1);
+            let mut x = 1;
+            while x <= max {
+                powers.push(x);
+                x *= 2;
+            }
+            powers
         }))
         .unwrap_or((0..=20).map(|x| 1 << x).collect());
 
@@ -104,7 +108,7 @@ const US_PER_S: f32 = 1_000_000.0;
 
 fn bench_atomic_inc(ntimes: usize, ctx: &ShmemCtx) {
     let shmalloc = ctx.shmallocator();
-    let mut dest = shmalloc.shbox(Atomic::new(0usize));
+    let mut dest = shmalloc.shbox(Atomic::new(0u32));
     let mut target_pe = PE(0);
     ctx.barrier_all();
     let start = Instant::now();
@@ -115,23 +119,23 @@ fn bench_atomic_inc(ntimes: usize, ctx: &ShmemCtx) {
     unsafe { openshmem_rs::ffi::shmem_quiet(); }
     ctx.barrier_all();
 
-    let elapsed = start.elapsed().as_secs_f32();
+    let elapsed = start.elapsed().as_micros() as f32;
     let avg = elapsed / ntimes as f32;
 
     dbg!(dest.atomic_fetch(target_pe, ctx));
     if ctx.my_pe() == 0 {
         header();
-        println!("Avg Time per Increment (s): {avg:.08} ({elapsed:.08} total)");
+        println!("Avg Time per Increment (us): {avg:.08} ({elapsed:.08} total)");
     }
     ctx.barrier_all();
 }
 
 fn bench_atomic_cmp_swp(ntimes: usize, ctx: &ShmemCtx) {
     let shmalloc = ctx.shmallocator();
-    let mut dest = shmalloc.shbox(Atomic::new(0usize));
+    let mut dest = shmalloc.shbox(Atomic::new(0u32));
     let mut target_pe = PE(0);
-    let swp_with = ctx.my_pe().raw();
-    let if_eqs = (swp_with + 1) % ctx.n_pes();
+    let swp_with = ctx.my_pe().raw() as u32;
+    let if_eqs = (swp_with + 1) % ctx.n_pes() as u32;
     ctx.barrier_all();
     let start = Instant::now();
 
@@ -141,19 +145,19 @@ fn bench_atomic_cmp_swp(ntimes: usize, ctx: &ShmemCtx) {
     unsafe { openshmem_rs::ffi::shmem_quiet(); }
     ctx.barrier_all();
 
-    let elapsed = start.elapsed().as_secs_f32();
+    let elapsed = start.elapsed().as_micros() as f32;
     let avg = elapsed / ntimes as f32;
 
     if ctx.my_pe() == 0 {
         header();
-        println!("Avg Time per Compare+Swap (s): {avg:.08} ({elapsed:.08} total)");
+        println!("Avg Time per Compare+Swap (us): {avg:.08} ({elapsed:.08} total)");
     }
     ctx.barrier_all();
 }
 
 fn bench_atomic_fetch(ntimes: usize, ctx: &ShmemCtx) {
     let shmalloc = ctx.shmallocator();
-    let mut dest = shmalloc.shbox(Atomic::new(0usize));
+    let mut dest = shmalloc.shbox(Atomic::new(0u32));
     let mut target_pe = PE(0);
     ctx.barrier_all();
     let start = Instant::now();
@@ -164,19 +168,19 @@ fn bench_atomic_fetch(ntimes: usize, ctx: &ShmemCtx) {
     unsafe { openshmem_rs::ffi::shmem_quiet(); }
     ctx.barrier_all();
 
-    let elapsed = start.elapsed().as_secs_f32();
+    let elapsed = start.elapsed().as_micros() as f32;
     let avg = elapsed / ntimes as f32;
 
     if ctx.my_pe() == 0 {
         header();
-        println!("Avg Time per Fetch (s): {avg:.08} ({elapsed:.08} total)");
+        println!("Avg Time per Fetch (us): {avg:.08} ({elapsed:.08} total)");
     }
     ctx.barrier_all();
 }
 
 fn bench_atomic_add(ntimes: usize, ctx: &ShmemCtx) {
     let shmalloc = ctx.shmallocator();
-    let mut dest = shmalloc.shbox(Atomic::new(0usize));
+    let mut dest = shmalloc.shbox(Atomic::new(0u32));
     let mut target_pe = PE(0);
     ctx.barrier_all();
     let start = Instant::now();
@@ -187,12 +191,12 @@ fn bench_atomic_add(ntimes: usize, ctx: &ShmemCtx) {
     unsafe { openshmem_rs::ffi::shmem_quiet(); }
     ctx.barrier_all();
 
-    let elapsed = start.elapsed().as_secs_f32();
+    let elapsed = start.elapsed().as_micros() as f32;
     let avg = elapsed / ntimes as f32;
 
     if ctx.my_pe() == 0 {
         header();
-        println!("Avg Time per Add (s): {avg:.08} ({elapsed:.08} total)");
+        println!("Avg Time per Add (us): {avg:.08} ({elapsed:.08} total)");
     }
     ctx.barrier_all();
 }
@@ -209,11 +213,13 @@ fn bench_put(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
     let access = ctx.pe(0);
     for size in sizes {
         let data = &src[0..size];
+        unsafe { openshmem_rs::ffi::shmem_quiet(); }
         ctx.barrier_all();
         let start = Instant::now();
         for _ in 0..ntimes {
             black_box(access.write_from(&mut dest, data));
         }
+        unsafe { openshmem_rs::ffi::shmem_quiet(); }
         ctx.barrier_all();
         times.push((size, start.elapsed().as_secs_f32()));
     }
@@ -240,11 +246,13 @@ fn bench_get(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
 
     let access = ctx.pe(0);
     for size in sizes {
+        unsafe { openshmem_rs::ffi::shmem_quiet(); }
         ctx.barrier_all();
         let start = Instant::now();
         for _ in 0..ntimes {
             black_box(access.read_into(&src, 0..size, &mut dest));
         }
+        unsafe { openshmem_rs::ffi::shmem_quiet(); }
         ctx.barrier_all();
         times.push((size, start.elapsed().as_secs_f32()));
     }
@@ -268,12 +276,12 @@ fn bench_barrier(ntimes: usize, ctx: &ShmemCtx) {
         black_box(ctx.barrier_all());
     }
 
-    let elapsed = start.elapsed().as_secs_f32();
+    let elapsed = start.elapsed().as_micros() as f32;
     let avg = elapsed / ntimes as f32;
 
     if ctx.my_pe() == 0 {
         header();
-        println!("Avg Time per Barrier (s): {avg:.08} ({elapsed:.08} total)");
+        println!("Avg Time per Barrier (us): {avg:.08} ({elapsed:.08} total)");
     }
     ctx.barrier_all();
 }
