@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let msg_sizes = args
         .msg_sizes
         .or(args.msg_size_max.map(|max| {
-            let mut powers = Vec::with_capacity(max.ilog2() + 1);
+            let mut powers = Vec::with_capacity((max.ilog2() + 1) as usize);
             let mut x = 1;
             while x <= max {
                 powers.push(x);
