@@ -54,14 +54,14 @@ int main(int argc, char *argv[]) {
       shmem_global_exit(EXIT_FAILURE);
     }
 #elif defined(USE_15)
-    if (!(strstr(version, "1.5") != NULL)) {
-      if (mype == 0) {
-        fprintf(stderr, RED_COLOR "\nERROR: " RESET_COLOR
-                                  "OpenSHMEM v1.5 is required!\n\n");
-      }
-      free(version);
-      shmem_global_exit(EXIT_FAILURE);
-    }
+    // if (!(strstr(version, "1.5") != NULL)) {
+    //   if (mype == 0) {
+    //     fprintf(stderr, RED_COLOR "\nERROR: " RESET_COLOR
+    //                               "OpenSHMEM v1.5 is required!\n\n");
+    //   }
+    //   free(version);
+    //   shmem_global_exit(EXIT_FAILURE);
+    // }
 #endif
   }
 
