@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
 from os import environ, mkdir
 import os
 from typing import TypeVar, cast, List, Tuple
@@ -74,18 +75,23 @@ def run_bw_bench(
     # args: Iterable[str],
     # rsargs: Iterable[str] = [],
     # cargs: Iterable[str] = []
-) -> List[Tuple[int, Tuple[float, float], Tuple[float, float], Tuple[float, float]]]:
+) -> List[Tuple[int, float, float, float]]:
     rsout = shmrunrs("--bench", rsname, "--ntimes", "100", "--msg-size-max", "1048577")
     pyout = shmrunpy("--bench", rsname, "--ntimes", "100", "--msg-size-max", "1048577")
     cout = shmrunc("--bench", cname, "--benchtype", "latency", "--ntimes", "100", "--min", "1", "--max", "1048576")
     cout = extract_bws(cout)
     rsout = extract_bws(rsout)
     pyout = extract_bws(pyout)
-    return [(csize, (cus, cbw), (rsus, rsbw), (pyus, pybw))
-            for ((csize, cus, cbw), (_rssize, rsus, rsbw), (_pysize, pyus, pybw))
+    return [(csize, cus, rsus, pyus)
+            for ((csize, cus, _cbw), (_rssize, rsus, _rsbw), (_pysize, pyus, _pybw))
             in zip(cout, rsout, pyout)]
 
 median = lambda xs: list(sorted(xs))[int(len(list(xs)) / 2)]
+def group_by(tables: List[Tuple[int, T]]) -> List[Tuple[int, List[T]]]:
+    l = defaultdict(list)
+    for k, v in tables:
+        l[k].append(v)
+    return list(l.items())
 
 str_of_float = lambda x: "%.10f" % x
 
@@ -108,6 +114,9 @@ if __name__ == '__main__':
         with open(f"/tmp/results/bw_{cname}.csv", "w+", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["Msg Size (b)", "C (baseline)", "RS (normalized)", "Py (normalized)", "C (raw, us)", "RS (raw, us)", "Py (raw, us)"])
-            datapoints = run_bw_bench(cname, rsname)
-            for size, (ctime, cbw), (rstime, rsbw), (pytime, pybw) in datapoints:
+            trials = [run_bw_bench(cname, rsname) for _ in range(median_n)]
+            grouped = group_by([(sz, (ct, rst, pyt)) for trial in trials
+                                                     for (sz, ct, rst, pyt) in trial])
+            datapoints = [(sz, median([x[0] for x in xs]), median(x[1] for x in xs), median(x[2] for x in xs)) for (sz, xs) in grouped]
+            for size, ctime, rstime, pytime in datapoints:
                 writer.writerow([size, *map(str_of_float, [1.0, rstime / ctime, pytime / ctime, ctime, rstime, pytime])])
