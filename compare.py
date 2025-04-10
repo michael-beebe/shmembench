@@ -89,7 +89,7 @@ median = lambda xs: list(sorted(xs))[int(len(list(xs)) / 2)]
 
 str_of_float = lambda x: "%.10f" % x
 
-median_n = 7
+median_n = 11
 assert median_n % 2, "median_n must be odd"
 
 if __name__ == '__main__':
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         for cname, rsname in latency_benches:
             latencies = [run_latency_bench(cname, rsname, n_times) for _ in range(median_n)]
             latency = median(x[0] for x in latencies), median(x[1] for x in latencies), median(x[2] for x in latencies)
-            writer.writerow([cname, 1.0, *map(str_of_float, [latency[1] / latency[0], latency[0], latency[1]])])
+            writer.writerow([cname, 1.0, *map(str_of_float, [latency[1] / latency[0], latency[0], latency[1], latency[2]])])
     for cname, rsname in bw_benches:
         with open(f"/tmp/results/bw_{cname}.csv", "w+", newline="") as f:
             writer = csv.writer(f)
