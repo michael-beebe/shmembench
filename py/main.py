@@ -7,10 +7,10 @@ from enum import Enum
 class Routine(Enum):
     GET = "get"
     PUT = "put"
-    ATOMICADD = "atomicadd"
-    ATOMICCMPSWP = "atomiccmpswp"
-    ATOMICFETCH = "atomicfetch"
-    ATOMICINC = "atomicinc"
+    ATOMICADD = "atomic-add"
+    ATOMICCMPSWP = "atomic-cmp-swp"
+    ATOMICFETCH = "atomic-fetch"
+    ATOMICINC = "atomic-inc"
     BARRIER = "barrier"
 
     def uses_msg_size(self):
