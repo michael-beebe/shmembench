@@ -1,4 +1,5 @@
 from shmem4py import shmem
+import shmem4py
 import numpy as np
 import argparse
 import time
@@ -16,13 +17,11 @@ class Routine(Enum):
     def uses_msg_size(self):
         return self in [Routine.GET, Routine.PUT]
 
-    # Allow parsing from string command-line arg
     @classmethod
     def from_string(cls, s):
         try:
             return cls(s.lower())
         except ValueError:
-             # Provide a helpful error message listing valid choices
              valid_choices = ", ".join([item.value for item in cls])
              raise ValueError(f"Invalid routine '{s}'. Choose from: {valid_choices}")
 
@@ -50,7 +49,7 @@ def main():
     parser.add_argument(
         "-b", "--bench",
         required=True,
-        type=Routine.from_string, # Use the custom parser
+        type=Routine.from_string,
         help=f"Benchmark routine to run. Choices: {[r.value for r in Routine]}"
     )
     parser.add_argument(
@@ -68,29 +67,25 @@ def main():
     )
     msg_size_group.add_argument(
         "-M", "--msg-sizes",
-        type=parse_msg_sizes, # Use the custom parser
+        type=parse_msg_sizes,
         help="Comma-separated list of specific message sizes (bytes)"
     )
 
     args = parser.parse_args()
 
-    # Determine message sizes
     if args.msg_sizes:
         msg_sizes = args.msg_sizes
     elif args.msg_size_max:
         msg_sizes = generate_powers_of_2(args.msg_size_max)
     else:
-        # Default: powers of 2 from 1 byte up to 1 MiB (2^20)
         msg_sizes = generate_powers_of_2(1 << 20)
 
-    # Ensure msg_sizes is not empty if needed
     if args.bench.uses_msg_size() and not msg_sizes:
          if args.msg_size_max is not None and args.msg_size_max < 1:
              print("Error: --msg-size-max must be at least 1.")
          else:
-             # This case should ideally not happen with defaults, but good to check
              print("Error: No valid message sizes specified or generated for a benchmark that requires them.")
-         return 1 # Indicate error
+         return 1
 
     shmemname = shmem.info_get_name()
     major, minor = shmem.info_get_version()
@@ -106,9 +101,9 @@ def main():
         print("==============================================")
         print(f"  OpenSHMEM Name:         {shmemname}")
         print(f"  OpenSHMEM Version:      {major}.{minor}")
-        print(f"  Bindings Version:       Python Placeholder") # Update if needed
+        print(f"  Bindings Version:       {shmem4py.__version__ or 'unknown'}")
         print(f"  Number of PEs:          {n_pes}")
-        print(f"  Benchmark:              {benchname.name}") # Use enum member name
+        print(f"  Benchmark:              {benchname.name}")
         if args.bench.uses_msg_size():
             min_s = min(msg_sizes)
             max_s = max(msg_sizes)
@@ -116,7 +111,6 @@ def main():
             print(f"  Max Msg Size (bytes):   {max_s}")
         print(f"  Ntimes:                 {n_times}")
 
-    # Dispatch to the correct benchmark function
     if benchname == Routine.GET:
         bench_get(n_times, msg_sizes)
     elif benchname == Routine.PUT:
@@ -132,12 +126,11 @@ def main():
     elif benchname == Routine.BARRIER:
         bench_barrier(n_times)
     else:
-        # Should be caught by argparse, but good practice
         if is_root:
             print(f"Error: Unknown benchmark routine '{benchname}'")
         return 1
 
-    return 0 # Indicate success
+    return 0
 
 def header():
     print("==============================================")
@@ -177,7 +170,6 @@ def bench_atomic_cmp_swp(ntimes):
     #target_pe = (shmem.my_pe() + 1) % 2
     target_pe = 0
     my_rank_int = shmem.my_pe()
-    # Each PE tries to swap its rank into the value if it's 0
     swp_with = my_rank_int
     if_eqs = 0
 
@@ -293,17 +285,16 @@ def bench_put(ntimes, sizes):
 def bench_get(ntimes, sizes):
     if not sizes: return
     max_msg = max(sizes)
-    src = shmem.ones(max_msg, dtype='u1') # Fill with 1 (byte)
+    src = shmem.ones(max_msg, dtype='u1')
     #source_pe = (shmem.my_pe() + 1) % 2
     source_pe = 0
 
     shmem.barrier_all()
     times = []
-    # Local destination buffer
-    dest_local = shmem.zeros(max_msg, dtype='u1') # Mutable local buffer
+    dest_local = shmem.zeros(max_msg, dtype='u1')
 
     for size in sizes:
-        shmem.barrier_all() # Sync before timing this size
+        shmem.barrier_all()
         start_time = time.perf_counter()
 
         for _ in range(ntimes):

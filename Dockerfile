@@ -1,7 +1,7 @@
 # amd64
-#FROM --platform=linux/amd64 archlinux:base-devel
+FROM --platform=linux/amd64 archlinux:base-devel
 # arm
-FROM ljmf00/archlinux
+#FROM ljmf00/archlinux
 
 RUN uname -m
 
@@ -13,10 +13,14 @@ RUN yes | pacman -S     \
     cmake               \
     flex                \
     openpmix            \
-    gcc                 \
+    python              \
+    llvm                \
+    clang               \
     git                 \
     libev               \
     make
+ENV CC=clang
+ENV CXX=clang++
 
 # Build libfabric
 RUN git clone https://github.com/ofiwg/libfabric.git libfabric
@@ -55,12 +59,23 @@ RUN ./configure
 RUN make
 RUN make install
 
+# At this point, we have a functional OpenSHMEM installation in /scratch/sos-bin
+
+# Grab, install shmem4py
+WORKDIR /scratch
+RUN git clone https://github.com/mpi4py/shmem4py
+WORKDIR /scratch/shmem4py
+RUN python -m pip install .
+
 # Grab Rust
 RUN yes | pacman -S rustup llvm clang
 RUN rustup default nightly
 ENV SHMEM_INSTALL_DIR=/scratch/sos-bin/
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/scratch/sos-bin/lib
 
+# Grab Python
+RUN yes | pacman -S python
+ENV PATH=$PATH:/scratch/shmembench
 
 # Copy the entire damn worktree.
 WORKDIR /scratch/shmembench
@@ -73,5 +88,7 @@ RUN CC=oshcc CXX=oshc++ make
 WORKDIR /scratch/shmembench/rs
 RUN cargo build --release
 
-WORKDIR /scratch/shmembench/scripts
-ENTRYPOINT ["mpiexec.hydra", "-n", "2", "./../rs/target/release/shmembench-rs", "--bench", "put"]
+WORKDIR /scratch/shmembench
+RUN cp ./rs/target/release/shmembench-rs .
+
+ENTRYPOINT ["bash"]

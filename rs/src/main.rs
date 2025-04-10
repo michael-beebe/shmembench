@@ -64,7 +64,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("==============================================");
         println!("  OpenSHMEM Name:         {shmemname}");
         println!("  OpenSHMEM Version:      {major}.{minor}");
-        println!("  Bindings Version:       1.5.3@d3e93ced"); // update me!
+        println!("  Bindings Version:       1.5.3@cab22ea"); // update me!
         println!("  Number of PEs:          {n_pes}");
         println!("  Benchmark:              {benchname:?}");
         if args.routine.uses_msg_size() {
