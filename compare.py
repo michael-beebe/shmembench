@@ -10,7 +10,7 @@ n_times = 1000
 runner = ["mpiexec.hydra", "-n", "2", "-bind-to", "hwthread"]
 cbin = "shmembench"
 rsbin = "shmembench-rs"
-pybin = "python ./py/main.py"
+pybin = ["python",  "./py/main.py"]
 
 latency_benches = [
     ("shmem_barrier_all", "barrier"),
@@ -37,7 +37,7 @@ def shmrun(*args: str) -> str:
 
 shmrunrs = lambda *a: shmrun(rsbin, *a)
 shmrunc = lambda *a: shmrun(cbin, *a)
-shmrunpy = lambda *a: shmrun(pybin, *a)
+shmrunpy = lambda *a: shmrun(*pybin, *a)
 
 T = TypeVar('T')
 def unwrap(x: T, msg = "unwrapped falsy value") -> T:
