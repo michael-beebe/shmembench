@@ -3,14 +3,9 @@
 Benchmarking suite for OpenSHMEM implementations adhering to either the [v1.4](http://www.openshmem.org/site/sites/default/site_files/OpenSHMEM-1.4.pdf) or [v1.5](http://www.openshmem.org/site/sites/default/site_files/OpenSHMEM-1.5.pdf) specification.
 
 ## Building
-You can set your default C compiler to `oshcc` like so. This assumes you have `oshcc` in your PATH, shmem.h in your CPATH/C_INCLUDE_PATH, and OpenSHMEM libraries in your LD_LIBRARY_PATH:
+By default, the Makefile calls `oshcc`. This assumes you have `oshcc` in your PATH, shmem.h in your CPATH/C_INCLUDE_PATH, and OpenSHMEM libraries in your LD_LIBRARY_PATH:
 ```bash
-$ mkdir build
-$ cd build
-$ export CC=`which oshcc`
-$ cmake \
-    -DUSE_<OpenSHMEM VERSION (either -DUSE_14 or -DUSE_15)>=ON \
-    ../
+$ make all USE_SHMEM_VERSION=15 (or 14 for OpenSHMEM 1.4)
 ```
 
 ## Running

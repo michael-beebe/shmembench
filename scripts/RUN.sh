@@ -1,7 +1,6 @@
 #!/bin/bash
 
-cd ../
-exe="build/bin/shmembench"
+exe="../shmembench"
 
 export OMP_NUM_THREADS=4
 
