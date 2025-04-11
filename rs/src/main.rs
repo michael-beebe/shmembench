@@ -204,7 +204,7 @@ fn bench_atomic_add(ntimes: usize, ctx: &ShmemCtx) {
 fn bench_put(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
     let max_msg = *sizes.iter().max().unwrap();
     let shmalloc = ctx.shmallocator();
-    let mut dest = shmalloc.array(0u8, max_msg);
+    let mut dest = shmalloc.array(|x| x as u8, max_msg);
 
     ctx.barrier_all();
     let mut times = Vec::with_capacity(sizes.capacity());
@@ -238,7 +238,7 @@ fn bench_put(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
 fn bench_get(ntimes: usize, sizes: Vec<usize>, ctx: &ShmemCtx) {
     let max_msg = *sizes.iter().max().unwrap();
     let shmalloc = ctx.shmallocator();
-    let src = shmalloc.array(0u8, max_msg);
+    let src = shmalloc.array_gen(|x| x as u8, max_msg);
 
     ctx.barrier_all();
     let mut times = Vec::with_capacity(sizes.capacity());

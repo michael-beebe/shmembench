@@ -254,6 +254,9 @@ def bench_put(ntimes, sizes):
     shmem.barrier_all()
     times = []
     src = shmem.zeros(max_msg, dtype='u1')
+    for idx in range(max_msg):
+        src[idx] = idx % 256
+        dest[idx] = idx % 256
 
     for size in sizes:
         data_to_put = src[:size]
@@ -292,6 +295,8 @@ def bench_get(ntimes, sizes):
     shmem.barrier_all()
     times = []
     dest_local = shmem.zeros(max_msg, dtype='u1')
+    for idx in range(max_msg):
+        src[idx] = idx % 256
 
     for size in sizes:
         shmem.barrier_all()
