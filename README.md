@@ -58,6 +58,8 @@ Required Options:
 
 Optional Parameters:
   --min <size>           Minimum message size in bytes (default: 1)
+                            Note: Will be automatically increased to 
+                            sizeof(long) (8 bytes) if specified value is smaller.
                             Note: Not applicable for atomic benchmarks.
                             Note: Not applicable for shmem_barrier_all benchmark.
 

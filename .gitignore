@@ -23,5 +23,19 @@ build
 TODO.txt
 test
 
+# --- Output binaries
+bin/shmembench
+shmembench
+
+# --- Make artifacts
+*.o
+*.d
+*.a
+*.so
+*.lo
+*.la
+.deps/
+.libs/
+
 target
 rs/Cargo.lock

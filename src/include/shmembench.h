@@ -25,6 +25,24 @@
 #define HLINE "--------------------------------------------"
 
 /**
+  @brief Validate and adjust message size for typed operations.
+  Ensures the size is a multiple of the specified type size.
+  @param size The requested message size in bytes
+  @param type_size Size of the datatype (e.g., sizeof(long))
+  @param type_name String name of the type (for warning messages)
+  @return The adjusted message size that's valid for the type
+ */
+int validate_typed_size(int size, size_t type_size, const char* type_name);
+
+/**
+  @brief Calculate the number of elements needed based on byte size
+  @param byte_size Desired message size in bytes
+  @param type_size Size of each element in bytes
+  @return Number of elements
+ */
+int calculate_elem_count(int byte_size, size_t type_size);
+
+/**
   @brief Run the selected benchmark
   @param benchmark The benchmark to be run (e.g., "shmem_put", "shmem_get")
   @param benchtype The type of benchmark to run, either "bw", "bibw", or

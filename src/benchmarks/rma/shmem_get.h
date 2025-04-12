@@ -3,14 +3,8 @@
   @author Michael Beebe (Texas Tech University)
 */
 
-#ifndef SHMEM_GET_H
-#define SHMEM_GET_H
-
-#include <shmem.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef _SHMEM_GET_H_
+#define _SHMEM_GET_H_
 
 #include "shmembench.h"
 
@@ -38,4 +32,4 @@ void bench_shmem_get_bibw(int min_msg_size, int max_msg_size, int ntimes);
  */
 void bench_shmem_get_latency(int min_msg_size, int max_msg_size, int ntimes);
 
-#endif /* SHMEM_GET_H */
+#endif /* _SHMEM_GET_H_ */

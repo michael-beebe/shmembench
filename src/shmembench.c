@@ -219,7 +219,7 @@ void display_atomic_latency_results(const char *benchmark, double total_time,
  ******************************************************************/
 double mysecond(void) {
   struct timeval tp;
-  int i = gettimeofday(&tp, NULL);
+  gettimeofday(&tp, NULL);
   return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
 }
 
@@ -342,4 +342,51 @@ void display_header(char *shmem_name, char *shmem_version, int npes,
     printf("  Stride:                 %d\n", stride);
   }
   printf("\n");
+}
+
+/******************************************************************
+  @brief Validate message size for typed operations.
+  Ensures the size is a multiple of the specified type size.
+  If size is invalid, prints error message and terminates program.
+  @param size The requested message size in bytes
+  @param type_size Size of the datatype (e.g., sizeof(long))
+  @param type_name String name of the type (for error messages)
+  @return The validated message size
+ ******************************************************************/
+int validate_typed_size(int size, size_t type_size, const char* type_name) {
+  if (size < type_size) {
+    if (shmem_my_pe() == 0) {
+      fprintf(stderr, "ERROR: Minimum message size (%d) is less than sizeof(%s) (%ld).\n", 
+             size, type_name, type_size);
+      fprintf(stderr, "       Message sizes must be at least sizeof(%s) bytes.\n", type_name);
+    }
+    shmem_finalize();
+    exit(EXIT_FAILURE);
+  }
+  
+  // If size is not a multiple of type_size, terminate program
+  int remainder = size % type_size;
+  if (remainder != 0) {
+    if (shmem_my_pe() == 0) {
+      fprintf(stderr, "ERROR: Message size (%d) is not a multiple of sizeof(%s) (%ld).\n",
+             size, type_name, type_size);
+      fprintf(stderr, "       Message sizes must be multiples of sizeof(%s).\n", type_name);
+    }
+    shmem_finalize();
+    exit(EXIT_FAILURE);
+  }
+  
+  return size;
+}
+
+/******************************************************************
+  @brief Calculate the number of elements needed based on byte size
+  @param byte_size Desired message size in bytes
+  @param type_size Size of each element in bytes
+  @return Number of elements
+ ******************************************************************/
+int calculate_elem_count(int byte_size, size_t type_size) {
+  int elem_count = byte_size / type_size;
+  if (elem_count == 0) elem_count = 1;
+  return elem_count;
 }
