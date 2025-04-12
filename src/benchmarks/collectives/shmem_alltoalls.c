@@ -42,14 +42,16 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
   /* Loop through each message size, doubling the size at each iteration */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    msg_sizes[i] = size;
+    /* Validate the message size for the long datatype */
+    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    msg_sizes[i] = valid_size;
 
     /* Allocate memory for source and destination arrays */
-    long *source = (long *)shmem_malloc(size * npes * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * npes * sizeof(long));
+    long *source = (long *)shmem_malloc(valid_size * npes * sizeof(long));
+    long *dest = (long *)shmem_malloc(valid_size * npes * sizeof(long));
 
     /* Initialize the source buffer with data */
-    for (int j = 0; j < size * npes; j++) {
+    for (int j = 0; j < valid_size * npes; j++) {
       source[j] = shmem_my_pe() + j;
     }
 
@@ -65,9 +67,9 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
       // printf("PE %d: Before shmem_alltoalls64, size = %d, npes = %d\n",
       // shmem_my_pe(), size, npes);
 #if defined(USE_14)
-      shmem_alltoalls64(dest, source, 1, size, size, 0, 0, npes, pSync);
+      shmem_alltoalls64(dest, source, 1, valid_size, valid_size, 0, 0, npes, pSync);
 #elif defined(USE_15)
-      shmem_alltoalls(SHMEM_TEAM_WORLD, dest, source, 1, size, 1);
+      shmem_alltoalls(SHMEM_TEAM_WORLD, dest, source, 1, valid_size, 1);
 #endif
     }
     shmem_quiet();
@@ -75,7 +77,7 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Calculate the average time per operation and bandwidth */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
-    bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
+    bandwidths[i] = calculate_bw(valid_size * sizeof(long), times[i]);
 
     /* Free the allocated memory for source and destination arrays */
     shmem_free(source);
@@ -133,14 +135,16 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size,
 
   /* Loop through each message size, doubling the size at each iteration */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    msg_sizes[i] = size;
+    /* Validate the message size for the long datatype */
+    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    msg_sizes[i] = valid_size;
 
     /* Allocate memory for source and destination arrays */
-    long *source = (long *)shmem_malloc(size * npes * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * npes * sizeof(long));
+    long *source = (long *)shmem_malloc(valid_size * npes * sizeof(long));
+    long *dest = (long *)shmem_malloc(valid_size * npes * sizeof(long));
 
     /* Initialize the source buffer with data */
-    for (int j = 0; j < size * npes; j++) {
+    for (int j = 0; j < valid_size * npes; j++) {
       source[j] = shmem_my_pe() + j;
     }
 
@@ -154,9 +158,9 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size,
      */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14)
-      shmem_alltoalls64(dest, source, 1, size, size, 0, 0, npes, pSync);
+      shmem_alltoalls64(dest, source, 1, valid_size, valid_size, 0, 0, npes, pSync);
 #elif defined(USE_15)
-      shmem_alltoalls(SHMEM_TEAM_WORLD, dest, source, 1, size, 1);
+      shmem_alltoalls(SHMEM_TEAM_WORLD, dest, source, 1, valid_size, 1);
 #endif
     }
     shmem_quiet();
