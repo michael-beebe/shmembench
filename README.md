@@ -8,9 +8,23 @@ By default, the Makefile calls `oshcc`. This assumes you have `oshcc` in your PA
 $ make all USE_SHMEM_VERSION=15 (or 14 for OpenSHMEM 1.4)
 ```
 
+To specify a custom compiler path:
+```bash
+$ make all CC=/path/to/oshcc USE_SHMEM_VERSION=15
+```
+
+All build artifacts are placed in the `build` directory:
+- Object files are stored in `build/src/` and related subdirectories
+- The executable is placed in `build/bin/shmembench`
+
+To clean all build artifacts:
+```bash
+$ make clean
+```
+
 ## Running
 ```text
-Usage:  oshrun -np <num PEs> shmembench --bench <routine> --benchtype <type> [options]
+Usage:  oshrun -np <num PEs> build/bin/shmembench --bench <routine> --benchtype <type> [options]
 
 Required Options:
   --bench <routine>      Specify the routine to benchmark
@@ -65,12 +79,6 @@ Example Usage:
    oshrun -np 64 shmembench --bench shmem_broadcast --benchtype bw --min 128 --max 1025 --ntimes 20
    oshrun -np 64 shmembench --bench shmem_barrier_all --benchtype latency --ntimes 100
    oshrun -np 6 shmembench --bench shmem_atomic_add --benchtype latency --ntimes 100
-```
-
-For runs with a large number of PEs, you may need to increase the size of `SHMEM_SYMMETRIC_SIZE` before running like so:
-```bash
-export SHMEM_SYMMETRIC_SIZE=1000000000    # v1.4
-export SHMEM_SYMMETRIC_SIZE=1G            # v1.5
 ```
 
 ## Sample Output

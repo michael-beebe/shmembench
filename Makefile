@@ -1,5 +1,3 @@
-
-
 CC = oshcc
 CFLAGS = -std=gnu11 -Wall -I./src/include -O2
 LDFLAGS =
@@ -8,6 +6,8 @@ SRC_DIR = ./src
 RS_SRC_DIR = ./rs
 INCLUDE_DIR = $(SRC_DIR)/include
 BENCHMARKS_DIR = $(SRC_DIR)/benchmarks
+BUILD_DIR = ./build
+BIN_DIR = $(BUILD_DIR)/bin
 
 USE_SHMEM_VERSION ?= 15
 ifeq ($(USE_SHMEM_VERSION), 14)
@@ -21,23 +21,35 @@ SRCS = $(wildcard $(SRC_DIR)/*.c) \
        $(wildcard $(BENCHMARKS_DIR)/collectives/*.c) \
        $(wildcard $(BENCHMARKS_DIR)/rma/*.c)
 
-OBJS = $(SRCS:.c=.o)
+# Create build object paths
+OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
 
-TARGET = shmembench
+TARGET = $(BIN_DIR)/shmembench
+
+.PHONY: all clean rs-bin
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
-%.o: %.c
+# Rule for compiling any source file
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(TARGET): $(OBJS)
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -rf $(BUILD_DIR)
 	rm -rf $(RS_SRC_DIR)/target
 
 rs-bin:
 	cd $(RS_SRC_DIR) && cargo build --release
 
-.PHONY: all clean
+# Print variables for debugging
+debug:
+	@echo "SRCS = $(SRCS)"
+	@echo "OBJS = $(OBJS)"
+	@echo "TARGET = $(TARGET)"
+
+.PHONY: all clean rs-bin debug
