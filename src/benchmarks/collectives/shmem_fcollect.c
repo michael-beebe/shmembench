@@ -41,14 +41,20 @@ void bench_shmem_fcollect_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
   /* Loop through each message size, doubling the size at each iteration */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    msg_sizes[i] = size;
+    /* Validate the message size for the long datatype */
+    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    msg_sizes[i] = valid_size;
+    
+    /* Calculate the number of elements based on the validated size */
+    int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
-    /* Allocate memory for source and destination arrays */
-    long *source = (long *)shmem_malloc(size * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * npes * sizeof(long));
+    /* Source array for shmem_fcollect */
+    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
+    /* Destination array needs to be able to hold npes * elem_count elements */
+    long *dest = (long *)shmem_malloc(npes * elem_count * sizeof(long));
 
     /* Initialize the source buffer with data */
-    for (int j = 0; j < size; j++) {
+    for (int j = 0; j < elem_count; j++) {
       source[j] = j;
     }
 
@@ -61,9 +67,9 @@ void bench_shmem_fcollect_bw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Perform the shmem_fcollect operation for the specified number of times */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14)
-      shmem_fcollect64(dest, source, size, 0, 0, npes, pSync);
+      shmem_fcollect64(dest, source, elem_count, 0, 0, npes, pSync);
 #elif defined(USE_15)
-      shmem_fcollect(SHMEM_TEAM_WORLD, dest, source, size);
+      shmem_fcollect(SHMEM_TEAM_WORLD, dest, source, elem_count);
 #endif
     }
     shmem_quiet();
@@ -71,7 +77,7 @@ void bench_shmem_fcollect_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Calculate the average time per operation and bandwidth */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
-    bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
+    bandwidths[i] = calculate_bw(valid_size, times[i]);
 
     /* Free the allocated memory for source and destination arrays */
     shmem_free(source);
@@ -128,14 +134,20 @@ void bench_shmem_fcollect_latency(int min_msg_size, int max_msg_size,
 
   /* Loop through each message size, doubling the size at each iteration */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    msg_sizes[i] = size;
+    /* Validate the message size for the long datatype */
+    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    msg_sizes[i] = valid_size;
+    
+    /* Calculate the number of elements based on the validated size */
+    int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
-    /* Allocate memory for source and destination arrays */
-    long *source = (long *)shmem_malloc(size * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * npes * sizeof(long));
+    /* Source array for shmem_fcollect */
+    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
+    /* Destination array needs to be able to hold npes * elem_count elements */
+    long *dest = (long *)shmem_malloc(npes * elem_count * sizeof(long));
 
     /* Initialize the source buffer with data */
-    for (int j = 0; j < size; j++) {
+    for (int j = 0; j < elem_count; j++) {
       source[j] = j;
     }
 
@@ -148,9 +160,9 @@ void bench_shmem_fcollect_latency(int min_msg_size, int max_msg_size,
     /* Perform the shmem_fcollect operation for the specified number of times */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14)
-      shmem_fcollect64(dest, source, size, 0, 0, npes, pSync);
+      shmem_fcollect64(dest, source, elem_count, 0, 0, npes, pSync);
 #elif defined(USE_15)
-      shmem_fcollect(SHMEM_TEAM_WORLD, dest, source, size);
+      shmem_fcollect(SHMEM_TEAM_WORLD, dest, source, elem_count);
 #endif
     }
     shmem_quiet();

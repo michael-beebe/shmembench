@@ -28,14 +28,19 @@ void bench_shmem_get_nbi_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    msg_sizes[i] = size;
+    /* Validate the message size for the long datatype */
+    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    msg_sizes[i] = valid_size;
+    
+    /* Calculate the number of elements based on the validated size */
+    int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
     /* Source and destination arrays for the shmem_get_nbi */
-    long *source = (long *)shmem_malloc(size * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * sizeof(long));
+    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
+    long *dest = (long *)shmem_malloc(elem_count * sizeof(long));
 
     /* Initialize source buffer */
-    for (int j = 0; j < size; j++) {
+    for (int j = 0; j < elem_count; j++) {
       source[j] = j;
     }
 
@@ -48,10 +53,10 @@ void bench_shmem_get_nbi_bw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Start timer */
     start_time = mysecond();
 
-    /* Perform ntimes shmem_get_nbi */
+    /* Perform ntimes shmem_get_nbis */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
-      shmem_get_nbi(dest, source, size, 1);
+      shmem_get_nbi(dest, source, elem_count, 1);
 #endif
     }
     shmem_quiet();
@@ -59,11 +64,11 @@ void bench_shmem_get_nbi_bw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Stop timer */
     end_time = mysecond();
 
-    /* Calculate average time per operation in microseconds */
+    /* Calculate average time per operation in useconds */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
 
-    /* Calculate bandwidth */
-    bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
+    /* Calculate bandwidth using valid size */
+    bandwidths[i] = calculate_bw(valid_size, times[i]);
 
     /* Free the buffers */
     shmem_free(source);
@@ -106,14 +111,19 @@ void bench_shmem_get_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    msg_sizes[i] = size;
+    /* Validate the message size for the long datatype */
+    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    msg_sizes[i] = valid_size;
+    
+    /* Calculate the number of elements based on the validated size */
+    int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
     /* Source and destination arrays for the shmem_get_nbi */
-    long *source = (long *)shmem_malloc(size * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * sizeof(long));
+    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
+    long *dest = (long *)shmem_malloc(elem_count * sizeof(long));
 
     /* Initialize source buffer */
-    for (int j = 0; j < size; j++) {
+    for (int j = 0; j < elem_count; j++) {
       source[j] = j;
     }
 
@@ -126,23 +136,23 @@ void bench_shmem_get_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Start timer */
     start_time = mysecond();
 
-    /* Perform ntimes bidirectional shmem_get_nbi */
+    /* Perform ntimes bidirectional shmem_get_nbis */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
-      shmem_get_nbi(dest, source, size, 1); /* PE 0 sends to PE 1 */
-      shmem_get_nbi(source, dest, size, 0); /* PE 1 sends to PE 0 */
+      shmem_get_nbi(dest, source, elem_count, 1); /* PE 0 gets from PE 1 */
+      shmem_get_nbi(source, dest, elem_count, 0); /* PE 1 gets from PE 0 */
+      shmem_quiet();
 #endif
     }
-    shmem_quiet();
 
     /* Stop timer */
     end_time = mysecond();
 
-    /* Calculate average time per operation in microseconds */
+    /* Calculate average time per operation in useconds */
     times[i] = (end_time - start_time) * 1e6 / (2 * ntimes);
 
-    /* Calculate bidirectional bandwidth */
-    bandwidths[i] = calculate_bw(size * sizeof(long), times[i]);
+    /* Calculate bidirectional bandwidth using valid size */
+    bandwidths[i] = calculate_bibw(valid_size, times[i]);
 
     /* Free the buffers */
     shmem_free(source);
@@ -186,14 +196,19 @@ void bench_shmem_get_nbi_latency(int min_msg_size, int max_msg_size,
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    msg_sizes[i] = size;
+    /* Validate the message size for the long datatype */
+    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    msg_sizes[i] = valid_size;
+    
+    /* Calculate the number of elements based on the validated size */
+    int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
     /* Source and destination arrays for the shmem_get_nbi */
-    long *source = (long *)shmem_malloc(size * sizeof(long));
-    long *dest = (long *)shmem_malloc(size * sizeof(long));
+    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
+    long *dest = (long *)shmem_malloc(elem_count * sizeof(long));
 
     /* Initialize source buffer */
-    for (int j = 0; j < size; j++) {
+    for (int j = 0; j < elem_count; j++) {
       source[j] = j;
     }
 
@@ -203,11 +218,11 @@ void bench_shmem_get_nbi_latency(int min_msg_size, int max_msg_size,
     /* Sync PEs */
     shmem_barrier_all();
 
-    /* Perform ntimes shmem_get_nbi and accumulate total time */
+    /* Perform ntimes shmem_get_nbis and accumulate total time */
     for (int j = 0; j < ntimes; j++) {
       double start_time = mysecond();
 #if defined(USE_14) || defined(USE_15)
-      shmem_get_nbi(dest, source, size, 1);
+      shmem_get_nbi(dest, source, elem_count, 1);
       shmem_quiet();
 #endif
       double end_time = mysecond();
