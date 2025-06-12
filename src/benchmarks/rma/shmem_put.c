@@ -28,20 +28,20 @@ void bench_shmem_put_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    /* Validate the message size for the long datatype */
-    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    /* Validate the message size for the benchmark datatype */
+    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE, BENCHMARK_DATATYPE_NAME);
     msg_sizes[i] = valid_size;
     
     /* Calculate the number of elements based on the validated size */
-    int elem_count = calculate_elem_count(valid_size, sizeof(long));
+    int elem_count = BENCHMARK_ELEM_COUNT(valid_size);
 
     /* Source and destination arrays for the shmem_put */
-    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
-    long *dest = (long *)shmem_malloc(elem_count * sizeof(long));
+    BENCHMARK_TYPE_PTR(source) = BENCHMARK_MALLOC(elem_count);
+    BENCHMARK_TYPE_PTR(dest) = BENCHMARK_MALLOC(elem_count);
 
     /* Initialize source buffer */
     for (int j = 0; j < elem_count; j++) {
-      source[j] = j;
+      BENCHMARK_INIT_ELEMENT(source, j, j);
     }
 
     /* Initialize start and end time */
@@ -71,8 +71,8 @@ void bench_shmem_put_bw(int min_msg_size, int max_msg_size, int ntimes) {
     bandwidths[i] = calculate_bw(valid_size, times[i]);
 
     /* Free the buffers */
-    shmem_free(source);
-    shmem_free(dest);
+    BENCHMARK_FREE(source);
+    BENCHMARK_FREE(dest);
   }
 
   /* Display results */
@@ -111,20 +111,20 @@ void bench_shmem_put_bibw(int min_msg_size, int max_msg_size, int ntimes) {
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    /* Validate the message size for the long datatype */
-    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    /* Validate the message size for the benchmark datatype */
+    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE, BENCHMARK_DATATYPE_NAME);
     msg_sizes[i] = valid_size;
     
     /* Calculate the number of elements based on the validated size */
-    int elem_count = calculate_elem_count(valid_size, sizeof(long));
+    int elem_count = BENCHMARK_ELEM_COUNT(valid_size);
 
     /* Source and destination arrays for the shmem_put */
-    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
-    long *dest = (long *)shmem_malloc(elem_count * sizeof(long));
+    BENCHMARK_TYPE_PTR(source) = BENCHMARK_MALLOC(elem_count);
+    BENCHMARK_TYPE_PTR(dest) = BENCHMARK_MALLOC(elem_count);
 
     /* Initialize source buffer */
     for (int j = 0; j < elem_count; j++) {
-      source[j] = j;
+      BENCHMARK_INIT_ELEMENT(source, j, j);
     }
 
     /* Initialize start and end time */
@@ -155,8 +155,8 @@ void bench_shmem_put_bibw(int min_msg_size, int max_msg_size, int ntimes) {
     bandwidths[i] = calculate_bibw(valid_size, times[i]);
 
     /* Free the buffers */
-    shmem_free(source);
-    shmem_free(dest);
+    BENCHMARK_FREE(source);
+    BENCHMARK_FREE(dest);
   }
 
   /* Display results */
@@ -195,20 +195,20 @@ void bench_shmem_put_latency(int min_msg_size, int max_msg_size, int ntimes) {
 
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    /* Validate the message size for the long datatype */
-    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    /* Validate the message size for the benchmark datatype */
+    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE, BENCHMARK_DATATYPE_NAME);
     msg_sizes[i] = valid_size;
     
     /* Calculate the number of elements based on the validated size */
-    int elem_count = calculate_elem_count(valid_size, sizeof(long));
+    int elem_count = BENCHMARK_ELEM_COUNT(valid_size);
 
     /* Source and destination arrays for the shmem_put */
-    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
-    long *dest = (long *)shmem_malloc(elem_count * sizeof(long));
+    BENCHMARK_TYPE_PTR(source) = BENCHMARK_MALLOC(elem_count);
+    BENCHMARK_TYPE_PTR(dest) = BENCHMARK_MALLOC(elem_count);
 
     /* Initialize source buffer */
     for (int j = 0; j < elem_count; j++) {
-      source[j] = j;
+      BENCHMARK_INIT_ELEMENT(source, j, j);
     }
 
     /* Initialize total time */
@@ -233,8 +233,8 @@ void bench_shmem_put_latency(int min_msg_size, int max_msg_size, int ntimes) {
     latencies[i] = times[i];
 
     /* Free the buffers */
-    shmem_free(source);
-    shmem_free(dest);
+    BENCHMARK_FREE(source);
+    BENCHMARK_FREE(dest);
   }
 
   /* Display results */

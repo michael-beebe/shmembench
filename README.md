@@ -13,6 +13,32 @@ To specify a custom compiler path:
 $ make all CC=/path/to/oshcc USE_SHMEM_VERSION=15
 ```
 
+### Configurable Data Types
+The benchmarks support configurable data types that can be set at compile time using the `DATATYPE` variable:
+
+```bash
+# Build with different data types
+$ make DATATYPE=int              # 32-bit integer
+$ make DATATYPE=long             # 64-bit integer (default)
+$ make DATATYPE=double           # 64-bit floating point
+$ make DATATYPE=float            # 32-bit floating point
+$ make DATATYPE=char             # 8-bit character
+$ make DATATYPE=short            # 16-bit integer
+
+# Combine with OpenSHMEM version
+$ make DATATYPE=double USE_SHMEM_VERSION=14
+```
+
+**Supported Data Types**: `int`, `long`, `double`, `float`, `char`, `short`
+
+**Default**: If no `DATATYPE` is specified, the benchmarks use `long` as the default data type.
+
+### Build Options
+To see all available build options and examples:
+```bash
+$ make help
+```
+
 All build artifacts are placed in the `build` directory:
 - Object files are stored in `build/src/` and related subdirectories
 - The executable is placed in `build/bin/shmembench`
@@ -57,9 +83,9 @@ Required Options:
                            Note: Atomic benchmarks only support latency.
 
 Optional Parameters:
-  --min <size>           Minimum message size in bytes (default: 1)
+  --min <size>           Minimum message size in bytes (default: sizeof(DATATYPE))
                             Note: Will be automatically increased to 
-                            sizeof(long) (8 bytes) if specified value is smaller.
+                            sizeof(DATATYPE) if specified value is smaller.
                             Note: Not applicable for atomic benchmarks.
                             Note: Not applicable for shmem_barrier_all benchmark.
 

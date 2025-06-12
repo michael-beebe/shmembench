@@ -16,6 +16,24 @@ else ifeq ($(USE_SHMEM_VERSION), 15)
     CFLAGS += -DUSE_15
 endif
 
+# Data type configuration
+DATATYPE ?= long
+ifeq ($(DATATYPE), int)
+    CFLAGS += -DBENCHMARK_DATATYPE=int -DBENCHMARK_DATATYPE_NAME=\"int\"
+else ifeq ($(DATATYPE), long)
+    CFLAGS += -DBENCHMARK_DATATYPE=long -DBENCHMARK_DATATYPE_NAME=\"long\"
+else ifeq ($(DATATYPE), double)
+    CFLAGS += -DBENCHMARK_DATATYPE=double -DBENCHMARK_DATATYPE_NAME=\"double\"
+else ifeq ($(DATATYPE), float)
+    CFLAGS += -DBENCHMARK_DATATYPE=float -DBENCHMARK_DATATYPE_NAME=\"float\"
+else ifeq ($(DATATYPE), char)
+    CFLAGS += -DBENCHMARK_DATATYPE=char -DBENCHMARK_DATATYPE_NAME=\"char\"
+else ifeq ($(DATATYPE), short)
+    CFLAGS += -DBENCHMARK_DATATYPE=short -DBENCHMARK_DATATYPE_NAME=\"short\"
+else
+    $(error Unsupported DATATYPE: $(DATATYPE). Supported types: int, long, double, float, char, short)
+endif
+
 SRCS = $(wildcard $(SRC_DIR)/*.c) \
        $(wildcard $(BENCHMARKS_DIR)/atomics/*.c) \
        $(wildcard $(BENCHMARKS_DIR)/collectives/*.c) \
@@ -52,4 +70,25 @@ debug:
 	@echo "OBJS = $(OBJS)"
 	@echo "TARGET = $(TARGET)"
 
-.PHONY: all clean rs-bin debug
+# Show help information
+help:
+	@echo "Available targets:"
+	@echo "  all        - Build the benchmark (default)"
+	@echo "  clean      - Remove build artifacts"
+	@echo "  rs-bin     - Build Rust binaries"
+	@echo "  debug      - Print build variables"
+	@echo "  help       - Show this help message"
+	@echo ""
+	@echo "Available variables:"
+	@echo "  DATATYPE   - Data type for benchmarks (default: long)"
+	@echo "               Supported: int, long, double, float, char, short"
+	@echo "  USE_SHMEM_VERSION - OpenSHMEM version (default: 15)"
+	@echo "                      Supported: 14, 15"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make DATATYPE=int              # Build with int data type"
+	@echo "  make DATATYPE=double           # Build with double data type"
+	@echo "  make USE_SHMEM_VERSION=14      # Build for OpenSHMEM 1.4"
+	@echo "  make DATATYPE=float USE_SHMEM_VERSION=14  # Combine options"
+
+.PHONY: all clean rs-bin debug help

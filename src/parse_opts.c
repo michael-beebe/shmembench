@@ -26,8 +26,8 @@ bool parse_opts(int argc, char *argv[], options *opts, char **benchmark,
   memset(opts, 0, sizeof(*opts));
 
   /* Set default values for min_msg_size, max_msg_size, ntimes, and stride */
-  *min_msg_size = 8;
-  *max_msg_size = 1024;
+  *min_msg_size = BENCHMARK_DATATYPE_SIZE;
+  *max_msg_size = BENCHMARK_DATATYPE_SIZE * 128;
   *ntimes = 10;
   *stride = 10;
 
@@ -162,7 +162,9 @@ void display_help() {
          "latency.\n");
   printf("\nOptional Parameters:\n");
   printf(
-      "  --min <size>           Minimum message size in bytes (default: 1)\n");
+      "  --min <size>           Minimum message size in bytes (default: %zu)\n", BENCHMARK_DATATYPE_SIZE);
+  printf("                            Note: Will be automatically increased to \n");
+  printf("                            sizeof(%s) (%zu bytes) if specified value is smaller.\n", BENCHMARK_DATATYPE_NAME, BENCHMARK_DATATYPE_SIZE);
   printf("                            Note: Not applicable for atomic "
          "benchmarks.\n");
   printf("                            Note: Not applicable for "

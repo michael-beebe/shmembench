@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "datatype_config.h"
+
 /**
   @struct options
   @brief Struct to hold runtime options

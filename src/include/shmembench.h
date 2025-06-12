@@ -14,6 +14,7 @@
 #include <string.h>
 #include <sys/time.h>
 
+#include "datatype_config.h"
 #include "benchmarks.h"
 
 /* ANSI color codes for pretty output */
