@@ -29,9 +29,10 @@ void bench_shmem_put_bw(int min_msg_size, int max_msg_size, int ntimes) {
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
     /* Validate the message size for the benchmark datatype */
-    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE, BENCHMARK_DATATYPE_NAME);
+    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE,
+                                         BENCHMARK_DATATYPE_NAME);
     msg_sizes[i] = valid_size;
-    
+
     /* Calculate the number of elements based on the validated size */
     int elem_count = BENCHMARK_ELEM_COUNT(valid_size);
 
@@ -112,9 +113,10 @@ void bench_shmem_put_bibw(int min_msg_size, int max_msg_size, int ntimes) {
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
     /* Validate the message size for the benchmark datatype */
-    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE, BENCHMARK_DATATYPE_NAME);
+    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE,
+                                         BENCHMARK_DATATYPE_NAME);
     msg_sizes[i] = valid_size;
-    
+
     /* Calculate the number of elements based on the validated size */
     int elem_count = BENCHMARK_ELEM_COUNT(valid_size);
 
@@ -196,9 +198,10 @@ void bench_shmem_put_latency(int min_msg_size, int max_msg_size, int ntimes) {
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
     /* Validate the message size for the benchmark datatype */
-    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE, BENCHMARK_DATATYPE_NAME);
+    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE,
+                                         BENCHMARK_DATATYPE_NAME);
     msg_sizes[i] = valid_size;
-    
+
     /* Calculate the number of elements based on the validated size */
     int elem_count = BENCHMARK_ELEM_COUNT(valid_size);
 

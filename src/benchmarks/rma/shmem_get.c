@@ -31,7 +31,7 @@ void bench_shmem_get_bw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Validate and adjust the message size to be compatible with long type */
     int valid_size = validate_typed_size(size, sizeof(long), "long");
     msg_sizes[i] = valid_size;
-    
+
     /* Calculate number of elements based on validated size */
     int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
@@ -114,7 +114,7 @@ void bench_shmem_get_bibw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Validate and adjust the message size to be compatible with long type */
     int valid_size = validate_typed_size(size, sizeof(long), "long");
     msg_sizes[i] = valid_size;
-    
+
     /* Calculate number of elements based on validated size */
     int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
@@ -198,7 +198,7 @@ void bench_shmem_get_latency(int min_msg_size, int max_msg_size, int ntimes) {
     /* Validate and adjust the message size to be compatible with long type */
     int valid_size = validate_typed_size(size, sizeof(long), "long");
     msg_sizes[i] = valid_size;
-    
+
     /* Calculate number of elements based on validated size */
     int elem_count = calculate_elem_count(valid_size, sizeof(long));
 

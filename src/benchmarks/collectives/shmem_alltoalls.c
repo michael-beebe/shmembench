@@ -10,49 +10,46 @@
   @brief Run the bandwidth benchmark for shmem_alltoalls
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
-  @param ntimes Number of times the benchmark should run
+  @param ntimes Number of repetitions to get the avgs from
  *************************************************************/
 void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
-  /* Ensure there are at least 2 PEs available to run the benchmark */
+  /* Check the number of PEs before doing anything */
   if (!check_if_atleast_2_pes()) {
     return;
   }
 
-  /* Variables for message sizes, times, and bandwidths */
+  /* Stuff that will be used throughout the benchmark */
   int *msg_sizes;
   double *times, *bandwidths;
   int num_sizes = 0;
+  int npes = shmem_n_pes();
 
-  /* Initialize the benchmark setup, including message sizes, times, and
-   * bandwidths */
+  /* Setup the benchmark */
   setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
               &bandwidths);
 
-  /* Get the number of processing elements (PEs) */
-  int npes = shmem_n_pes();
-
 #if defined(USE_14)
-  /* Setup pSync array */
+  /* Setup pSync array for OpenSHMEM 1.4 */
   long *pSync = (long *)shmem_malloc(SHMEM_ALLTOALLS_SYNC_SIZE * sizeof(long));
   for (int i = 0; i < SHMEM_ALLTOALLS_SYNC_SIZE; i++) {
     pSync[i] = SHMEM_SYNC_VALUE;
   }
-  shmem_barrier_all();
 #endif
 
-  /* Loop through each message size, doubling the size at each iteration */
+  /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    /* Validate the message size for the long datatype */
-    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    /* Validate the message size for the benchmark datatype */
+    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE,
+                                         BENCHMARK_DATATYPE_NAME);
     msg_sizes[i] = valid_size;
 
     /* Allocate memory for source and destination arrays */
-    long *source = (long *)shmem_malloc(valid_size * npes * sizeof(long));
-    long *dest = (long *)shmem_malloc(valid_size * npes * sizeof(long));
+    BENCHMARK_TYPE_PTR(source) = BENCHMARK_MALLOC(valid_size * npes);
+    BENCHMARK_TYPE_PTR(dest) = BENCHMARK_MALLOC(valid_size * npes);
 
     /* Initialize the source buffer with data */
     for (int j = 0; j < valid_size * npes; j++) {
-      source[j] = shmem_my_pe() + j;
+      BENCHMARK_INIT_ELEMENT(source, j, shmem_my_pe() + j);
     }
 
     double start_time, end_time;
@@ -67,7 +64,8 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
       // printf("PE %d: Before shmem_alltoalls64, size = %d, npes = %d\n",
       // shmem_my_pe(), size, npes);
 #if defined(USE_14)
-      shmem_alltoalls64(dest, source, 1, valid_size, valid_size, 0, 0, npes, pSync);
+      shmem_alltoalls64(dest, source, 1, valid_size, valid_size, 0, 0, npes,
+                        pSync);
 #elif defined(USE_15)
       shmem_alltoalls(SHMEM_TEAM_WORLD, dest, source, 1, valid_size, 1);
 #endif
@@ -77,11 +75,12 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Calculate the average time per operation and bandwidth */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
-    bandwidths[i] = calculate_bw(valid_size * sizeof(long), times[i]);
+    bandwidths[i] =
+        calculate_bw(valid_size * BENCHMARK_DATATYPE_SIZE, times[i]);
 
     /* Free the allocated memory for source and destination arrays */
-    shmem_free(source);
-    shmem_free(dest);
+    BENCHMARK_FREE(source);
+    BENCHMARK_FREE(dest);
   }
 
   /* Synchronize all PEs before displaying the results */
@@ -96,56 +95,56 @@ void bench_shmem_alltoalls_bw(int min_msg_size, int max_msg_size, int ntimes) {
   free(msg_sizes);
   free(times);
   free(bandwidths);
+#if defined(USE_14)
+  shmem_free(pSync);
+#endif
 }
 
 /*************************************************************
   @brief Run the latency benchmark for shmem_alltoalls
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
-  @param ntimes Number of times the benchmark should run
+  @param ntimes Number of repetitions to get the avgs from
  *************************************************************/
 void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size,
                                    int ntimes) {
-  /* Ensure there are at least 2 PEs available to run the benchmark */
+  /* Check the number of PEs before doing anything */
   if (!check_if_atleast_2_pes()) {
     return;
   }
 
-  /* Variables for message sizes, times, and latencies */
+  /* Stuff that will be used throughout the benchmark */
   int *msg_sizes;
   double *times, *latencies;
   int num_sizes = 0;
+  int npes = shmem_n_pes();
 
-  /* Initialize the benchmark setup, including message sizes, times, and
-   * latencies */
+  /* Setup the benchmark */
   setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
               &latencies);
 
-  /* Get the number of processing elements (PEs) */
-  int npes = shmem_n_pes();
-
 #if defined(USE_14)
-  /* Setup pSync array */
+  /* Setup pSync array for OpenSHMEM 1.4 */
   long *pSync = (long *)shmem_malloc(SHMEM_ALLTOALLS_SYNC_SIZE * sizeof(long));
   for (int i = 0; i < SHMEM_ALLTOALLS_SYNC_SIZE; i++) {
     pSync[i] = SHMEM_SYNC_VALUE;
   }
-  shmem_barrier_all();
 #endif
 
-  /* Loop through each message size, doubling the size at each iteration */
+  /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    /* Validate the message size for the long datatype */
-    int valid_size = validate_typed_size(size, sizeof(long), "long");
+    /* Validate the message size for the benchmark datatype */
+    int valid_size = validate_typed_size(size, BENCHMARK_DATATYPE_SIZE,
+                                         BENCHMARK_DATATYPE_NAME);
     msg_sizes[i] = valid_size;
 
     /* Allocate memory for source and destination arrays */
-    long *source = (long *)shmem_malloc(valid_size * npes * sizeof(long));
-    long *dest = (long *)shmem_malloc(valid_size * npes * sizeof(long));
+    BENCHMARK_TYPE_PTR(source) = BENCHMARK_MALLOC(valid_size * npes);
+    BENCHMARK_TYPE_PTR(dest) = BENCHMARK_MALLOC(valid_size * npes);
 
     /* Initialize the source buffer with data */
     for (int j = 0; j < valid_size * npes; j++) {
-      source[j] = shmem_my_pe() + j;
+      BENCHMARK_INIT_ELEMENT(source, j, shmem_my_pe() + j);
     }
 
     double start_time, end_time;
@@ -158,7 +157,8 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size,
      */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14)
-      shmem_alltoalls64(dest, source, 1, valid_size, valid_size, 0, 0, npes, pSync);
+      shmem_alltoalls64(dest, source, 1, valid_size, valid_size, 0, 0, npes,
+                        pSync);
 #elif defined(USE_15)
       shmem_alltoalls(SHMEM_TEAM_WORLD, dest, source, 1, valid_size, 1);
 #endif
@@ -172,8 +172,8 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size,
     latencies[i] = calculate_latency(times[i]);
 
     /* Free the allocated memory for source and destination arrays */
-    shmem_free(source);
-    shmem_free(dest);
+    BENCHMARK_FREE(source);
+    BENCHMARK_FREE(dest);
   }
 
   /* Synchronize all PEs before displaying the results */
@@ -188,4 +188,7 @@ void bench_shmem_alltoalls_latency(int min_msg_size, int max_msg_size,
   free(msg_sizes);
   free(times);
   free(latencies);
+#if defined(USE_14)
+  shmem_free(pSync);
+#endif
 }

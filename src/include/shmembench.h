@@ -14,8 +14,8 @@
 #include <string.h>
 #include <sys/time.h>
 
-#include "datatype_config.h"
 #include "benchmarks.h"
+#include "datatype_config.h"
 
 /* ANSI color codes for pretty output */
 #define RESET_COLOR "\033[0m"
@@ -33,7 +33,7 @@
   @param type_name String name of the type (for warning messages)
   @return The adjusted message size that's valid for the type
  */
-int validate_typed_size(int size, size_t type_size, const char* type_name);
+int validate_typed_size(int size, size_t type_size, const char *type_name);
 
 /**
   @brief Calculate the number of elements needed based on byte size
