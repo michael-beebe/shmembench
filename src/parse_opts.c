@@ -26,7 +26,7 @@ bool parse_opts(int argc, char *argv[], options *opts, char **benchmark,
   memset(opts, 0, sizeof(*opts));
 
   /* Set default values for min_msg_size, max_msg_size, ntimes, and stride */
-  *min_msg_size = 1;
+  *min_msg_size = 8;
   *max_msg_size = 1024;
   *ntimes = 10;
   *stride = 10;
@@ -119,6 +119,7 @@ bool parse_opts(int argc, char *argv[], options *opts, char **benchmark,
   @brief Displays usage information for the test suite.
   Prints out the usage information and available options.
  ******************************************************************/
+// clang-format off
 void display_help() {
   printf("\n\nThis program is a performance benchmark suite for "
          "OpenSHMEM Implementations (v1.4 and v1.5)\n");
@@ -198,3 +199,4 @@ void display_help() {
          "latency --ntimes 100\n");
   printf("\n");
 }
+// clang-format on

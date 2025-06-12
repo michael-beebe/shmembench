@@ -353,29 +353,36 @@ void display_header(char *shmem_name, char *shmem_version, int npes,
   @param type_name String name of the type (for error messages)
   @return The validated message size
  ******************************************************************/
-int validate_typed_size(int size, size_t type_size, const char* type_name) {
+int validate_typed_size(int size, size_t type_size, const char *type_name) {
   if (size < type_size) {
     if (shmem_my_pe() == 0) {
-      fprintf(stderr, "ERROR: Minimum message size (%d) is less than sizeof(%s) (%ld).\n", 
-             size, type_name, type_size);
-      fprintf(stderr, "       Message sizes must be at least sizeof(%s) bytes.\n", type_name);
+      fprintf(
+          stderr,
+          "ERROR: Minimum message size (%d) is less than sizeof(%s) (%ld).\n",
+          size, type_name, type_size);
+      fprintf(stderr,
+              "       Message sizes must be at least sizeof(%s) bytes.\n",
+              type_name);
     }
     shmem_finalize();
     exit(EXIT_FAILURE);
   }
-  
+
   // If size is not a multiple of type_size, terminate program
   int remainder = size % type_size;
   if (remainder != 0) {
     if (shmem_my_pe() == 0) {
-      fprintf(stderr, "ERROR: Message size (%d) is not a multiple of sizeof(%s) (%ld).\n",
-             size, type_name, type_size);
-      fprintf(stderr, "       Message sizes must be multiples of sizeof(%s).\n", type_name);
+      fprintf(
+          stderr,
+          "ERROR: Message size (%d) is not a multiple of sizeof(%s) (%ld).\n",
+          size, type_name, type_size);
+      fprintf(stderr, "       Message sizes must be multiples of sizeof(%s).\n",
+              type_name);
     }
     shmem_finalize();
     exit(EXIT_FAILURE);
   }
-  
+
   return size;
 }
 
@@ -387,6 +394,7 @@ int validate_typed_size(int size, size_t type_size, const char* type_name) {
  ******************************************************************/
 int calculate_elem_count(int byte_size, size_t type_size) {
   int elem_count = byte_size / type_size;
-  if (elem_count == 0) elem_count = 1;
+  if (elem_count == 0)
+    elem_count = 1;
   return elem_count;
 }
