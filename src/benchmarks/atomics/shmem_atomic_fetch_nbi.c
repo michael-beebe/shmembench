@@ -6,10 +6,10 @@
 
 #include "shmem_atomic_fetch_nbi.h"
 
-/*************************************************************
+/**
   @brief Run the latency benchmark for shmem_atomic_fetch_nbi
   @param ntimes Number of iterations for the benchmark
- *************************************************************/
+ */
 void bench_shmem_atomic_fetch_nbi_latency(int ntimes) {
 #if defined(USE_15)
   /* Check the number of PEs before doing anything */

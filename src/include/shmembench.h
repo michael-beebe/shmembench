@@ -32,7 +32,7 @@
   @param type_name String name of the type (for warning messages)
   @return The adjusted message size that's valid for the type
  */
-int validate_typed_size(int size, size_t type_size, const char* type_name);
+int validate_typed_size(int size, size_t type_size, const char *type_name);
 
 /**
   @brief Calculate the number of elements needed based on byte size
