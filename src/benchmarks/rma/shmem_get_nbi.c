@@ -17,6 +17,8 @@ void bench_shmem_get_nbi_bw(int min_msg_size, int max_msg_size, int ntimes) {
     return;
   }
 
+  int mype = shmem_my_pe();
+
   /* Stuff that will be used throughout the benchmark */
   int *msg_sizes;
   double *times, *bandwidths;
@@ -54,15 +56,20 @@ void bench_shmem_get_nbi_bw(int min_msg_size, int max_msg_size, int ntimes) {
     start_time = mysecond();
 
     /* Perform ntimes shmem_get_nbis */
-    for (int j = 0; j < ntimes; j++) {
+    if (mype == 0) {
+      for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
-      shmem_get_nbi(dest, source, elem_count, 1);
+        shmem_get_nbi(dest, source, elem_count, 1);
 #endif
+      }
+      shmem_quiet();
     }
-    shmem_quiet();
 
     /* Stop timer */
     end_time = mysecond();
+
+    /* Sync PEs */
+    shmem_barrier_all();
 
     /* Calculate average time per operation in useconds */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
@@ -99,6 +106,9 @@ void bench_shmem_get_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
   if (!check_if_exactly_2_pes()) {
     return;
   }
+
+  int mype = shmem_my_pe();
+  int peer = (mype == 0) ? 1 : 0;
 
   /* Stuff that will be used throughout the benchmark */
   int *msg_sizes;
@@ -139,11 +149,13 @@ void bench_shmem_get_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Perform ntimes bidirectional shmem_get_nbis */
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
-      shmem_get_nbi(dest, source, elem_count, 1); /* PE 0 gets from PE 1 */
-      shmem_get_nbi(source, dest, elem_count, 0); /* PE 1 gets from PE 0 */
+      shmem_get_nbi(dest, source, elem_count, peer); /* each PE gets from other PE */
       shmem_quiet();
 #endif
     }
+
+    /* Sync PEs */
+    shmem_barrier_all();
 
     /* Stop timer */
     end_time = mysecond();
@@ -161,7 +173,7 @@ void bench_shmem_get_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
 
   /* Display results */
   shmem_barrier_all();
-  if (shmem_my_pe() == 0) {
+  if (mype == 0) {
     display_results(times, msg_sizes, bandwidths, "bibw", num_sizes);
   }
   shmem_barrier_all();
@@ -184,6 +196,8 @@ void bench_shmem_get_nbi_latency(int min_msg_size, int max_msg_size,
   if (!check_if_exactly_2_pes()) {
     return;
   }
+
+  int mype = shmem_my_pe();
 
   /* Stuff that will be used throughout the benchmark */
   int *msg_sizes;
@@ -219,15 +233,20 @@ void bench_shmem_get_nbi_latency(int min_msg_size, int max_msg_size,
     shmem_barrier_all();
 
     /* Perform ntimes shmem_get_nbis and accumulate total time */
-    for (int j = 0; j < ntimes; j++) {
-      double start_time = mysecond();
+    if (mype == 0) {
+      for (int j = 0; j < ntimes; j++) {
+        double start_time = mysecond();
 #if defined(USE_14) || defined(USE_15)
-      shmem_get_nbi(dest, source, elem_count, 1);
-      shmem_quiet();
+        shmem_get_nbi(dest, source, elem_count, 1);
+        shmem_quiet();
 #endif
-      double end_time = mysecond();
-      total_time += (end_time - start_time) * 1e6;
+        double end_time = mysecond();
+        total_time += (end_time - start_time) * 1e6;
+      }
     }
+
+    /* Sync PEs */
+    shmem_barrier_all();
 
     /* Calculate average latency per operation in microseconds */
     times[i] = total_time / ntimes;
@@ -242,7 +261,7 @@ void bench_shmem_get_nbi_latency(int min_msg_size, int max_msg_size,
 
   /* Display results */
   shmem_barrier_all();
-  if (shmem_my_pe() == 0) {
+  if (mype == 0) {
     display_results(times, msg_sizes, latencies, "latency", num_sizes);
   }
   shmem_barrier_all();
