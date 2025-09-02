@@ -62,8 +62,10 @@ void bench_shmem_iput_bw(int min_msg_size, int max_msg_size, int ntimes,
       for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
         shmem_iput(dest, source, 1, stride, elem_count, 1);
+        shmem_fence();
 #endif
       }
+      shmem_quiet();
     }
 
     /* Stop timer */
@@ -154,20 +156,22 @@ void bench_shmem_iput_bibw(int min_msg_size, int max_msg_size, int ntimes,
     for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
       shmem_iput(dest, source, 1, stride, elem_count, peer); /* each PE sends to other PE */
+      shmem_fence();
 #endif
     }
-
-    /* Sync PEs */
-    shmem_barrier_all();
+    shmem_quiet();
 
     /* Stop timer */
     end_time = mysecond();
 
     /* Calculate average time per operation in useconds */
-    times[i] = (end_time - start_time) * 1e6 / (2 * ntimes);
+    times[i] = (end_time - start_time) * 1e6 / (ntimes);
 
     /* Calculate bidirectional bandwidth using valid size */
     bandwidths[i] = calculate_bibw(valid_size, times[i]);
+
+    /* Sync PEs */
+    shmem_barrier_all();
 
     /* Free the buffers */
     shmem_free(source);
@@ -242,6 +246,7 @@ void bench_shmem_iput_latency(int min_msg_size, int max_msg_size, int ntimes,
         double start_time = mysecond();
 #if defined(USE_14) || defined(USE_15)
         shmem_iput(dest, source, 1, stride, elem_count, 1);
+        shmem_quiet();
 #endif
         double end_time = mysecond();
         total_time += (end_time - start_time) * 1e6;

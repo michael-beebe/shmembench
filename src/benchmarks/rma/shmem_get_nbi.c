@@ -60,9 +60,9 @@ void bench_shmem_get_nbi_bw(int min_msg_size, int max_msg_size, int ntimes) {
       for (int j = 0; j < ntimes; j++) {
 #if defined(USE_14) || defined(USE_15)
         shmem_get_nbi(dest, source, elem_count, 1);
+        shmem_quiet();
 #endif
       }
-      shmem_quiet();
     }
 
     /* Stop timer */
@@ -154,14 +154,14 @@ void bench_shmem_get_nbi_bibw(int min_msg_size, int max_msg_size, int ntimes) {
 #endif
     }
 
-    /* Sync PEs */
-    shmem_barrier_all();
-
     /* Stop timer */
     end_time = mysecond();
 
+    /* Sync PEs */
+    shmem_barrier_all();
+
     /* Calculate average time per operation in useconds */
-    times[i] = (end_time - start_time) * 1e6 / (2 * ntimes);
+    times[i] = (end_time - start_time) * 1e6 / (ntimes);
 
     /* Calculate bidirectional bandwidth using valid size */
     bandwidths[i] = calculate_bibw(valid_size, times[i]);

@@ -156,17 +156,17 @@ void bench_shmem_iget_bibw(int min_msg_size, int max_msg_size, int ntimes,
 #endif
     }
 
-    /* Sync PEs */
-    shmem_barrier_all();
-
     /* Stop timer */
     end_time = mysecond();
 
     /* Calculate average time per operation in useconds */
-    times[i] = (end_time - start_time) * 1e6 / (2 * ntimes);
+    times[i] = (end_time - start_time) * 1e6 / (ntimes);
 
     /* Calculate bidirectional bandwidth using valid size */
     bandwidths[i] = calculate_bibw(valid_size, times[i]);
+
+    /* Sync PEs */
+    shmem_barrier_all();
 
     /* Free the buffers */
     shmem_free(source);
