@@ -6,7 +6,7 @@
 
 #include "parse_opts.h"
 
-/******************************************************************
+/**
   @brief Parses runtime options
   @param argc Number of command-line arguments.
   @param argv Array of command-line argument strings.
@@ -18,7 +18,7 @@
   @param ntimes Number of times the benchmark should run
   @param stride Stride value to use for the benchmark (only used if applicable)
   @return True if parsing is successful, false otherwise.
- ******************************************************************/
+ */
 bool parse_opts(int argc, char *argv[], options *opts, char **benchmark,
                 char **benchtype, int *min_msg_size, int *max_msg_size,
                 int *ntimes, int *stride) {
@@ -112,14 +112,45 @@ bool parse_opts(int argc, char *argv[], options *opts, char **benchmark,
     }
   }
 
+  /* Set default benchtype if not provided by user */
+  if (*benchtype == NULL || strlen(*benchtype) == 0) {
+    if (*benchmark != NULL) {
+      /* Atomics: default to latency */
+      if (strstr(*benchmark, "atomic") != NULL) {
+        opts->benchtype = strdup("latency");
+        *benchtype = opts->benchtype;
+      }
+      /* Barrier: default to latency */
+      else if (strcmp(*benchmark, "shmem_barrier_all") == 0) {
+        opts->benchtype = strdup("latency");
+        *benchtype = opts->benchtype;
+      }
+      /* Collectives and pt2pt RMA: default to bw */
+      else if (strcmp(*benchmark, "shmem_put") == 0 ||
+               strcmp(*benchmark, "shmem_iput") == 0 ||
+               strcmp(*benchmark, "shmem_get") == 0 ||
+               strcmp(*benchmark, "shmem_iget") == 0 ||
+               strcmp(*benchmark, "shmem_put_nbi") == 0 ||
+               strcmp(*benchmark, "shmem_get_nbi") == 0 ||
+               strcmp(*benchmark, "shmem_alltoall") == 0 ||
+               strcmp(*benchmark, "shmem_alltoalls") == 0 ||
+               strcmp(*benchmark, "shmem_broadcast") == 0 ||
+               strcmp(*benchmark, "shmem_collect") == 0 ||
+               strcmp(*benchmark, "shmem_fcollect") == 0) {
+        opts->benchtype = strdup("bw");
+        *benchtype = opts->benchtype;
+      }
+    }
+  }
+
   return true;
 }
 
-/******************************************************************
+/**
   @brief Displays usage information for the test suite.
   Prints out the usage information and available options.
- ******************************************************************/
-// clang-format off
+ */
+/* clang-format off */
 void display_help() {
   printf("\n\nThis program is a performance benchmark suite for "
          "OpenSHMEM Implementations (v1.4 and v1.5)\n");
@@ -152,51 +183,35 @@ void display_help() {
   printf("                            shmem_atomic_set\n");
   printf("                            shmem_atomic_swap\n");
   printf("\n");
-  printf(
-      "  --benchtype <type>     Set the benchmark type (bw, bibw, latency)\n");
-  printf("                           Note: Pt2pt RMA benchmarks support bw, "
-         "bibw and latency.\n");
-  printf("                           Note: Collectives benchmarks only support "
-         "bw and latency.\n");
-  printf("                           Note: Atomic benchmarks only support "
-         "latency.\n");
+  printf("  --benchtype <type>     Set the benchmark type (bw, bibw, latency)\n");
+  printf("                           Pt2pt RMA benchmarks support 'bw' (default) and 'bibw'.\n");
+  printf("                             - Both 'bw' and 'bibw' benchmarks also report latency results.\n");
+  printf("                           Collectives benchmarks support 'bw' (default).\n");
+  printf("                             - The 'bw' benchmark also reports latency results.\n");
+  printf("                           Atomic benchmarks only support 'latency' (default).\n");
   printf("\nOptional Parameters:\n");
-  printf(
-      "  --min <size>           Minimum message size in bytes (default: 1)\n");
-  printf("                            Note: Not applicable for atomic "
-         "benchmarks.\n");
-  printf("                            Note: Not applicable for "
-         "shmem_barrier_all benchmark.\n");
+  printf("  --min <size>           Minimum message size in bytes (default: 1)\n");
+  printf("                            Note: Not applicable for atomic benchmarks.\n");
+  printf("                            Note: Not applicable for shmem_barrier_all benchmark.\n");
   printf("\n");
-  printf("  --max <size>           Maximum message size in bytes (default: "
-         "1048576)\n");
-  printf("                            Note: Not applicable for atomic "
-         "benchmarks.\n");
-  printf("                            Note: Not applicable for "
-         "shmem_barrier_all benchmark.\n");
+  printf("  --max <size>           Maximum message size in bytes (default: 1024)\n");
+  printf("                            Note: Not applicable for atomic benchmarks.\n");
+  printf("                            Note: Not applicable for shmem_barrier_all benchmark.\n");
   printf("\n");
   printf("  --ntimes <count>       Number of repetitions.\n");
-  printf("                         Average among them is reported (default: "
-         "10)\n");
+  printf("                         Average among them is reported (default: 10)\n");
   printf("\n");
-  printf("  --stride <value>       Stride value for strided operations, only "
-         "used by\n");
-  printf(
-      "                         the shmem_iput and shmem_iget (default: 10)\n");
+  printf("  --stride <value>       Stride value for strided operations, only used by\n");
+  printf("                         the shmem_iput and shmem_iget (default: 10)\n");
   printf("\n");
   printf("  --help                 Display this help message\n");
 
   printf("\nExample Usage:\n");
-  printf("   oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min "
-         "128 --max 1024 --ntimes 20\n");
-  printf("   oshrun -np 2 shmembench --bench shmem_iget --benchtype bw --min "
-         "128 --max 1024 --ntimes 20 --stride 20\n");
-  printf("   oshrun -np 64 shmembench --bench shmem_broadcast --benchtype bw "
-         "--min 128 --max 1025 --ntimes 20\n");
-  printf("   oshrun -np 64 shmembench --bench shmem_barrier_all --benchtype "
-         "latency --ntimes 100\n");
-  printf("   oshrun -np 6 shmembench --bench shmem_atomic_add --benchtype "
-         "latency --ntimes 100\n");
+  printf("   oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min 128 --max 1024 --ntimes 20\n");
+  printf("   oshrun -np 2 shmembench --bench shmem_iget --benchtype bw --min 128 --max 1024 --ntimes 20 --stride 20\n");
+  printf("   oshrun -np 64 shmembench --bench shmem_broadcast --benchtype bw --min 128 --max 1025 --ntimes 20\n");
+  printf("   oshrun -np 64 shmembench --bench shmem_barrier_all --benchtype latency --ntimes 100\n");
+  printf("   oshrun -np 6 shmembench --bench shmem_atomic_add --benchtype latency --ntimes 100\n");
   printf("\n");
 }
-// clang-format on
+/* clang-format on */

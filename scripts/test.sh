@@ -2,7 +2,7 @@
 
 set -e
 
-./BUILD.sh
+./scripts/build.sh
 
 # Get a list of unique hostnames from the srun command, sorted and concatenated with commas
 hosts=$(srun hostname | sort | uniq | paste -sd, -)
@@ -10,7 +10,7 @@ hosts=$(srun hostname | sort | uniq | paste -sd, -)
 num_hosts=$(echo "$hosts" | tr ',' '\n' | wc -l)
 
 # Path to the oshrun executable
-oshrun=../osss-ucx_sanity/build/install/bin/oshrun
+oshrun=$OSSS_TESTING_BIN/oshrun
 # Check if oshrun is executable, exit if not
 if [ ! -x $oshrun ]; then
   echo "osss-ucx has not been built!"

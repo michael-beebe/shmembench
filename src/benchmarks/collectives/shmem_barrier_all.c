@@ -5,10 +5,10 @@
 
 #include "shmem_barrier_all.h"
 
-/*************************************************************
+/**
   @brief Run the latency benchmark for shmem_barrier_all
   @param ntimes Number of times to repeat the operation
- *************************************************************/
+ */
 void bench_shmem_barrier_all_latency(int ntimes) {
   if (!check_if_atleast_2_pes()) {
     return;

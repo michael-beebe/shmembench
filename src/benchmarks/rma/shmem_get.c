@@ -5,12 +5,12 @@
 
 #include "shmem_get.h"
 
-/*************************************************************
+/**
   @brief Run the bandwidth benchmark for shmem_get
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
   @param ntimes Number of repetitions to get the avgs from
- *************************************************************/
+ */
 void bench_shmem_get_bw(int min_msg_size, int max_msg_size, int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_exactly_2_pes()) {
@@ -33,7 +33,7 @@ void bench_shmem_get_bw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Validate and adjust the message size to be compatible with long type */
     int valid_size = validate_typed_size(size, sizeof(long), "long");
     msg_sizes[i] = valid_size;
-    
+
     /* Calculate number of elements based on validated size */
     int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
@@ -64,7 +64,7 @@ void bench_shmem_get_bw(int min_msg_size, int max_msg_size, int ntimes) {
 #endif
       }
     }
-
+    
     /* Stop timer */
     end_time = mysecond();
 
@@ -124,7 +124,7 @@ void bench_shmem_get_bibw(int min_msg_size, int max_msg_size, int ntimes) {
     /* Validate and adjust the message size to be compatible with long type */
     int valid_size = validate_typed_size(size, sizeof(long), "long");
     msg_sizes[i] = valid_size;
-    
+
     /* Calculate number of elements based on validated size */
     int elem_count = calculate_elem_count(valid_size, sizeof(long));
 
