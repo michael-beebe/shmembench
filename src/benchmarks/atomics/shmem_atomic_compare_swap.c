@@ -6,10 +6,10 @@
 
 #include "shmem_atomic_compare_swap.h"
 
-/*************************************************************
+/**
   @brief Run the latency benchmark for shmem_atomic_compare_swap
   @param ntimes Number of iterations for the benchmark
- *************************************************************/
+ */
 void bench_shmem_atomic_compare_swap_latency(int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_atleast_2_pes()) {

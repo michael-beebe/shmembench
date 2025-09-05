@@ -52,18 +52,19 @@ Required Options:
                             shmem_atomic_swap
 
   --benchtype <type>     Set the benchmark type (bw, bibw, latency)
-                           Note: Pt2pt RMA benchmarks support bw, bibw and latency.
-                           Note: Collectives benchmarks only support bw and latency.
-                           Note: Atomic benchmarks only support latency.
+                           Pt2pt RMA benchmarks support 'bw' (default) and 'bibw'.
+                             - Both 'bw' and 'bibw' benchmarks also report latency results.
+                           Collectives benchmarks support 'bw' (default).
+                             - The 'bw' benchmark also reports latency results.
+                           Atomic benchmarks only support 'latency' (default).
+                           shmem_barrier_all only supports 'latency' (default).
 
 Optional Parameters:
   --min <size>           Minimum message size in bytes (default: 1)
-                            Note: Will be automatically increased to 
-                            sizeof(long) (8 bytes) if specified value is smaller.
                             Note: Not applicable for atomic benchmarks.
                             Note: Not applicable for shmem_barrier_all benchmark.
 
-  --max <size>           Maximum message size in bytes (default: 1048576)
+  --max <size>           Maximum message size in bytes (default: 1024)
                             Note: Not applicable for atomic benchmarks.
                             Note: Not applicable for shmem_barrier_all benchmark.
 
@@ -128,3 +129,4 @@ Message Size     Avg Time (us)    Avg MB/s
 
 ## Contact
 Michael Beebe: michael.beebe@ttu.edu
+

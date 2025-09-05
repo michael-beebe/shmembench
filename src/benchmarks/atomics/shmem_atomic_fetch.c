@@ -6,10 +6,10 @@
 
 #include "shmem_atomic_fetch.h"
 
-/*************************************************************
+/**
   @brief Run the latency benchmark for shmem_atomic_fetch
   @param ntimes Number of iterations for the benchmark
- *************************************************************/
+ */
 void bench_shmem_atomic_fetch_latency(int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_atleast_2_pes()) {
