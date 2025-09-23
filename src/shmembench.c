@@ -35,6 +35,12 @@ benchmark_entry_t benchmark_table[] = {
     {"shmem_get", "bw", bench_shmem_get_bw, NULL, NULL, false},
     {"shmem_get", "bibw", bench_shmem_get_bibw, NULL, NULL, false},
 
+    {"shmem_putmem", "bw", bench_shmem_putmem_bw, NULL, NULL, false},
+    {"shmem_putmem", "bibw", bench_shmem_putmem_bibw, NULL, NULL, false},
+
+    {"shmem_getmem", "bw", bench_shmem_getmem_bw, NULL, NULL, false},
+    {"shmem_getmem", "bibw", bench_shmem_getmem_bibw, NULL, NULL, false},
+
     {"shmem_iput", "bw", NULL, bench_shmem_iput_bw, NULL, true},
     {"shmem_iput", "bibw", NULL, bench_shmem_iput_bibw, NULL, true},
 
@@ -46,6 +52,12 @@ benchmark_entry_t benchmark_table[] = {
 
     {"shmem_get_nbi", "bw", bench_shmem_get_nbi_bw, NULL, NULL, false},
     {"shmem_get_nbi", "bibw", bench_shmem_get_nbi_bibw, NULL, NULL, false},
+
+    {"shmem_putmem_nbi", "bw", bench_shmem_putmem_nbi_bw, NULL, NULL, false},
+    {"shmem_putmem_nbi", "bibw", bench_shmem_putmem_nbi_bibw, NULL, NULL, false},
+
+    {"shmem_getmem_nbi", "bw", bench_shmem_getmem_nbi_bw, NULL, NULL, false},
+    {"shmem_getmem_nbi", "bibw", bench_shmem_getmem_nbi_bibw, NULL, NULL, false},
 
     {"shmem_alltoall", "bw", bench_shmem_alltoall_bw, NULL, NULL, false},
 
@@ -114,6 +126,9 @@ void run_benchmark(char *benchmark, char *benchtype, int min_msg_size,
   @return The calculated bandwidth in MB/s
  */
 double calculate_bw(int size, double time) {
+  if (time <= 0.0) {
+    return 0.0;
+  }
   return (size / (1024.0 * 1024.0)) / (time / 1e6);
 }
 
@@ -136,6 +151,9 @@ double calculate_bw(int size, double time) {
   @return The calculated bidirectional bandwidth in MB/s
  */
 double calculate_bibw(int size, double time) {
+  if (time <= 0.0) {
+    return 0.0;
+  }
   return (2 * size / (1024.0 * 1024.0)) / (time / 1e6);
 }
 
@@ -200,9 +218,23 @@ void display_atomic_latency_results(const char *benchmark, double total_time,
   @return Current time in seconds
  */
 double mysecond(void) {
+  /* Use clock_gettime with CLOCK_MONOTONIC for higher resolution and to
+     avoid issues with system clock adjustments. Returns seconds as a
+     double. */
+#if defined(_POSIX_TIMERS) && !defined(__APPLE__)
+  struct timespec ts;
+  if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+    return (double)ts.tv_sec + (double)ts.tv_nsec * 1.e-9;
+  }
+  /* Fallback to gettimeofday if clock_gettime isn't available or fails. */
   struct timeval tp;
   gettimeofday(&tp, NULL);
   return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
+#else
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
+#endif
 }
 
 /**
