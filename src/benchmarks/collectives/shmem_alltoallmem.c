@@ -1,18 +1,18 @@
 /**
-  @file shmem_alltoall.c
-  @brief Implementation of the shmem_alltoall benchmark
+  @file shmem_alltoallmem.c
+  @brief Implementation of the shmem_alltoallmem benchmark
   @author Michael Beebe (Texas Tech University)
 */
 
-#include "shmem_alltoall.h"
+#include "shmem_alltoallmem.h"
 
 /**
-  @brief Run the bandwidth benchmark for shmem_alltoall
+  @brief Run the bandwidth benchmark for shmem_alltoallmem
   @param min_msg_size Minimum message size for test in bytes
   @param max_msg_size Maximum message size for test in bytes
   @param ntimes Number of iterations for the benchmark
  */
-void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
+void bench_shmem_alltoallmem_bw(int min_msg_size, int max_msg_size, int ntimes) {
   /* Check the number of PEs before doing anything */
   if (!check_if_atleast_2_pes()) {
     return;
@@ -31,31 +31,18 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
   int npes = shmem_n_pes();
   int mype = shmem_my_pe();
 
-#if defined(USE_14)
-  /* Setup pSync array */
-  long *pSync = (long *)shmem_malloc(SHMEM_ALLTOALL_SYNC_SIZE * sizeof(long));
-  for (int i = 0; i < SHMEM_ALLTOALL_SYNC_SIZE; i++) {
-    pSync[i] = SHMEM_SYNC_VALUE;
-  }
-  shmem_barrier_all();
-#endif
-
   /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    /* Validate the message size for the long datatype */
-    int valid_size = validate_typed_size(size, sizeof(long), "long");
-    msg_sizes[i] = valid_size;
+    /* Save message size */
+    msg_sizes[i] = size;
 
-    /* Calculate the number of elements based on the validated size */
-    int elem_count = calculate_elem_count(valid_size, sizeof(long));
-
-    /* Source and destination arrays for shmem_alltoall */
-    long *source = (long *)shmem_malloc(elem_count * npes * sizeof(long));
-    long *dest = (long *)shmem_malloc(elem_count * npes * sizeof(long));
+    /* Source and destination arrays for shmem_alltoallmem */
+    unsigned char *source = (unsigned char *)shmem_malloc(size * npes);
+    unsigned char *dest   = (unsigned char *)shmem_malloc(size * npes);
 
     /* Initialize source buffer */
-    for (int j = 0; j < elem_count * npes; j++) {
-      source[j] = mype + j;
+    for (int j = 0; j < size * npes; j++) {
+      source[j] = (unsigned char) (mype + j);
     }
 
     /* Initialize start and end time */
@@ -69,10 +56,8 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     /* Perform NTIMES shmem_alltoall operations */
     for (int j = 0; j < ntimes; j++) {
-#if defined(USE_14)
-      shmem_alltoall64(dest, source, elem_count, 0, 0, npes, pSync);
-#elif defined(USE_15)
-      shmem_alltoall(SHMEM_TEAM_WORLD, dest, source, elem_count);
+#if defined(USE_15)
+      shmem_alltoallmem(SHMEM_TEAM_WORLD, dest, source, size);
 #endif
     }
     shmem_quiet();
@@ -84,7 +69,7 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
     times[i] = (end_time - start_time) * 1e6 / ntimes;
 
     /* Calculate bandwidth */
-    bandwidths[i] = calculate_bw(valid_size * npes, times[i]);
+    bandwidths[i] = calculate_bw(size * npes, times[i]);
 
     /* Free the buffers */
     shmem_free(source);

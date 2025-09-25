@@ -21,10 +21,15 @@
 
 /* Collective benchmarks */
 #include "../benchmarks/collectives/shmem_alltoall.h"
+#include "../benchmarks/collectives/shmem_alltoallmem.h"
 #include "../benchmarks/collectives/shmem_alltoalls.h"
+#include "../benchmarks/collectives/shmem_alltoallsmem.h"
 #include "../benchmarks/collectives/shmem_broadcast.h"
+#include "../benchmarks/collectives/shmem_broadcastmem.h"
 #include "../benchmarks/collectives/shmem_collect.h"
+#include "../benchmarks/collectives/shmem_collectmem.h"
 #include "../benchmarks/collectives/shmem_fcollect.h"
+#include "../benchmarks/collectives/shmem_fcollectmem.h"
 #include "../benchmarks/collectives/shmem_barrier_all.h"
 
 /* Atomic benchmarks */

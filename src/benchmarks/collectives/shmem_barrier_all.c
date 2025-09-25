@@ -1,6 +1,6 @@
 /**
   @file shmem_barrier_all.c
-  @brief Benchmark implementation for shmem_barrier_all
+  @brief Implementation of the shmem_barrier_all benchmark
 */
 
 #include "shmem_barrier_all.h"
