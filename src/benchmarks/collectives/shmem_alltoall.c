@@ -98,6 +98,11 @@ void bench_shmem_alltoall_bw(int min_msg_size, int max_msg_size, int ntimes) {
   }
   shmem_barrier_all();
 
+#if defined(USE_14)
+  /* Free pSync allocated for OpenSHMEM 1.4 path */
+  shmem_free(pSync);
+#endif
+
   /* Free memory */
   free(msg_sizes);
   free(times);

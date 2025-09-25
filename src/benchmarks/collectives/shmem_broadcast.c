@@ -23,8 +23,7 @@ void bench_shmem_broadcast_bw(int min_msg_size, int max_msg_size, int ntimes) {
   double *times, *bandwidths;
   int num_sizes = 0;
 
-  /* Initialize the benchmark setup, including message sizes, times, and
-   * bandwidths */
+  /* Setup benchmark */
   setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
               &bandwidths);
 
@@ -40,7 +39,7 @@ void bench_shmem_broadcast_bw(int min_msg_size, int max_msg_size, int ntimes) {
   int npes = shmem_n_pes();
 #endif
 
-  /* Loop through each message size, doubling the size at each iteration */
+  /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
     /* Validate the message size for the long datatype */
     int valid_size = validate_typed_size(size, sizeof(long), "long");
@@ -60,9 +59,11 @@ void bench_shmem_broadcast_bw(int min_msg_size, int max_msg_size, int ntimes) {
 
     double start_time, end_time;
 
-    /* Synchronize all PEs before starting the benchmark */
+    /* Sync PEs */
     shmem_barrier_all();
-    start_time = mysecond(); /* Record the start time */
+
+    /* Start timer */
+    start_time = mysecond();
 
     /* Perform the shmem_broadcast operation for the specified number of times
      */
@@ -74,10 +75,14 @@ void bench_shmem_broadcast_bw(int min_msg_size, int max_msg_size, int ntimes) {
 #endif
     }
     shmem_quiet();
-    end_time = mysecond(); /* Record the end time */
 
-    /* Calculate the average time per operation and bandwidth */
+    /* Stop timer */
+    end_time = mysecond();
+
+    /* Calculate average time per operation in useconds */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
+      
+    /* Calculate bandwidth */
     bandwidths[i] = calculate_bw(valid_size, times[i]);
 
     /* Free the allocated memory for source and destination arrays */
@@ -85,13 +90,17 @@ void bench_shmem_broadcast_bw(int min_msg_size, int max_msg_size, int ntimes) {
     shmem_free(dest);
   }
 
-  /* Synchronize all PEs before displaying the results */
+  /* Display results */
   shmem_barrier_all();
   if (shmem_my_pe() == 0) {
-    /* Display the benchmark results */
     display_results(times, msg_sizes, bandwidths, "bw", num_sizes);
   }
   shmem_barrier_all();
+
+#if defined(USE_14)
+  /* Free pSync allocated for OpenSHMEM 1.4 path */
+  shmem_free(pSync);
+#endif
 
   /* Free the memory allocated for message sizes, times, and bandwidths */
   free(msg_sizes);

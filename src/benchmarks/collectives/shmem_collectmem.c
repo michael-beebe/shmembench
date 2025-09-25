@@ -23,71 +23,60 @@ void bench_shmem_collectmem_bw(int min_msg_size, int max_msg_size, int ntimes) {
   double *times, *bandwidths;
   int num_sizes = 0;
 
-  /* Initialize the benchmark setup, including message sizes, times, and
-   * bandwidths */
+  /* Setup benchmark */
   setup_bench(min_msg_size, max_msg_size, &num_sizes, &msg_sizes, &times,
               &bandwidths);
 
-  int npes = shmem_n_pes(); /* Get the number of processing elements (PEs) */
+  /* Get the number of processing elements (PEs) and PE number */
+  int npes = shmem_n_pes();
 
-#if defined(USE_14)
-  /* Setup pSync array */
-  long *pSync = (long *)shmem_malloc(SHMEM_COLLECT_SYNC_SIZE * sizeof(long));
-  for (int i = 0; i < SHMEM_COLLECT_SYNC_SIZE; i++) {
-    pSync[i] = SHMEM_SYNC_VALUE;
-  }
-  shmem_barrier_all();
-#endif
-
-  /* Loop through each message size, doubling the size at each iteration */
+  /* Run the benchmark */
   for (int i = 0, size = min_msg_size; size <= max_msg_size; size *= 2, i++) {
-    /* Validate the message size for the long datatype */
-    int valid_size = validate_typed_size(size, sizeof(long), "long");
-    msg_sizes[i] = valid_size;
+    /* Save the message size */
+    msg_sizes[i] = size;
 
-    /* Calculate the number of elements based on the validated size */
-    int elem_count = calculate_elem_count(valid_size, sizeof(long));
-
-    /* Source array for shmem_collect */
-    long *source = (long *)shmem_malloc(elem_count * sizeof(long));
-    /* Destination array needs to be able to hold npes * elem_count elements */
-    long *dest = (long *)shmem_malloc(npes * elem_count * sizeof(long));
+    /* Allocate memory for source and destination arrays */
+    unsigned char *source = (unsigned char *)shmem_malloc(size);
+    unsigned char *dest = (unsigned char *)shmem_malloc(npes * size);
 
     /* Initialize the source buffer with data */
-    for (int j = 0; j < elem_count; j++) {
-      source[j] = j;
+    for (int j = 0; j < size; j++) {
+      source[j] = (unsigned char) j;
     }
 
     double start_time, end_time;
 
-    /* Synchronize all PEs before starting the benchmark */
+    /* Sync PEs */
     shmem_barrier_all();
-    start_time = mysecond(); /* Record the start time */
 
-    /* Perform the shmem_collect operation for the specified number of times */
+    /* Start timer */
+    start_time = mysecond();
+
+    /* Perform the shmem_collectmem operation for the specified number of times */
     for (int j = 0; j < ntimes; j++) {
-#if defined(USE_14)
-      shmem_collect64(dest, source, elem_count, 0, 0, npes, pSync);
-#elif defined(USE_15)
-      shmem_collect(SHMEM_TEAM_WORLD, dest, source, elem_count);
+#if defined(USE_15)
+      shmem_collectmem(SHMEM_TEAM_WORLD, dest, source, size);
 #endif
     }
     shmem_quiet();
-    end_time = mysecond(); /* Record the end time */
+    
+    /* Stop timer */
+    end_time = mysecond();
 
-    /* Calculate the average time per operation and bandwidth */
+    /* Calculate average time per operation in useconds */
     times[i] = (end_time - start_time) * 1e6 / ntimes;
-    bandwidths[i] = calculate_bw(valid_size, times[i]);
+
+    /* Calculate bandwidth*/
+    bandwidths[i] = calculate_bw(size, times[i]);
 
     /* Free the allocated memory for source and destination arrays */
     shmem_free(source);
     shmem_free(dest);
   }
 
-  /* Synchronize all PEs before displaying the results */
+  /* Display results */
   shmem_barrier_all();
   if (shmem_my_pe() == 0) {
-    /* Display the benchmark results */
     display_results(times, msg_sizes, bandwidths, "bw", num_sizes);
   }
   shmem_barrier_all();
