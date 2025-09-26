@@ -137,10 +137,15 @@ bool parse_opts(int argc, char *argv[], options *opts, char **benchmark,
                strcmp(*benchmark, "shmem_get_nbi") == 0 ||
                strcmp(*benchmark, "shmem_getmem_nbi") == 0 ||
                strcmp(*benchmark, "shmem_alltoall") == 0 ||
+               strcmp(*benchmark, "shmem_alltoallmem") == 0 ||
                strcmp(*benchmark, "shmem_alltoalls") == 0 ||
+               strcmp(*benchmark, "shmem_alltoallsmem") == 0 ||
                strcmp(*benchmark, "shmem_broadcast") == 0 ||
+               strcmp(*benchmark, "shmem_broadcastmem") == 0 ||
+               strcmp(*benchmark, "shmem_collectmem") == 0 ||
                strcmp(*benchmark, "shmem_collect") == 0 ||
-               strcmp(*benchmark, "shmem_fcollect") == 0) {
+               strcmp(*benchmark, "shmem_fcollect") == 0 ||
+               strcmp(*benchmark, "shmem_fcollectmem") == 0) {
         opts->benchtype = strdup("bw");
         *benchtype = opts->benchtype;
       }
@@ -177,10 +182,15 @@ void display_help() {
   printf("                            shmem_getmem_nbi\n");
   printf("\n");
   printf("                            shmem_alltoall\n");
+  printf("                            shmem_alltoallmem\n");
   printf("                            shmem_alltoalls\n");
+  printf("                            shmem_alltoallsmem\n");
   printf("                            shmem_broadcast\n");
+  printf("                            shmem_broadcastmem\n");
   printf("                            shmem_collect\n");
+  printf("                            shmem_collectmem\n");
   printf("                            shmem_fcollect\n");
+  printf("                            shmem_fcollectmem\n");
   printf("                            shmem_barrier_all\n");
   printf("\n");
   printf("                            shmem_atomic_add\n");

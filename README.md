@@ -30,17 +30,26 @@ Required Options:
   --bench <routine>      Specify the routine to benchmark
                           Available options:
                             shmem_put
+                            shmem_putmem
                             shmem_iput
                             shmem_get
+                            shmem_getmem
                             shmem_iget
                             shmem_put_nbi
+                            shmem_putmem_nbi
                             shmem_get_nbi
+                            shmem_getmem_nbi
 
                             shmem_alltoall
+                            shmem_alltoallmem
                             shmem_alltoalls
+                            shmem_alltoallsmem
                             shmem_broadcast
+                            shmem_broadcastmem
                             shmem_collect
+                            shmem_collectmem
                             shmem_fcollect
+                            shmem_fcollectmem
                             shmem_barrier_all
 
                             shmem_atomic_add
@@ -79,7 +88,7 @@ Optional Parameters:
 Example Usage:
    oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min 128 --max 1024 --ntimes 20
    oshrun -np 2 shmembench --bench shmem_iget --benchtype bw --min 128 --max 1024 --ntimes 20 --stride 20
-   oshrun -np 64 shmembench --bench shmem_broadcast --benchtype bw --min 128 --max 1025 --ntimes 20
+   oshrun -np 64 shmembench --bench shmem_broadcast --benchtype bw --min 128 --max 1024 --ntimes 20
    oshrun -np 64 shmembench --bench shmem_barrier_all --benchtype latency --ntimes 100
    oshrun -np 6 shmembench --bench shmem_atomic_add --benchtype latency --ntimes 100
 ```
