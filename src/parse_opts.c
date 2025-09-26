@@ -127,16 +127,25 @@ bool parse_opts(int argc, char *argv[], options *opts, char **benchmark,
       }
       /* Collectives and pt2pt RMA: default to bw */
       else if (strcmp(*benchmark, "shmem_put") == 0 ||
+               strcmp(*benchmark, "shmem_putmem") == 0 ||
                strcmp(*benchmark, "shmem_iput") == 0 ||
                strcmp(*benchmark, "shmem_get") == 0 ||
+               strcmp(*benchmark, "shmem_getmem") == 0 ||
                strcmp(*benchmark, "shmem_iget") == 0 ||
                strcmp(*benchmark, "shmem_put_nbi") == 0 ||
+               strcmp(*benchmark, "shmem_putmem_nbi") == 0 ||
                strcmp(*benchmark, "shmem_get_nbi") == 0 ||
+               strcmp(*benchmark, "shmem_getmem_nbi") == 0 ||
                strcmp(*benchmark, "shmem_alltoall") == 0 ||
+               strcmp(*benchmark, "shmem_alltoallmem") == 0 ||
                strcmp(*benchmark, "shmem_alltoalls") == 0 ||
+               strcmp(*benchmark, "shmem_alltoallsmem") == 0 ||
                strcmp(*benchmark, "shmem_broadcast") == 0 ||
+               strcmp(*benchmark, "shmem_broadcastmem") == 0 ||
+               strcmp(*benchmark, "shmem_collectmem") == 0 ||
                strcmp(*benchmark, "shmem_collect") == 0 ||
-               strcmp(*benchmark, "shmem_fcollect") == 0) {
+               strcmp(*benchmark, "shmem_fcollect") == 0 ||
+               strcmp(*benchmark, "shmem_fcollectmem") == 0) {
         opts->benchtype = strdup("bw");
         *benchtype = opts->benchtype;
       }
@@ -162,17 +171,26 @@ void display_help() {
   printf("  --bench <routine>      Specify the routine to benchmark\n");
   printf("                          Available options:\n");
   printf("                            shmem_put\n");
+  printf("                            shmem_putmem\n");
   printf("                            shmem_iput\n");
   printf("                            shmem_get\n");
+  printf("                            shmem_getmem\n");
   printf("                            shmem_iget\n");
   printf("                            shmem_put_nbi\n");
+  printf("                            shmem_putmem_nbi\n");
   printf("                            shmem_get_nbi\n");
+  printf("                            shmem_getmem_nbi\n");
   printf("\n");
   printf("                            shmem_alltoall\n");
+  printf("                            shmem_alltoallmem\n");
   printf("                            shmem_alltoalls\n");
+  printf("                            shmem_alltoallsmem\n");
   printf("                            shmem_broadcast\n");
+  printf("                            shmem_broadcastmem\n");
   printf("                            shmem_collect\n");
+  printf("                            shmem_collectmem\n");
   printf("                            shmem_fcollect\n");
+  printf("                            shmem_fcollectmem\n");
   printf("                            shmem_barrier_all\n");
   printf("\n");
   printf("                            shmem_atomic_add\n");
@@ -209,7 +227,7 @@ void display_help() {
   printf("\nExample Usage:\n");
   printf("   oshrun -np 2 shmembench --bench shmem_put --benchtype bw --min 128 --max 1024 --ntimes 20\n");
   printf("   oshrun -np 2 shmembench --bench shmem_iget --benchtype bw --min 128 --max 1024 --ntimes 20 --stride 20\n");
-  printf("   oshrun -np 64 shmembench --bench shmem_broadcast --benchtype bw --min 128 --max 1025 --ntimes 20\n");
+  printf("   oshrun -np 64 shmembench --bench shmem_broadcast --benchtype bw --min 128 --max 1024 --ntimes 20\n");
   printf("   oshrun -np 64 shmembench --bench shmem_barrier_all --benchtype latency --ntimes 100\n");
   printf("   oshrun -np 6 shmembench --bench shmem_atomic_add --benchtype latency --ntimes 100\n");
   printf("\n");
