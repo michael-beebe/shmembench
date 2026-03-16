@@ -22,4 +22,7 @@
  */
 void bench_shmem_fcollect_bw(options * opts);
 
+
+//void bench_shmem_and_reduce_bw(options * opts);
+
 #endif /* SHMEM_FCOLLECT_H */

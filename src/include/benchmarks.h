@@ -30,6 +30,7 @@
 #include "../benchmarks/collectives/shmem_collectmem.h"
 #include "../benchmarks/collectives/shmem_fcollect.h"
 #include "../benchmarks/collectives/shmem_fcollectmem.h"
+#include "../benchmarks/collectives/shmem_reduce.h"
 #include "../benchmarks/collectives/shmem_barrier_all.h"
 
 /* Atomic benchmarks */

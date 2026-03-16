@@ -72,6 +72,14 @@ benchmark_entry_t benchmark_table[] = {
 
     {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, NULL, false},
     {"shmem_fcollectmem", "bw", bench_shmem_fcollectmem_bw, NULL, NULL, false},
+ 
+    {"shmem_and_reduce", "bw", bench_shmem_and_reduce_bw, NULL, NULL, false}, 
+    {"shmem_or_reduce", "bw", bench_shmem_or_reduce_bw, NULL, NULL, false}, 
+    {"shmem_xor_reduce", "bw", bench_shmem_xor_reduce_bw, NULL, NULL, false}, 
+    {"shmem_max_reduce", "bw", bench_shmem_max_reduce_bw, NULL, NULL, false}, 
+    {"shmem_min_reduce", "bw", bench_shmem_min_reduce_bw, NULL, NULL, false}, 
+    {"shmem_sum_reduce", "bw", bench_shmem_sum_reduce_bw, NULL, NULL, false}, 
+    {"shmem_prod_reduce", "bw", bench_shmem_prod_reduce_bw, NULL, NULL, false}, 
 
     {"shmem_barrier_all", "latency", NULL, NULL,
      bench_shmem_barrier_all_latency, false},
