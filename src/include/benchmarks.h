@@ -31,6 +31,8 @@
 #include "../benchmarks/collectives/shmem_fcollect.h"
 #include "../benchmarks/collectives/shmem_fcollectmem.h"
 #include "../benchmarks/collectives/shmem_barrier_all.h"
+#include "../benchmarks/collectives/shmem_inscan.h"
+#include "../benchmarks/collectives/shmem_exscan.h"
 
 /* Atomic benchmarks */
 #include "../benchmarks/atomics/shmem_atomic_add.h"

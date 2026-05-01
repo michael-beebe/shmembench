@@ -73,6 +73,9 @@ benchmark_entry_t benchmark_table[] = {
     {"shmem_fcollect", "bw", bench_shmem_fcollect_bw, NULL, NULL, false},
     {"shmem_fcollectmem", "bw", bench_shmem_fcollectmem_bw, NULL, NULL, false},
 
+    {"shmem_sum_inscan", "bw", bench_shmem_sum_inscan_bw, NULL, NULL, false}, 
+    {"shmem_sum_exscan", "bw", bench_shmem_sum_exscan_bw, NULL, NULL, false}, 
+
     {"shmem_barrier_all", "latency", NULL, NULL,
      bench_shmem_barrier_all_latency, false},
 
