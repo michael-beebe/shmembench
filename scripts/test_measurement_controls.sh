@@ -5,6 +5,7 @@ set -eu
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 BENCHMARK LAUNCHER [LAUNCHER_ARGS...]" >&2
   echo "The launcher must start exactly two PEs and bound execution time." >&2
+  echo "BARRIER_ONLY=1 instead checks a launcher starting exactly one PE." >&2
   exit 1
 fi
 
@@ -20,6 +21,17 @@ run() {
   fi
 }
 
+run "$@" "$benchmark" --bench shmem_barrier_all --ntimes 7 --warmups 2
+grep -Eq 'Warmups: +2$' "$output"
+grep -Eq 'Ntimes: +7$' "$output"
+grep -Eq '^Avg Time per Barrier \(us\): [0-9]+\.[0-9]+$' "$output"
+grep -q 'Total Time for 7 Barriers' "$output"
+if [ "${BARRIER_ONLY:-0}" = 1 ]; then
+  grep -Eq 'Number of PEs: +1$' "$output"
+  echo "One-PE barrier controls passed."
+  exit 0
+fi
+
 for warmup in default 0 3; do
   args=()
   expected=20
@@ -34,10 +46,6 @@ for warmup in default 0 3; do
   grep -q 'Avg MiB/s' "$output"
   grep -Eq '^8 +[0-9]+\.[0-9]+ +[0-9]+\.[0-9]+ *$' "$output"
 done
-
-run "$@" "$benchmark" --bench shmem_barrier_all --ntimes 7 --warmups 2
-grep -Eq 'Warmups: +2$' "$output"
-grep -q 'Total Time for 7 Barriers' "$output"
 
 for option in warmup warmups ntimes; do
   values=(-1 invalid 1x 2147483648 999999999999999999999999999 '')

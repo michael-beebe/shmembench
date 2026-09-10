@@ -10,10 +10,6 @@
   @param opts Benchmark options given by the user 
  */
 void bench_shmem_barrier_all_latency(options * opts) {
-  if (!check_if_atleast_2_pes()) {
-    return;
-  }
-
   double start_time, end_time, total_time;
   double avg_time;
 

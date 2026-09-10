@@ -127,6 +127,13 @@ bash scripts/test_measurement_controls.sh build/bin/shmembench \
     oshrun --timeout 30 -np 2
 ```
 
+World barrier participation also permits one PE. Check that case separately:
+
+```sh
+BARRIER_ONLY=1 bash scripts/test_measurement_controls.sh build/bin/shmembench \
+    oshrun --timeout 30 -np 1
+```
+
 ## Checked operation workloads
 
 The shared runner provides explicit completion boundaries without changing the
