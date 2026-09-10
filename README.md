@@ -80,6 +80,9 @@ Optional Parameters:
   --ntimes <count>       Number of repetitions.
                          Average among them is reported (default: 10)
 
+  --warmup <count>       Warmup iterations before timing (default: 20).
+                         Zero disables warmup; --warmups is an alias.
+
   --stride <value>       Stride value for strided operations, only used by
                          the shmem_iput and shmem_iget (default: 10)
 
@@ -91,6 +94,24 @@ Example Usage:
    oshrun -np 64 shmembench --bench shmem_broadcast --benchtype bw --min 128 --max 1024 --ntimes 20
    oshrun -np 64 shmembench --bench shmem_barrier_all --benchtype latency --ntimes 100
    oshrun -np 6 shmembench --bench shmem_atomic_add --benchtype latency --ntimes 100
+```
+
+The header reports the effective timed iteration and warmup counts. `--ntimes`
+must be positive and `--warmup` nonnegative; malformed or overflowing counts
+fail rather than silently selecting defaults.
+
+Bandwidth is payload MiB/s (one MiB is 1,048,576 bytes). The bandwidth table's
+average time is the timed loop divided by its iteration count, not ping-pong
+latency. Completion boundaries differ: `shmem_putmem` bandwidth includes a
+fence after each put and one final quiet, whereas `shmem_putmem_nbi` includes
+a quiet after each operation. Do not compare these as equivalent windows.
+
+After building, check the measurement controls using an existing launcher
+configured for exactly two PEs and a timeout, for example with Open MPI:
+
+```sh
+bash scripts/test_measurement_controls.sh build/bin/shmembench \
+    oshrun --timeout 30 -np 2
 ```
 
 ## Sample Output
@@ -108,11 +129,12 @@ Example Usage:
   Min Msg Size (bytes):   1
   Max Msg Size (bytes):   1048576
   Ntimes:                 100
+  Warmups:                20
 
 ==============================================
 ===          Benchmark Results             ===
 ==============================================
-Message Size     Avg Time (us)    Avg MB/s
+Message Size     Avg Time (us)    Avg MiB/s
 1                21.18            0.36
 2                21.20            0.72
 4                18.86            1.62
@@ -138,4 +160,3 @@ Message Size     Avg Time (us)    Avg MB/s
 
 ## Contact
 Michael Beebe: michael.beebe@ttu.edu
-

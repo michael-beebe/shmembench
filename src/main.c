@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
   shmem_barrier_all();
   if (mype == 0) {
     display_header(name, version, npes, opts.bench, opts.benchtype, opts.min_msg_size,
-                   opts.max_msg_size, opts.ntimes, opts.stride);
+                   opts.max_msg_size, opts.ntimes, opts.warmups, opts.stride);
   }
 
   /**

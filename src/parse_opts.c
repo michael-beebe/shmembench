@@ -4,6 +4,9 @@
 
 #include "parse_opts.h"
 
+#include <errno.h>
+#include <limits.h>
+
 /**
   @brief Parses runtime options
   @param argc Number of command-line arguments.
@@ -37,6 +40,7 @@ bool parse_opts(int argc, char *argv[], options *opts) {
       {"max", required_argument, 0, 0},
       {"ntimes", required_argument, 0, 0},
       {"warmup", required_argument, 0, 0},
+      {"warmups", required_argument, 0, 0},
       {"stride", required_argument, 0, 0},
       {"help", no_argument, 0, 0},
       {0, 0, 0, 0} /* Terminator */
@@ -82,15 +86,26 @@ bool parse_opts(int argc, char *argv[], options *opts) {
                 opts->min_msg_size * 128; /* Set a default max if invalid */
           }
         }
-      } else if (strcmp(option_name, "ntimes") == 0) {
-        opts->ntimes = atoi(optarg);
-        if (opts->ntimes <= 0) {
-          opts->ntimes = 10; /* Default to 10 if not provided */
+      } else if (strcmp(option_name, "ntimes") == 0 ||
+                 strcmp(option_name, "warmup") == 0 ||
+                 strcmp(option_name, "warmups") == 0) {
+        bool timed = strcmp(option_name, "ntimes") == 0;
+        char *end;
+        errno = 0;
+        long count = strtol(optarg, &end, 10);
+        if (errno == ERANGE || end == optarg || *end != '\0' ||
+            count < (timed ? 1 : 0) || count > INT_MAX) {
+          if (shmem_my_pe() == 0) {
+            fprintf(stderr, "Invalid --%s count: '%s'. Must be an integer "
+                            "from %d to %d.\n",
+                    option_name, optarg, timed ? 1 : 0, INT_MAX);
+          }
+          return false;
         }
-      } else if (strcmp(option_name, "warmups") == 0) {
-        opts->warmups = atoi(optarg);
-        if (opts->warmups < 0){
-          opts->warmups = DEFAULT_WARMUP_ITERATIONS;
+        if (timed) {
+          opts->ntimes = (int)count;
+        } else {
+          opts->warmups = (int)count;
         }
       } else if (strcmp(option_name, "stride") == 0) {
         if (opts->bench && (strcmp(opts->bench, "shmem_iput") == 0 ||
@@ -215,6 +230,10 @@ void display_help() {
   printf("\n");
   printf("  --ntimes <count>       Number of repetitions.\n");
   printf("                         Average among them is reported (default: 10)\n");
+  printf("\n");
+  printf("  --warmup <count>       Warmup iterations before timing (default: %d).\n",
+         DEFAULT_WARMUP_ITERATIONS);
+  printf("                         Zero disables warmup; --warmups is an alias.\n");
   printf("\n");
   printf("  --stride <value>       Stride value for strided operations, only used by\n");
   printf("                         the shmem_iput and shmem_iget (default: 10)\n");

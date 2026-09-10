@@ -119,7 +119,7 @@ void run_benchmark(options * opts) {
   @brief Calculate bandwidth based on message size and time
   @param size Message size for the test in bytes
   @param time Time taken for the operation in microseconds
-  @return The calculated bandwidth in MB/s
+  @return The calculated bandwidth in MiB/s
  */
 double calculate_bw(int size, double time) {
   if (time <= 0.0) {
@@ -134,7 +134,7 @@ double calculate_bw(int size, double time) {
 //   @param size Message size for the test in bytes
 //   @param time Time taken for the operation in microseconds
 //   @param npes Number of PEs involved in the collective operation
-//   @return The calculated collective bandwidth in MB/s
+//   @return The calculated collective bandwidth in MiB/s
 //  */
 // double calculate_collective_bw(int size, double time, int npes) {
 //   return (size * npes / (1024.0 * 1024.0)) / (time / 1e6);
@@ -144,7 +144,7 @@ double calculate_bw(int size, double time) {
   @brief Calculate bidirectional bandwidth based on message size and time
   @param size Message size for the test in bytes
   @param time Time taken for the operation in microseconds
-  @return The calculated bidirectional bandwidth in MB/s
+  @return The calculated bidirectional bandwidth in MiB/s
  */
 double calculate_bibw(int size, double time) {
   if (time <= 0.0) {
@@ -175,7 +175,7 @@ void display_results(double *times, int *msg_size, double *results,
 
   /* Print table headers based on the benchtype */
   if (strcmp(benchtype, "bw") == 0 || strcmp(benchtype, "bibw") == 0) {
-    printf("%-16s %-16s %-14s\n", "Message Size", "Latency (us)", "Avg MB/s");
+    printf("%-16s %-16s %-14s\n", "Message Size", "Avg Time (us)", "Avg MiB/s");
   } else if (strcmp(benchtype, "latency") == 0) {
     printf("%-16s %-16s\n", "Message Size", "Latency (us)");
   }
@@ -325,12 +325,13 @@ void display_logo() {
  * @param min_msg_size Minimum message size for test in bytes
  * @param max_msg_size Maximum message size for test in bytes
  * @param ntimes Number of times the benchmark should run
+ * @param warmups Number of untimed warmup iterations
  * @param stride Stride value to use for the benchmark (only applicable to
  *certain benchmarks)
  */
 void display_header(char *shmem_name, char *shmem_version, int npes,
                     char *benchmark, char *benchtype, int min_msg_size,
-                    int max_msg_size, int ntimes, int stride) {
+                    int max_msg_size, int ntimes, int warmups, int stride) {
   printf("\n");
   printf("==============================================\n");
   printf("===          Test Information              ===\n");
@@ -347,6 +348,7 @@ void display_header(char *shmem_name, char *shmem_version, int npes,
     printf("  Max Msg Size (bytes):   %d\n", max_msg_size);
   }
   printf("  Ntimes:                 %d\n", ntimes);
+  printf("  Warmups:                %d\n", warmups);
   if (strcmp(benchmark, "shmem_iput") == 0 ||
       strcmp(benchmark, "shmem_iget") == 0) {
     printf("  Stride:                 %d\n", stride);

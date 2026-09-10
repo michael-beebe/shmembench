@@ -57,7 +57,7 @@ void run_benchmark(options * opts);
   @brief Calculate bandwidth based on message size and time
   @param size Message size for the test in bytes
   @param time Time taken for the operation in microseconds
-  @return The calculated bandwidth in MB/s
+  @return The calculated bandwidth in MiB/s
  */
 double calculate_bw(int size, double time);
 
@@ -67,7 +67,7 @@ double calculate_bw(int size, double time);
 //   @param size Message size for the test in bytes
 //   @param time Time taken for the operation in microseconds
 //   @param npes Number of PEs involved in the collective operation
-//   @return The calculated collective bandwidth in MB/s
+//   @return The calculated collective bandwidth in MiB/s
 //  */
 // double calculate_collective_bw(int size, double time, int npes);
 
@@ -75,7 +75,7 @@ double calculate_bw(int size, double time);
   @brief Calculate bidirectional bandwidth based on message size and time
   @param size Message size for the test in bytes
   @param time Time taken for the operation in microseconds
-  @return The calculated bidirectional bandwidth in MB/s
+  @return The calculated bidirectional bandwidth in MiB/s
  */
 double calculate_bibw(int size, double time);
 
@@ -159,11 +159,12 @@ void display_logo(void);
   @param min_msg_size Minimum message size for test in bytes.
   @param max_msg_size Maximum message size for test in bytes.
   @param ntimes Number of times the benchmark should run.
+  @param warmups Number of untimed warmup iterations.
   @param stride Stride value to use for the benchmark (only applicable to
   certain benchmarks).
  */
 void display_header(char *shmem_name, char *shmem_version, int npes,
                     char *benchmark, char *benchtype, int min_msg_size,
-                    int max_msg_size, int ntimes, int stride);
+                    int max_msg_size, int ntimes, int warmups, int stride);
 
 #endif /* SHMEMBENCH_H */
