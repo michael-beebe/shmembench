@@ -20,8 +20,14 @@ run() {
     exit 1
   fi
   echo "$output" | grep '^RESULT '
-  test "$(echo "$output" | grep -c '^RESULT .* check=pass$')" = 2
-  for pe in 0 1; do
+  expected=2
+  if [[ " $* " == *" --bench shmem_putmem_signal_nbi_overlap "* ]]; then
+    expected=1
+    echo "$output" | grep '^NOTIFY_RESULT '
+    test "$(echo "$output" | grep -c '^NOTIFY_RESULT .* pe=1 .* check=pass$')" = 1
+  fi
+  test "$(echo "$output" | grep -c '^RESULT .* check=pass$')" = "$expected"
+  for ((pe=0; pe<expected; pe++)); do
     test "$(echo "$output" | grep -c "^RESULT .* pe=$pe .* check=pass$")" = 1
   done
   echo "$output" | awk '/^RESULT / {
@@ -41,12 +47,60 @@ reject() {
     echo "Expected failure status 1, got $status: $output" >&2
     exit 1
   fi
-  if echo "$output" | grep -q '^RESULT '; then
+  if echo "$output" | grep -Eq '^(RESULT|NOTIFY_RESULT) '; then
     echo "Rejected input printed successful rows: $output" >&2
     exit 1
   fi
   cases=$((cases + 1))
 }
+
+if [ "${WORKLOAD_CONTEXTS_ONLY:-0}" != 1 ]; then
+  for mode in issue quiet window; do
+    run --bench shmem_atomic_add --benchtype "$mode" --target contended
+    if [ "$version" -ge 15 ]; then
+      run --bench shmem_putmem_signal_nbi_overlap --benchtype "$mode" --compute-us 0
+    fi
+  done
+  run --bench shmem_atomic_add --benchtype window --target contended --contexts 8 --ntimes 9
+  if [ "$version" -ge 15 ]; then
+    run --bench shmem_putmem_signal_nbi_overlap --benchtype window --compute-us 1000
+    run --bench shmem_putmem_signal_nbi_overlap --benchtype window --compute-us 1000 --contexts 8 --ntimes 9
+  else
+    reject --bench shmem_putmem_signal_nbi_overlap --benchtype window
+  fi
+  reject --bench shmem_atomic_fetch_add --benchtype window --target contended
+  reject --bench shmem_atomic_add --compute-us 1
+  reject --bench shmem_putmem_signal_nbi_overlap --target self
+  reject --bench shmem_putmem_signal_nbi_overlap --compute-us -1
+  if [ "${WORKLOAD_W8_ONLY:-0}" = 1 ]; then
+    echo "Contention/overlap controls passed: $cases cases (OpenSHMEM $version)."
+    exit 0
+  fi
+fi
+
+for contexts in 0 1 8 32; do
+  run --bench shmem_atomic_add --benchtype window --contexts "$contexts" --ntimes 33
+  if [ "$contexts" != 0 ]; then
+    echo "$output" | grep '^CONTEXTS '
+    for pe in 0 1; do
+      test "$(echo "$output" | grep -c "^CONTEXTS pe=$pe count=$contexts ")" = 1
+    done
+  fi
+done
+run --bench shmem_atomic_fetch_add --benchtype issue --contexts 8 --ntimes 9
+run --bench shmem_putmem_nbi --benchtype quiet --contexts 8 --ntimes 9
+run --bench shmem_getmem_nbi --benchtype window --contexts 8 --ntimes 9
+if [ "$version" -ge 15 ]; then
+  run --bench shmem_putmem_signal_nbi --benchtype window --contexts 8 --ntimes 9
+fi
+reject --bench shmem_test --benchtype issue --contexts 1
+reject --bench shmem_getmem --contexts 1
+reject --bench shmem_atomic_add --contexts -1
+reject --bench shmem_atomic_add --contexts 3x
+if [ "${WORKLOAD_CONTEXTS_ONLY:-0}" = 1 ]; then
+  echo "Context controls passed: $cases cases (OpenSHMEM $version)."
+  exit 0
+fi
 
 for mode in issue quiet window; do
   for bench in shmem_atomic_add shmem_atomic_fetch_add shmem_putmem_nbi shmem_getmem_nbi; do

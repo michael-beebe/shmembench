@@ -84,7 +84,8 @@ benchmark_entry_t benchmark_table[] = {
  */
 void run_benchmark(options * opts) {
   if (run_workload(opts)) return;
-  if (opts->window != 1 || opts->block_size != 1 || opts->mask ||
+  if (opts->window != 1 || opts->contexts || opts->compute_us ||
+      opts->block_size != 1 || opts->mask ||
       !opts->ready || strcmp(opts->target, "peer")) {
     if (!shmem_my_pe()) fprintf(stderr, "Workload controls require issue, quiet, or window.\n");
     shmem_global_exit(EXIT_FAILURE);

@@ -29,6 +29,8 @@ typedef struct {
   int warmups;
   int stride;
   int window;
+  int contexts;
+  int compute_us;
   int block_size;
   int mask;
   bool ready;

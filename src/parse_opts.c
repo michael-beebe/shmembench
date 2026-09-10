@@ -47,6 +47,8 @@ bool parse_opts(int argc, char *argv[], options *opts) {
       {"warmups", required_argument, 0, 0},
       {"stride", required_argument, 0, 0},
       {"window", required_argument, 0, 0},
+      {"contexts", required_argument, 0, 0},
+      {"compute-us", required_argument, 0, 0},
       {"block-size", required_argument, 0, 0},
       {"target", required_argument, 0, 0},
       {"ready", required_argument, 0, 0},
@@ -86,6 +88,8 @@ bool parse_opts(int argc, char *argv[], options *opts) {
                  strcmp(option_name, "max") == 0 ||
                  strcmp(option_name, "stride") == 0 ||
                  strcmp(option_name, "window") == 0 ||
+                 strcmp(option_name, "contexts") == 0 ||
+                 strcmp(option_name, "compute-us") == 0 ||
                  strcmp(option_name, "block-size") == 0 ||
                  strcmp(option_name, "mask") == 0 ||
                  strcmp(option_name, "ready") == 0 ||
@@ -94,6 +98,8 @@ bool parse_opts(int argc, char *argv[], options *opts) {
                  strcmp(option_name, "warmups") == 0) {
         bool allow_zero = strcmp(option_name, "warmup") == 0 ||
                           strcmp(option_name, "warmups") == 0 ||
+                          strcmp(option_name, "contexts") == 0 ||
+                          strcmp(option_name, "compute-us") == 0 ||
                           strcmp(option_name, "mask") == 0 ||
                           strcmp(option_name, "ready") == 0;
         char *end;
@@ -118,6 +124,10 @@ bool parse_opts(int argc, char *argv[], options *opts) {
           opts->stride = (int)count;
         } else if (strcmp(option_name, "window") == 0) {
           opts->window = (int)count;
+        } else if (strcmp(option_name, "contexts") == 0) {
+          opts->contexts = (int)count;
+        } else if (strcmp(option_name, "compute-us") == 0) {
+          opts->compute_us = (int)count;
         } else if (strcmp(option_name, "block-size") == 0) {
           opts->block_size = (int)count;
         } else if (strcmp(option_name, "mask") == 0) {
@@ -131,7 +141,7 @@ bool parse_opts(int argc, char *argv[], options *opts) {
         }
       } else if (strcmp(option_name, "target") == 0) {
         if (strcmp(optarg, "self") && strcmp(optarg, "peer") &&
-            strcmp(optarg, "random")) return false;
+            strcmp(optarg, "random") && strcmp(optarg, "contended")) return false;
         opts->target = optarg;
       } else if (strcmp(option_name, "help") == 0) {
         opts->help = true;
@@ -244,12 +254,16 @@ void display_help() {
   printf("\nOptional Parameters:\n");
   printf("  --benchtype issue|quiet|window  Checked operation workloads (see README)\n");
   printf("  --window <count>      Operations per sample (default: 1)\n");
-  printf("  --target self|peer|random  Target schedule (default: peer)\n");
+  printf("  --contexts <count>    Live explicit contexts; 0 uses default (default: 0)\n");
+  printf("  --compute-us <count>  Receiver compute interval for signal overlap (default: 0)\n");
+  printf("  --target self|peer|random|contended  Target schedule (default: peer)\n");
+  printf("                       contended supports only shmem_atomic_add to shared PE-0 counter\n");
   printf("  --block-size <count>  Elements per ibput/ibget block (default: 1)\n");
   printf("  --ready 0|1          Test predicate readiness (default: 1; waits require 1)\n");
   printf("  --mask <percent>     Excluded array prefix, 0-100 (default: 0)\n");
   printf("  Checked APIs also include shmem_p/g, shmem_test/wait_until,\n");
   printf("  shmem_putmem_signal[_nbi], shmem_signal_fetch/wait_until,\n");
+  printf("  shmem_putmem_signal_nbi_overlap (two PEs, receiver computes then polls),\n");
   printf("  shmem_test/wait_until_all/any/some[_vector], shmem_ibput/ibget.\n");
   printf("  --min <size>           Minimum message size in bytes (default: 8)\n");
   printf("                            Note: Not applicable for atomic benchmarks.\n");

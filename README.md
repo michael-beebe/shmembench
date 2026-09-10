@@ -172,6 +172,34 @@ have distinct symmetric destinations: these are **uncontended** atomics, not a
 shared-counter contention test. Every target selection is printed. Observation
 APIs always operate locally and print `target=local`.
 
+`--target contended` is an explicit exception for `shmem_atomic_add` only.
+Every PE, including PE 0, issues every operation to the same unsigned-long
+counter on PE 0. The checked final value is
+`npes * (warmup + ntimes) * window`; combinations overflowing the operand are
+rejected. At least two PEs are required. Other atomic/RMA selections reject this
+target rather than silently providing uncontended or unchecked fetched results.
+The issue/quiet/window boundaries and per-PE rates remain unchanged.
+
+`--contexts N` creates N live world-team contexts with `shmem_ctx_create(0, ...)`;
+0 (default) retains the original default-context API calls. Counts 1, 8, and 32
+provide small context-scaling cases. Creation occurs once per process before
+warmup and all size curves. Each PE gets a separate `CONTEXTS` row with
+`create_total_us` and `create_each_us`; those times exclude handle allocation,
+barriers, reporting, and destruction. Creation failure exits nonzero.
+
+For N > 0, sample r uses context `r % N` for every operation and its quiet.
+Handle-array selection is outside timing; the context-aware API call and its
+runtime lookup are inside. Use at least N warmup samples to touch every context.
+Contexts remain live across the complete size curve and are destroyed afterward,
+outside operation timing. Different samples never leave outstanding work in
+previous contexts, so this is lookup/resource scaling, not simultaneous
+multi-context traffic. Local observation and legacy bw/bibw workloads reject
+nonzero context counts. `RESULT` rows report `contexts=N`.
+
+Helper-thread CPU/memory accounting must be collected externally; no helper
+cost or standalone lookup time is inferred from operation latency. Default and
+explicit-context runs should use the same executable and all other controls.
+
 Atomics and scalar APIs use `unsigned long`, ignore message-size bounds, and
 report `sizeof(unsigned long)`. Fetch operands start at 7; other operands start
 at 0 except AND, which starts at 7. ADD/INC/FETCH_ADD increment by 1; SET/SWAP/OR
@@ -180,6 +208,40 @@ are checked after every sample; final operands are checked on all PEs.
 RMA source/destination buffers are separate, initialized, and payloads checked.
 Signal puts use `SHMEM_SIGNAL_ADD` with increment 1 and check both delivered
 payload and final signal count.
+
+### Notification and application-compute overlap
+
+`--bench shmem_putmem_signal_nbi_overlap` requires two PEs, `--target peer`,
+and the 1.5 put-with-signal-NBI and signal-fetch APIs. PE 0 sends a window of
+separate payload/signal pairs to PE 1. PE 1 performs arithmetic for
+`--compute-us N` requested microseconds (default 0), without calling OpenSHMEM,
+then explicitly polls each signal using `shmem_signal_fetch`. Polling is not an
+emulation or measurement of `shmem_signal_wait_until`; this workload remains
+available with `DISABLE_SIGNAL_WAIT_UNTIL=1`. Version-1.4 builds reject it.
+
+Each sample begins after an untimed barrier; process scheduling can skew their
+starts. PE 0 preserves the selected issue/quiet/window boundary and prints one
+ordinary `RESULT` row (per-operation times/rates). PE 1 prints `NOTIFY_RESULT`:
+actual average `compute_us`, average subsequent `poll_us`, their average
+`total_us`, and `first_poll_ready_windows` out of `ntimes`. Receiver times are
+**per window**, not per operation. All clocks and duration differences are
+local to the reporting PE; no cross-PE timestamp subtraction or tail estimates
+are performed. Compute can overshoot the requested duration due to scheduling
+and the bounded arithmetic batch.
+
+Payload bytes vary with the sample number. PE 1 checks every byte after its
+corresponding signal is observed and **before** the next barrier. Source buffers
+are reused only after sender completion; sample barriers keep signal generations
+separate. Context selection, when enabled, applies to the sender; receiver
+polling remains local.
+
+Compare compute=0 and positive compute intervals with identical allocation,
+placement, window, sizes, and sender completion modes. Report actual compute
+time and sender time separately: the presence of a compute interval or a ready
+first poll alone does not prove asynchronous progress or a speedup. Signal
+fetches may themselves advance the runtime, and their first pass is not an
+atomic snapshot of all flags. These outputs expose scheduling/progress effects;
+CPU/helper accounting and transport evidence remain external.
 
 Byte sizes double from `--min` through `--max`. Array and strided workloads
 require exact multiples of `sizeof(unsigned long)`. `--block-size B` is the
@@ -226,6 +288,12 @@ oshrun -np 2 build/bin/shmembench --bench shmem_ibget \
     --benchtype quiet --min 128 --max 4096 --block-size 4 --stride 8
 SHMEM_VERSION=16 bash scripts/test_workloads.sh build/bin/shmembench \
     oshrun --timeout 30 -np 2
+WORKLOAD_CONTEXTS_ONLY=1 SHMEM_VERSION=16 \
+    bash scripts/test_workloads.sh build/bin/shmembench \
+    oshrun --timeout 30 -np 2
+WORKLOAD_W8_ONLY=1 SHMEM_VERSION=15 DISABLE_SIGNAL_WAIT_UNTIL=1 \
+    bash scripts/test_workloads.sh build/bin/shmembench \
+    oshrun --timeout 30 -np 2
 ```
 
 The bounded regression checks every shared API, all three completion modes on
@@ -240,15 +308,18 @@ The shared runner follows the pinned
 
 | Requirement | Normative source under `content/` | Regression |
 | --- | --- | --- |
+| Noncollective world-context creation, checked status, context-specific quiet | `shmem_ctx_create.tex`, `shmem_quiet.tex` | 0/1/8/32 live contexts; checked atomic, RMA, and signaling windows |
+| Atomic updates to one shared object | `shmem_atomic_add.tex` | contended root counter, final exact count, three completion modes |
+| Payload delivery before signal update; atomic signal observation | `shmem_put_signal_nbi.tex`, `shmem_signal_fetch.tex` | compute without library calls, changing payload checked before synchronization |
 | Initiation versus completed buffers | `shmem_quiet.tex`, `shmem_atomic_fetch_nbi.tex` | issue/quiet/window, fetched-value and payload checks |
 | Block-strided element units and source consumption | `shmem_ibput.tex`, `shmem_ibget.tex` | two-element blocks, three-element strides, unchanged gaps |
 | Signal denotes delivered payload; NBI completes at quiet | `shmem_put_signal_nbi.tex` | checked payload and accumulated signal value |
 | Array mask, readiness and empty-set results | `shmem_test_all.tex`, `shmem_wait_until_all.tex` and corresponding any/some/vector entries | masked ready/not-ready/empty test cases and returned-index checks |
 
-This is workload validation, not full API conformance. Shared-location atomic
-contention, delayed notifications, passive-target progress, independent source
-and destination strides, explicit contexts, and multi-threaded operation are
-not modeled.
+This is workload validation, not full API conformance. Contended fetching
+atomics, independent source and destination strides, simultaneous multi-context
+traffic, and multi-threaded operation are not modeled. The overlap workload
+provides progress evidence, not a proof of every passive-target scenario.
 
 ## Sample Output
 ```text
