@@ -102,6 +102,10 @@ bool run_workload(options *opts) {
   if (operations[selected].version > version)
     fail("workload unsupported by selected USE_SHMEM_VERSION");
   enum operation op = operations[selected].op;
+#ifdef NO_SHMEM_SIGNAL_WAIT_UNTIL
+  if (op == SIGNAL_WAIT)
+    fail("unsupported workload: shmem_signal_wait_until disabled in this build");
+#endif
   int me = shmem_my_pe(), npes = shmem_n_pes();
   bool observation = op >= SIGNAL_FETCH;
   bool strided = op >= IPUT && op <= IBGET;
@@ -212,7 +216,9 @@ bool run_workload(options *opts) {
           case SIGNAL: shmem_putmem_signal(d, s, bytes, signals + slot, 1, SHMEM_SIGNAL_ADD, pe); break;
           case SIGNAL_NBI: shmem_putmem_signal_nbi(d, s, bytes, signals + slot, 1, SHMEM_SIGNAL_ADD, pe); break;
           case SIGNAL_FETCH: *r = shmem_signal_fetch(signals + slot); break;
+#ifndef NO_SHMEM_SIGNAL_WAIT_UNTIL
           case SIGNAL_WAIT: *r = shmem_signal_wait_until(signals + slot, SHMEM_CMP_EQ, 7); break;
+#endif
           case TEST_ALL: observed[j] = shmem_ulong_test_all(s, elements, status, SHMEM_CMP_EQ, compare); break;
           case TEST_ANY: observed[j] = shmem_ulong_test_any(s, elements, status, SHMEM_CMP_EQ, compare); break;
           case TEST_SOME: observed[j] = shmem_ulong_test_some(s, elements, ix, status, SHMEM_CMP_EQ, compare); break;

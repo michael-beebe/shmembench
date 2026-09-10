@@ -18,6 +18,14 @@ Use `USE_SHMEM_VERSION=16` to enable `shmem_ibput` and `shmem_ibget`.
 Use a separate `BUILD_DIR` for each compiler, runtime, or API-version selection;
 the Makefile does not detect changes to compiler flags in existing objects.
 
+If a runtime supplies the other 1.5 APIs but lacks `shmem_signal_wait_until`,
+build with `DISABLE_SIGNAL_WAIT_UNTIL=1`. This explicitly removes that symbol
+dependency and makes its benchmark selection fail with an unsupported diagnostic;
+it does not substitute another wait operation or change `USE_SHMEM_VERSION`.
+The default is 0 (API enabled). Record this incomplete runtime capability in
+comparison results, and use `DISABLE_SIGNAL_WAIT_UNTIL=1` in the environment when
+running `scripts/test_workloads.sh` against that build.
+
 All build artifacts are placed in the `build` directory:
 - Object files are stored in `build/src/` and related subdirectories
 - The executable is placed in `build/bin/shmembench`

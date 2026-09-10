@@ -67,7 +67,12 @@ run --bench shmem_test --benchtype issue --ready 0
 if [ "$version" -ge 15 ]; then
   for bench in shmem_atomic_fetch_nbi shmem_putmem_signal shmem_putmem_signal_nbi \
       shmem_signal_fetch shmem_signal_wait_until; do
-    run --bench "$bench" --benchtype window
+    if [ "$bench" = shmem_signal_wait_until ] &&
+       [ "${DISABLE_SIGNAL_WAIT_UNTIL:-0}" = 1 ]; then
+      reject --bench "$bench" --benchtype window
+    else
+      run --bench "$bench" --benchtype window
+    fi
   done
   for family in test wait_until; do
     for kind in all any some all_vector any_vector some_vector; do
