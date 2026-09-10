@@ -5,6 +5,8 @@
 
 #include "shmembench.h"
 #include "parse_opts.h"
+#include <time.h>
+#include <unistd.h>
 
 /* Function pointer type for benchmarks without stride */
 typedef void (*benchmark_func_t)(options *opts);
@@ -74,28 +76,27 @@ benchmark_entry_t benchmark_table[] = {
     {"shmem_fcollectmem", "bw", bench_shmem_fcollectmem_bw, NULL, NULL, false},
 
     {"shmem_barrier_all", "latency", NULL, NULL,
-     bench_shmem_barrier_all_latency, false},
-
-    {"shmem_atomic_add", "latency", NULL, NULL, bench_shmem_atomic_add_latency,
-     false}, 
-    {"shmem_atomic_compare_swap", "latency", NULL, NULL,
-     bench_shmem_atomic_compare_swap_latency, false}, 
-    {"shmem_atomic_fetch_nbi", "latency", NULL, NULL,
-     bench_shmem_atomic_fetch_nbi_latency, false}, 
-    {"shmem_atomic_fetch", "latency", NULL, NULL,
-     bench_shmem_atomic_fetch_latency, false}, 
-    {"shmem_atomic_inc", "latency", NULL, NULL, bench_shmem_atomic_inc_latency,
-     false}, 
-    {"shmem_atomic_set", "latency", NULL, NULL, bench_shmem_atomic_set_latency,
-     false}, 
-    {"shmem_atomic_swap", "latency", NULL, NULL,
-     bench_shmem_atomic_swap_latency, false}}; 
+     bench_shmem_barrier_all_latency, false}};
 
 /**
   @brief Run the selected benchmark
   @param opts Benchmark options given by the user 
  */
 void run_benchmark(options * opts) {
+  if (run_workload(opts)) return;
+  if (opts->window != 1 || opts->block_size != 1 || opts->mask ||
+      !opts->ready || strcmp(opts->target, "peer")) {
+    if (!shmem_my_pe()) fprintf(stderr, "Workload controls require issue, quiet, or window.\n");
+    shmem_global_exit(EXIT_FAILURE);
+  }
+#ifdef USE_14
+  if (strstr(opts->bench, "mem") && !strncmp(opts->bench, "shmem_", 6) &&
+      (strstr(opts->bench, "alltoall") || strstr(opts->bench, "broadcast") ||
+       strstr(opts->bench, "collect"))) {
+    if (!shmem_my_pe()) fprintf(stderr, "Unsupported collective in OpenSHMEM 1.4.\n");
+    shmem_global_exit(EXIT_FAILURE);
+  }
+#endif
   for (int i = 0; i < sizeof(benchmark_table) / sizeof(benchmark_entry_t);
        i++) {
     if (strcmp(opts->bench, benchmark_table[i].benchmark) == 0 &&
@@ -113,6 +114,7 @@ void run_benchmark(options * opts) {
   if (shmem_my_pe() == 0) {
     fprintf(stderr, "Error: Benchmark or benchtype not found.\n");
   }
+  shmem_global_exit(EXIT_FAILURE);
 }
 
 /**
@@ -243,7 +245,7 @@ bool check_if_exactly_2_pes(void) {
       printf(RED_COLOR "\nERROR: " RESET_COLOR "This test requires"
                        " exactly 2 PEs!\n\n");
     }
-    return false;
+    shmem_global_exit(EXIT_FAILURE);
   }
   return true;
 }
@@ -258,7 +260,7 @@ bool check_if_atleast_2_pes(void) {
       printf(RED_COLOR "\nERROR: " RESET_COLOR "This test requires"
                        " at least 2 PEs!\n\n");
     }
-    return false;
+    shmem_global_exit(EXIT_FAILURE);
   }
   return true;
 }
@@ -288,10 +290,10 @@ bool setup_bench(int min_msg_size, int max_msg_size, int *num_sizes,
   *times = (double *)malloc(*num_sizes * sizeof(double));
   *results = (double *)malloc(*num_sizes * sizeof(double));
 
-  if (msg_sizes == NULL || times == NULL || results == NULL ||
-      !(num_sizes > 0)) {
+  if (*msg_sizes == NULL || *times == NULL || *results == NULL ||
+      *num_sizes <= 0) {
     printf(RED_COLOR "\nERROR: " RESET_COLOR "Unable to set up test!\n\n");
-    return false;
+    shmem_global_exit(EXIT_FAILURE);
   }
 
   return true;

@@ -27,6 +27,10 @@ bool parse_opts(int argc, char *argv[], options *opts) {
   opts->max_msg_size = 1024;
   opts->ntimes = 10;
   opts->stride = 10;
+  opts->window = 1;
+  opts->block_size = 1;
+  opts->ready = true;
+  opts->target = "peer";
 
   /* Set bench and benchtype to NULL */
   opts->bench = NULL;
@@ -42,6 +46,11 @@ bool parse_opts(int argc, char *argv[], options *opts) {
       {"warmup", required_argument, 0, 0},
       {"warmups", required_argument, 0, 0},
       {"stride", required_argument, 0, 0},
+      {"window", required_argument, 0, 0},
+      {"block-size", required_argument, 0, 0},
+      {"target", required_argument, 0, 0},
+      {"ready", required_argument, 0, 0},
+      {"mask", required_argument, 0, 0},
       {"help", no_argument, 0, 0},
       {0, 0, 0, 0} /* Terminator */
   };
@@ -56,65 +65,74 @@ bool parse_opts(int argc, char *argv[], options *opts) {
       const char *option_name = long_options[option_index].name;
 
       if (strcmp(option_name, "bench") == 0) {
+        free(opts->bench);
         opts->bench = strdup(optarg);
       } else if (strcmp(option_name, "benchtype") == 0) {
         if (strcmp(optarg, "bw") == 0 || strcmp(optarg, "bibw") == 0 ||
-            strcmp(optarg, "latency") == 0) {
+            strcmp(optarg, "latency") == 0 || strcmp(optarg, "issue") == 0 ||
+            strcmp(optarg, "quiet") == 0 || strcmp(optarg, "window") == 0) {
+          free(opts->benchtype);
           opts->benchtype = strdup(optarg);
         } else {
           if (shmem_my_pe() == 0) {
             fprintf(stderr,
                     "Invalid benchtype specified: %s. "
-                    "Must be 'bw', 'bibw', or 'latency'.\n",
+                    "Must be bw, bibw, latency, issue, quiet, or window.\n",
                     optarg);
           }
           return false;
         }
-      } else if (strcmp(option_name, "min") == 0) {
-        if (opts->bench && (strcmp(opts->bench, "shmem_barrier_all") != 0)) {
-          opts->min_msg_size = atoi(optarg);
-          if (opts->min_msg_size <= 0) {
-            opts->min_msg_size = 1; /* Set a default if not provided */
-          }
-        }
-      } else if (strcmp(option_name, "max") == 0) {
-        if (opts->bench && (strcmp(opts->bench, "shmem_barrier_all") != 0)) {
-          opts->max_msg_size = atoi(optarg);
-          if (opts->max_msg_size <= 0 ||
-              opts->max_msg_size < opts->min_msg_size) {
-            opts->max_msg_size =
-                opts->min_msg_size * 128; /* Set a default max if invalid */
-          }
-        }
-      } else if (strcmp(option_name, "ntimes") == 0 ||
+      } else if (strcmp(option_name, "min") == 0 ||
+                 strcmp(option_name, "max") == 0 ||
+                 strcmp(option_name, "stride") == 0 ||
+                 strcmp(option_name, "window") == 0 ||
+                 strcmp(option_name, "block-size") == 0 ||
+                 strcmp(option_name, "mask") == 0 ||
+                 strcmp(option_name, "ready") == 0 ||
+                 strcmp(option_name, "ntimes") == 0 ||
                  strcmp(option_name, "warmup") == 0 ||
                  strcmp(option_name, "warmups") == 0) {
-        bool timed = strcmp(option_name, "ntimes") == 0;
+        bool allow_zero = strcmp(option_name, "warmup") == 0 ||
+                          strcmp(option_name, "warmups") == 0 ||
+                          strcmp(option_name, "mask") == 0 ||
+                          strcmp(option_name, "ready") == 0;
         char *end;
         errno = 0;
         long count = strtol(optarg, &end, 10);
         if (errno == ERANGE || end == optarg || *end != '\0' ||
-            count < (timed ? 1 : 0) || count > INT_MAX) {
+            count < (allow_zero ? 0 : 1) || count > INT_MAX) {
           if (shmem_my_pe() == 0) {
             fprintf(stderr, "Invalid --%s count: '%s'. Must be an integer "
                             "from %d to %d.\n",
-                    option_name, optarg, timed ? 1 : 0, INT_MAX);
+                    option_name, optarg, allow_zero ? 0 : 1, INT_MAX);
           }
           return false;
         }
-        if (timed) {
+        if (strcmp(option_name, "ntimes") == 0) {
           opts->ntimes = (int)count;
+        } else if (strcmp(option_name, "min") == 0) {
+          opts->min_msg_size = (int)count;
+        } else if (strcmp(option_name, "max") == 0) {
+          opts->max_msg_size = (int)count;
+        } else if (strcmp(option_name, "stride") == 0) {
+          opts->stride = (int)count;
+        } else if (strcmp(option_name, "window") == 0) {
+          opts->window = (int)count;
+        } else if (strcmp(option_name, "block-size") == 0) {
+          opts->block_size = (int)count;
+        } else if (strcmp(option_name, "mask") == 0) {
+          if (count > 100) return false;
+          opts->mask = (int)count;
+        } else if (strcmp(option_name, "ready") == 0) {
+          if (count > 1) return false;
+          opts->ready = count != 0;
         } else {
           opts->warmups = (int)count;
         }
-      } else if (strcmp(option_name, "stride") == 0) {
-        if (opts->bench && (strcmp(opts->bench, "shmem_iput") == 0 ||
-                           strcmp(opts->bench, "shmem_iget") == 0)) {
-          opts->stride = atoi(optarg);
-          if (opts->stride <= 0) {
-            opts->stride = 10; /* Default to 10 if not provided */
-          }
-        }
+      } else if (strcmp(option_name, "target") == 0) {
+        if (strcmp(optarg, "self") && strcmp(optarg, "peer") &&
+            strcmp(optarg, "random")) return false;
+        opts->target = optarg;
       } else if (strcmp(option_name, "help") == 0) {
         opts->help = true;
       } else {
@@ -126,7 +144,10 @@ bool parse_opts(int argc, char *argv[], options *opts) {
   }
 
   /* return false if benchmark not specified */
-  if (opts->bench == NULL){
+  if (opts->help) return true;
+  if (opts->bench == NULL || optind != argc ||
+      opts->max_msg_size < opts->min_msg_size ||
+      opts->max_msg_size > INT_MAX / 2) {
     return false;
   }
 
@@ -164,6 +185,7 @@ bool parse_opts(int argc, char *argv[], options *opts) {
       opts->benchtype = strdup("bw");
     }
   }
+  if (opts->benchtype == NULL) opts->benchtype = strdup("quiet");
   return true;
 }
 
@@ -220,7 +242,16 @@ void display_help() {
   printf("                             - The 'bw' benchmark also reports latency results.\n");
   printf("                           Atomic benchmarks only support 'latency' (default).\n");
   printf("\nOptional Parameters:\n");
-  printf("  --min <size>           Minimum message size in bytes (default: 1)\n");
+  printf("  --benchtype issue|quiet|window  Checked operation workloads (see README)\n");
+  printf("  --window <count>      Operations per sample (default: 1)\n");
+  printf("  --target self|peer|random  Target schedule (default: peer)\n");
+  printf("  --block-size <count>  Elements per ibput/ibget block (default: 1)\n");
+  printf("  --ready 0|1          Test predicate readiness (default: 1; waits require 1)\n");
+  printf("  --mask <percent>     Excluded array prefix, 0-100 (default: 0)\n");
+  printf("  Checked APIs also include shmem_p/g, shmem_test/wait_until,\n");
+  printf("  shmem_putmem_signal[_nbi], shmem_signal_fetch/wait_until,\n");
+  printf("  shmem_test/wait_until_all/any/some[_vector], shmem_ibput/ibget.\n");
+  printf("  --min <size>           Minimum message size in bytes (default: 8)\n");
   printf("                            Note: Not applicable for atomic benchmarks.\n");
   printf("                            Note: Not applicable for shmem_barrier_all benchmark.\n");
   printf("\n");

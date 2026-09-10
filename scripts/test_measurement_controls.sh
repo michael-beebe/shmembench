@@ -10,7 +10,7 @@ fi
 
 benchmark=$1
 shift
-output=$(mktemp)
+output="./measurement-controls-$$.log"
 trap 'rm -f "$output"' EXIT
 
 run() {

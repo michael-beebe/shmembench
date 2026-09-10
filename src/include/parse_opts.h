@@ -28,6 +28,11 @@ typedef struct {
   int ntimes;
   int warmups;
   int stride;
+  int window;
+  int block_size;
+  int mask;
+  bool ready;
+  char *target;
 
   /* Option to print help */
   bool help;

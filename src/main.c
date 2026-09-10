@@ -60,10 +60,6 @@ int main(int argc, char *argv[]) {
     Parse options
   */
   options opts;
-  opts.bench = (char *)malloc(100 * sizeof(char));
-  opts.benchtype = (char *)malloc(100 * sizeof(char));
-  /* int min_msg_size, max_msg_size; */
-  /* int ntimes, stride; */
   shmem_barrier_all();
   if (argc == 1) {
     if (mype == 0) {

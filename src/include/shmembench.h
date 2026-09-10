@@ -52,6 +52,7 @@ int calculate_elem_count(int byte_size, size_t type_size);
   certain benchmarks)
  */
 void run_benchmark(options * opts);
+bool run_workload(options *opts);
 
 /**
   @brief Calculate bandwidth based on message size and time

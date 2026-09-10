@@ -14,10 +14,13 @@ ifeq ($(USE_SHMEM_VERSION), 14)
     CFLAGS += -DUSE_14
 else ifeq ($(USE_SHMEM_VERSION), 15)
     CFLAGS += -DUSE_15
+else ifeq ($(USE_SHMEM_VERSION), 16)
+    CFLAGS += -DUSE_15 -DUSE_16
+else
+    $(error USE_SHMEM_VERSION must be 14, 15, or 16)
 endif
 
 SRCS = $(wildcard $(SRC_DIR)/*.c) \
-       $(wildcard $(BENCHMARKS_DIR)/atomics/*.c) \
        $(wildcard $(BENCHMARKS_DIR)/collectives/*.c) \
        $(wildcard $(BENCHMARKS_DIR)/rma/*.c)
 
